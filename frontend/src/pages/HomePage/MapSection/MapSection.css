@@ -1,0 +1,145 @@
+.map-section {
+  background: white;
+}
+
+.section-header {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.map-container {
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.map-placeholder {
+  height: 500px;
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.placeholder-content {
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.placeholder-content h4 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.placeholder-content p {
+  opacity: 0.8;
+  margin-bottom: 2rem;
+}
+
+.map-legend {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.legend-color.hospital {
+  background: #e74c3c;
+}
+
+.legend-color.clinic {
+  background: #3498db;
+}
+
+.legend-color.outbreak {
+  background: #f39c12;
+}
+
+.map-controls {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.map-stat-card {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #3498db;
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  color: #3498db;
+  margin-right: 1rem;
+}
+
+.stat-content h4 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.2rem;
+}
+
+.stat-content p {
+  color: #7f8c8d;
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .map-placeholder {
+    height: 300px;
+  }
+  
+  .map-controls {
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-content: center;
+    margin: 1rem;
+  }
+  
+  .map-stat-card {
+    margin-bottom: 1rem;
+  }
+}

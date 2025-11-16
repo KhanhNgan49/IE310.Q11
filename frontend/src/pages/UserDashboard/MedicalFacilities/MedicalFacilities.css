@@ -1,0 +1,230 @@
+.medical-facilities {
+  padding: 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-content h2 {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header-content p {
+  color: #6c757d;
+  margin: 0;
+}
+
+.facilities-controls {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box i {
+  position: absolute;
+  left: 1rem;
+  color: #6c757d;
+}
+
+.search-box input {
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  background: #f8f9fa;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  background: white;
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #e9ecef;
+  background: white;
+  border-radius: 10px;
+  color: #6c757d;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.tab-btn:hover {
+  background: #f8f9fa;
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.tab-btn.active {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}
+
+.facilities-table-container {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.facilities-table {
+  margin: 0;
+}
+
+.facilities-table thead th {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  font-weight: 600;
+  color: #2c3e50;
+  padding: 1rem;
+  white-space: nowrap;
+}
+
+.facilities-table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-color: #f1f3f4;
+}
+
+.facility-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verified-badge {
+  color: #3498db;
+  font-size: 0.9rem;
+}
+
+.facility-type {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.3rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.facility-address small {
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.facility-contact div {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-buttons .btn {
+  padding: 0.375rem 0.5rem;
+  border-radius: 6px;
+}
+
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: #adb5bd;
+}
+
+.empty-state h5 {
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+}
+
+.quick-stat {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+}
+
+.quick-stat .stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: #e3f2fd;
+  color: #3498db;
+}
+
+.quick-stat .stat-info h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.quick-stat .stat-info span {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-tabs {
+    justify-content: stretch;
+  }
+  
+  .tab-btn {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .facilities-table {
+    font-size: 0.8rem;
+  }
+}

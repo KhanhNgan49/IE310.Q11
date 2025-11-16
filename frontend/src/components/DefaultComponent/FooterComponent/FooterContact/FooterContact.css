@@ -1,0 +1,42 @@
+.footer-contact-title {
+  color: #3498db;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.footer-contact-list {
+  margin-bottom: 1.5rem;
+}
+
+.footer-contact-item {
+  margin-bottom: 0.8rem;
+}
+
+.footer-contact-link {
+  color: #bdc3c7 !important;
+  display: flex;
+  align-items: flex-start;
+  transition: all 0.3s ease;
+  padding: 0.3rem 0;
+}
+
+.footer-contact-link:hover {
+  color: #3498db !important;
+  transform: translateX(3px);
+}
+
+.footer-contact-link i {
+  color: #3498db;
+  width: 16px;
+  margin-top: 0.1rem;
+  font-size: 0.9rem;
+}
+
+.footer-contact-link span {
+  flex: 1;
+  line-height: 1.4;
+}

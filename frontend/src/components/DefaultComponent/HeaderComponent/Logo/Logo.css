@@ -1,0 +1,57 @@
+/* Logo styling */
+.header-logo {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.brand-text {
+  line-height: 1.2;
+}
+
+.brand-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: block;
+  color: white;
+}
+
+.brand-subtitle {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  color: white;
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .brand-title {
+    font-size: 1rem;
+  }
+  
+  .brand-subtitle {
+    font-size: 0.65rem;
+  }
+  
+  .header-logo {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 576px) {
+  .brand-text {
+    display: none;
+  }
+}
