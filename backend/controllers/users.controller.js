@@ -1,11 +1,10 @@
-const User = require("../models/user.model");
+const userService = require("../services/users.service");
 
 module.exports = {
   async create(req, res) {
     try {
       const { user_id, user_name, email, password } = req.body;
-
-      const newUser = await User.create({ user_id, user_name, email, password });
+      const newUser = await userService.createUser({ user_id, user_name, email, password });
       res.status(201).json(newUser);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -14,7 +13,7 @@ module.exports = {
 
   async findAll(req, res) {
     try {
-      const users = await User.findAll();
+      const users = await userService.getAllUsers();
       res.json(users);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -24,7 +23,7 @@ module.exports = {
   async findOne(req, res) {
     try {
       const { id } = req.params;
-      const user = await User.findByPk(id);
+      const user = await userService.getUserById(id);
       if (!user) return res.status(404).json({ message: "User not found" });
       res.json(user);
     } catch (err) {
@@ -37,11 +36,10 @@ module.exports = {
       const { id } = req.params;
       const { user_id, user_name, email, password } = req.body;
 
-      const user = await User.findByPk(id);
-      if (!user) return res.status(404).json({ message: "User not found" });
+      const updatedUser = await userService.updateUser(id, { user_id, user_name, email, password });
+      if (!updatedUser) return res.status(404).json({ message: "User not found" });
 
-      await user.update({ user_id, user_name, email, password });
-      res.json(user);
+      res.json(updatedUser);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -51,10 +49,9 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const user = await User.findByPk(id);
-      if (!user) return res.status(404).json({ message: "User not found" });
+      const deletedUser = await userService.deleteUser(id);
+      if (!deletedUser) return res.status(404).json({ message: "User not found" });
 
-      await user.destroy();
       res.json({ message: "User deleted successfully" });
     } catch (err) {
       res.status(500).json({ error: err.message });
