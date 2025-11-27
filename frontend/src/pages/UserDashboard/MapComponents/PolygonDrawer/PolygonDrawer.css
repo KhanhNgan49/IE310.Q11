@@ -1,0 +1,167 @@
+.polygon-drawer {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.drawer-controls {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.control-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.info-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.drawing-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.points-count {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.area-info {
+  color: #27ae60;
+  font-weight: 500;
+}
+
+.polygon-map-container {
+  position: relative;
+  background: #e9ecef;
+  cursor: crosshair;
+}
+
+.polygon-map-placeholder {
+  height: 100%;
+  background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.map-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+.map-overlay i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.drawing-stats {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.stat {
+  margin-bottom: 0.5rem;
+}
+
+.polygon-svg,
+.completed-polygon-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.polygons-list {
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #e9ecef;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.polygons-list h6 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.polygon-item {
+  padding: 0.75rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background: #f8f9fa;
+}
+
+.polygon-item.current {
+  border-color: #3498db;
+  background: #e3f2fd;
+}
+
+.polygon-item.completed {
+  border-color: #27ae60;
+  background: #e8f5e8;
+}
+
+.polygon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.polygon-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.polygon-area {
+  font-weight: 600;
+  color: #e74c3c;
+}
+
+.polygon-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .drawer-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .control-group {
+    justify-content: center;
+  }
+  
+  .info-group {
+    justify-content: space-between;
+  }
+}

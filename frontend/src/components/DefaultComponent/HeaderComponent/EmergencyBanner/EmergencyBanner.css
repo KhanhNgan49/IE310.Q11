@@ -1,0 +1,24 @@
+/* Emergency banner */
+.emergency-banner {
+  border: none;
+  border-radius: 0;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  background: linear-gradient(45deg, #fff3cd, #ffecb5) !important;
+  border-bottom: 2px solid #ffc107;
+}
+
+.emergency-banner .container-fluid {
+  padding: 0 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .emergency-banner {
+    font-size: 0.8rem;
+  }
+  
+  .emergency-banner .container-fluid {
+    padding: 0 0.5rem;
+  }
+}

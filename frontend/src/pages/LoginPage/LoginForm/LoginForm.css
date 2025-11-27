@@ -1,0 +1,144 @@
+.login-form-container {
+
+  width: 100%;
+}
+
+.login-form-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.login-form-header {
+  color: #2c3e50;
+}
+
+.login-form-title {
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.login-form-subtitle {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border: 2px solid #ecf0f1;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.forgot-password-link {
+  color: #3498db;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.forgot-password-link:hover {
+  color: #2980b9;
+}
+
+.login-submit-btn {
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-weight: 600;
+  border: none;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  transition: all 0.3s ease;
+}
+
+.login-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+.login-submit-btn:disabled {
+  opacity: 0.7;
+}
+
+.login-divider {
+  position: relative;
+  text-align: center;
+  color: #95a5a6;
+}
+
+.login-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #ecf0f1;
+}
+
+.login-divider span {
+  background: white;
+  padding: 0 1rem;
+  position: relative;
+}
+
+.social-login-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.btn-social {
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-weight: 600;
+  border: 2px solid #ecf0f1;
+  transition: all 0.3s ease;
+}
+
+.btn-social:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.register-text {
+  color: #7f8c8d;
+  margin-bottom: 0;
+}
+
+.register-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.register-link:hover {
+  color: #2980b9;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .login-form-card {
+    padding: 2rem 1.5rem;
+    margin: 0 1rem;
+  }
+  
+  .social-login-buttons {
+    grid-template-columns: 1fr;
+  }
+}

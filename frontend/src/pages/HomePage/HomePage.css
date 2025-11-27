@@ -1,0 +1,29 @@
+.home-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Section spacing */
+.section {
+  padding: 4rem 0;
+}
+
+.section-light {
+  background: white;
+}
+
+.section-gray {
+  background: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .section {
+    padding: 2rem 0;
+  }
+}
