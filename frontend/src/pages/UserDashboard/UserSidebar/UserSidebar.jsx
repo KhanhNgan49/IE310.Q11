@@ -29,9 +29,9 @@ const UserSidebar = ({ activeSection, setActiveSection, collapsed }) => {
       badge: null
     },
     {
-      id: 'users',
-      icon: 'bi bi-people',
-      label: 'Người dùng',
+      id: 'map-tools',
+      icon: 'bi bi-geo-alt',
+      label: 'Công cụ bản đồ',
       badge: null
     }
   ];

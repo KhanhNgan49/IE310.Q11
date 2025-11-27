@@ -1,49 +1,35 @@
 import React from 'react';
 import './QuickActions.css';
 
-const QuickActions = () => {
+const QuickActions = ({ onAddFacility, onAddOutbreak, onCreateReport }) => {
   const quickActions = [
     {
       icon: 'bi bi-plus-circle',
       title: 'Thêm cơ sở y tế',
       description: 'Thêm mới bệnh viện, phòng khám',
       color: '#3498db',
-      action: '/facilities/add'
+      action: onAddFacility
     },
     {
       icon: 'bi bi-virus',
       title: 'Khai báo vùng dịch',
       description: 'Xác định khu vực có dịch bệnh',
       color: '#e74c3c',
-      action: '/outbreak/add'
+      action: onAddOutbreak
     },
     {
       icon: 'bi bi-clipboard-data',
       title: 'Tạo báo cáo',
       description: 'Xuất báo cáo thống kê',
       color: '#9b59b6',
-      action: '/reports/create'
+      action: onCreateReport
     },
     {
       icon: 'bi bi-geo-alt',
       title: 'Quét khu vực',
       description: 'Kiểm tra cơ sở y tế theo khu vực',
       color: '#27ae60',
-      action: '/scan'
-    },
-    {
-      icon: 'bi bi-bell',
-      title: 'Gửi cảnh báo',
-      description: 'Thông báo khẩn cấp đến người dân',
-      color: '#f39c12',
-      action: '/alerts'
-    },
-    {
-      icon: 'bi bi-shield-check',
-      title: 'Kiểm tra hệ thống',
-      description: 'Đánh giá an toàn hệ thống',
-      color: '#2c3e50',
-      action: '/security'
+      action: () => console.log('Scan area')
     }
   ];
 
@@ -71,11 +57,6 @@ const QuickActions = () => {
     }
   ];
 
-  const handleActionClick = (action) => {
-    console.log('Action clicked:', action);
-    // Xử lý điều hướng hoặc hành động
-  };
-
   return (
     <div className="quick-actions">
       {/* Quick Actions Grid */}
@@ -86,7 +67,7 @@ const QuickActions = () => {
             <button
               key={index}
               className="action-card"
-              onClick={() => handleActionClick(action.action)}
+              onClick={action.action}
               style={{ '--action-color': action.color }}
             >
               <div className="action-icon">

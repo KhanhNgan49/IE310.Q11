@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './MedicalFacilities.css';
 
-const MedicalFacilities = () => {
+const MedicalFacilities = ({ onAddFacility, onEditFacility }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -9,7 +9,7 @@ const MedicalFacilities = () => {
     {
       id: 1,
       name: 'Bệnh viện Bạch Mai',
-      type: 'Bệnh viện',
+      type: 'hospital',
       address: '78 Giải Phóng, Đống Đa, Hà Nội',
       phone: '024 3869 3731',
       status: 'active',
@@ -19,32 +19,12 @@ const MedicalFacilities = () => {
     {
       id: 2,
       name: 'Bệnh viện Việt Đức',
-      type: 'Bệnh viện',
+      type: 'hospital',
       address: '40 Tràng Thi, Hoàn Kiếm, Hà Nội',
       phone: '024 3825 3531',
       status: 'active',
       verified: true,
       lastUpdated: '2024-01-14'
-    },
-    {
-      id: 3,
-      name: 'Phòng khám Đa khoa Quốc tế',
-      type: 'Phòng khám',
-      address: '152 Xã Đàn, Đống Đa, Hà Nội',
-      phone: '024 3576 1999',
-      status: 'pending',
-      verified: false,
-      lastUpdated: '2024-01-16'
-    },
-    {
-      id: 4,
-      name: 'Trung tâm Y tế Quận Hoàn Kiếm',
-      type: 'Trung tâm y tế',
-      address: '26 Lê Thái Tổ, Hoàn Kiếm, Hà Nội',
-      phone: '024 3825 2723',
-      status: 'active',
-      verified: true,
-      lastUpdated: '2024-01-13'
     }
   ];
 
@@ -72,7 +52,7 @@ const MedicalFacilities = () => {
           <h2>Quản Lý Cơ Sở Y Tế</h2>
           <p>Quản lý thông tin các cơ sở y tế trên toàn quốc</p>
         </div>
-        <button className="btn btn-primary">
+        <button className="btn btn-primary" onClick={onAddFacility}>
           <i className="bi bi-plus-circle me-2"></i>
           Thêm Cơ Sở Mới
         </button>
@@ -172,7 +152,11 @@ const MedicalFacilities = () => {
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <button className="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                      <button 
+                        className="btn btn-sm btn-outline-primary" 
+                        title="Chỉnh sửa"
+                        onClick={() => onEditFacility(facility)}
+                      >
                         <i className="bi bi-pencil"></i>
                       </button>
                       <button className="btn btn-sm btn-outline-info" title="Xem chi tiết">
@@ -194,56 +178,12 @@ const MedicalFacilities = () => {
             <i className="bi bi-hospital"></i>
             <h5>Không tìm thấy cơ sở y tế nào</h5>
             <p>Thử thay đổi điều kiện tìm kiếm hoặc thêm cơ sở mới</p>
+            <button className="btn btn-primary mt-3" onClick={onAddFacility}>
+              <i className="bi bi-plus-circle me-2"></i>
+              Thêm Cơ Sở Đầu Tiên
+            </button>
           </div>
         )}
-      </div>
-
-      {/* Quick Stats */}
-      <div className="row mt-4">
-        <div className="col-md-3">
-          <div className="quick-stat">
-            <div className="stat-icon">
-              <i className="bi bi-hospital"></i>
-            </div>
-            <div className="stat-info">
-              <h4>1,247</h4>
-              <span>Tổng cơ sở</span>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="quick-stat">
-            <div className="stat-icon">
-              <i className="bi bi-check-circle"></i>
-            </div>
-            <div className="stat-info">
-              <h4>1,189</h4>
-              <span>Đã xác minh</span>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="quick-stat">
-            <div className="stat-icon">
-              <i className="bi bi-clock"></i>
-            </div>
-            <div className="stat-info">
-              <h4>12</h4>
-              <span>Chờ duyệt</span>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="quick-stat">
-            <div className="stat-icon">
-              <i className="bi bi-geo-alt"></i>
-            </div>
-            <div className="stat-info">
-              <h4>63</h4>
-              <span>Tỉnh thành</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

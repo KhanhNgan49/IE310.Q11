@@ -1,0 +1,280 @@
+.facility-form {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.form-header {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.form-header h4 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.step-indicator {
+  display: flex;
+  gap: 1rem;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background: white;
+  border: 1px solid #e9ecef;
+  color: #6c757d;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.step.active {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}
+
+.step span {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.step.active span {
+  background: white;
+  color: #3498db;
+}
+
+.form-step {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-control {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.type-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.type-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.type-option:hover {
+  border-color: #3498db;
+}
+
+.type-option.selected {
+  border-color: #3498db;
+  background: #e3f2fd;
+}
+
+.type-option i {
+  font-size: 1.5rem;
+  color: #3498db;
+}
+
+.type-option span {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.services-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.service-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.service-option:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.service-option.selected {
+  border-color: #27ae60;
+  background: #e8f5e8;
+}
+
+.service-option i {
+  color: #e9ecef;
+  font-size: 0.9rem;
+}
+
+.service-option.selected i {
+  color: #27ae60;
+}
+
+.service-option span {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.working-hours {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.time-slot {
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.time-slot label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-inputs input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+}
+
+.time-inputs span {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .step-indicator {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .type-selector {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .services-selector {
+    grid-template-columns: 1fr;
+  }
+  
+  .working-hours {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+/* Thêm vào cuối file FacilityForm.css */
+
+.form-summary {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 1.5rem;
+}
+
+.form-summary h6 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summary-item label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.summary-item span {
+  font-weight: 600;
+  color: #2c3e50;
+}

@@ -19,6 +19,121 @@
   min-height: calc(100vh - 80px);
 }
 
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 2rem;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content.large {
+  max-width: 800px;
+}
+
+.modal-content.x-large {
+  max-width: 1000px;
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.modal-header h5 {
+  margin: 0;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Reports Section */
+.reports-section {
+  padding: 0;
+}
+
+.reports-placeholder {
+  background: white;
+  padding: 3rem;
+  border-radius: 15px;
+  text-align: center;
+  color: #6c757d;
+  border: 2px dashed #dee2e6;
+  margin-top: 2rem;
+}
+
+.reports-placeholder i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+  color: #adb5bd;
+}
+
+/* Map Tools Section */
+.map-tools-section {
+  padding: 0;
+}
+
+.tool-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f3f4;
+  height: 100%;
+}
+
+.tool-card h5 {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.tool-card p {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+/* Section Placeholder */
 .section-placeholder {
   background: white;
   padding: 3rem;
@@ -47,5 +162,18 @@
   
   .content-area {
     padding: 1rem;
+  }
+  
+  .modal-overlay {
+    padding: 1rem;
+  }
+  
+  .modal-content.large,
+  .modal-content.x-large {
+    max-width: 100%;
+  }
+  
+  .tool-card {
+    margin-bottom: 1rem;
   }
 }
