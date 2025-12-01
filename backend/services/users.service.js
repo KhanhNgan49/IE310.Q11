@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
 const User = require("../models/user.model");
 
 async function createUser(data) {
@@ -25,10 +28,46 @@ async function deleteUser(id) {
   return user;
 }
 
+async function loginUser(email, password) {
+  try {
+    // Tìm user theo email
+    const user = await User.findOne({ where: { email } }); //cần sửa cái findOne
+    if (!user) {
+      return { success: false, message: "Email is not existed" };
+    }
+
+    // Kiểm tra mật khẩu
+    const isValidPassword = await bcrypt.compare(password, user.password); //cần thêm mã hóa mật khẩu
+    if (!isValidPassword) {
+      return { success: false, message: "Password is incorect" };
+    }
+
+    // Tạo JWT token
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // Loại bỏ password trước khi trả về
+    const userWithoutPassword = { ...user.toJSON() };
+    delete userWithoutPassword.password;
+
+    return {
+      success: true,
+      user: userWithoutPassword,
+      token
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 module.exports = {
   createUser,
   getAllUsers,
   getUserById,
   updateUser,
   deleteUser,
+  loginUser
 };

@@ -53,7 +53,7 @@ const LoginForm = () => {
               className="form-control form-control-lg"
               id="username"
               name="username"
-              value={formData.username}
+              value={formData.user_name}
               onChange={handleChange}
               placeholder="Nhập tên đăng nhập"
               required
@@ -86,7 +86,7 @@ const LoginForm = () => {
                 type="checkbox"
                 id="rememberMe"
                 name="rememberMe"
-                checked={formData.rememberMe}
+                //checked={formData.rememberMe}
                 onChange={handleChange}
               />
               <label className="form-check-label" htmlFor="rememberMe">

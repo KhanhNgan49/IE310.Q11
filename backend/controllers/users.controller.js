@@ -57,4 +57,28 @@ module.exports = {
       res.status(500).json({ error: err.message });
     }
   },
+
+  async login(req, res) {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and Password are required" });
+      }
+
+      const result = await userService.loginUser(email, password);
+
+      if (result.success) {
+        res.json({
+          message: "Login successfully",
+          user: result.user,
+          token: result.token
+        });
+      } else {
+        res.status(401).json({ error: result.message });
+      }
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 };
