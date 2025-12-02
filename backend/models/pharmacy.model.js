@@ -1,36 +1,47 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
+const {
+  Model,
+  DataTypes
+} = require("sequelize");
 const sequelize = require("../config/db");
+const {
+  v4: uuidv4
+} = require("uuid");
 
-class Pharmacy extends Model {}
+class Pharmacy extends Model {
+}
 
-Pharmacy.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    pharmacy_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    pharmacy_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    pharmacy_point_id: DataTypes.STRING,
-    creator_id: DataTypes.STRING,
-    address: DataTypes.STRING,
-    province_id: DataTypes.STRING,
+Pharmacy.init({
+  pharmacy_id: {
+    type: DataTypes.STRING,
+    primaryKey: true,
+    defaultValue: () => uuidv4()
   },
-  {
-    sequelize,
-    modelName: "Pharmacy",
-    tableName: "pharmacies",
-    timestamps: true,
-  }
-);
+  pharmacy_name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  pharmacy_point_id: {
+    type: DataTypes.STRING,
+    references: {
+      model: "locations",
+      key: "location_id"
+    }
+  },
+  creator_id: {
+    type: DataTypes.STRING,
+    references: {
+      model: "users",
+      key: "user_id"
+    }
+  },
+  address: DataTypes.STRING,
+  province_id: DataTypes.STRING,
+}, {
+  sequelize,
+  modelName: "Pharmacy",
+  tableName: "pharmacies",
+  timestamps: true,
+});
 
 module.exports = Pharmacy;

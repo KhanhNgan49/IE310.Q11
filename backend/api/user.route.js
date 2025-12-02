@@ -4,7 +4,7 @@ const controller = require("../controllers/users.controller");
 
 router.post("/", controller.create);
 router.get("/", controller.findAll);
-router.get("/:id", controller.findOne);
+router.get("/findOne", controller.findUser);
 router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);
 router.post("/login", controller.login);
