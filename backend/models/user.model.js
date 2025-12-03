@@ -1,41 +1,66 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
+const {
+  Model,
+  DataTypes
+} = require("sequelize");
 const sequelize = require("../config/db");
+const bcrypt = require("bcrypt");
+const {
+  v4: uuidv4
+} = require("uuid");
 
-class User extends Model {}
+class User extends Model {
+  toJSON() {
+    const attrs = {
+      ...this.get()
+    };
+    delete attrs.password;
+    return attrs;
+  }
+}
 
-User.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+User.init({
+  user_id: {
+    type: DataTypes.STRING,
+    defaultValue: () => uuidv4(), // UUID tự tạo
+    primaryKey: true,
+  },
+  user_name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  role: {
+    type: DataTypes.ENUM("user", "admin"),
+    defaultValue: "user"
+  }
+}, {
+  sequelize,
+  modelName: "User",
+  tableName: "users",
+  timestamps: true,
+  // HOOKS
+  hooks: {
+    // Hash password khi tạo user
+    async beforeCreate(user) {
+      user.password = await bcrypt.hash(user.password, 10);
     },
-    user_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    user_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
+
+    // Hash password khi update
+    async beforeUpdate(user) {
+      if (user.changed("password")) {
+        user.password = await bcrypt.hash(user.password, 10);
+      }
     },
   },
-  {
-    sequelize,
-    modelName: "User",
-    tableName: "users",
-    timestamps: true,
-  }
-);
+});
 
 module.exports = User;

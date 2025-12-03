@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
+import authService from '../../../services/authService';
 import './LoginForm.css';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
     rememberMe: false
   });
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -15,18 +24,90 @@ const LoginForm = () => {
       ...prevState,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear errors khi người dùng bắt đầu gõ
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoginSuccess(false);
+  
+  // Validate form phía frontend
+  const newErrors = {};
+  
+  if (!formData.email) {
+    newErrors.email = 'Vui lòng nhập email';
+  } else if (!validateEmail(formData.email)) {
+    newErrors.email = 'Email không hợp lệ. Ví dụ: name@example.com';
+  }
+  
+  if (!formData.password) {
+    newErrors.password = 'Vui lòng nhập mật khẩu';
+  } else if (formData.password.length < 6) {
+    newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+  }
+  
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+  
+  setIsLoading(true);
+  
+  try {
+    // Gọi API login - giờ không cần try-catch nữa vì authService không throw error
+    const result = await authService.login(formData.email, formData.password);
     
-    // Giả lập xử lý đăng nhập
-    setTimeout(() => {
-      console.log('Login data:', formData);
-      setIsLoading(false);
-      // Xử lý đăng nhập thực tế ở đây
-    }, 1500);
+    console.log('Login result:', result); // Chỉ log thông tin
+    
+    if (result.message === 'Login successfully') {
+      // Lưu token
+      authService.setToken(result.token);
+      
+      // Lưu thông tin user
+      localStorage.setItem('user', JSON.stringify(result.user));
+      
+      // Hiển thị thông báo thành công
+      setLoginSuccess(true);
+      
+      // Tự động chuyển hướng sau 1.5 giây
+      setTimeout(() => {
+        // Kiểm tra role để chuyển hướng phù hợp
+        const redirectPath = result.user.role === 'admin' ? '/admin' : '/dashboard';  //admin thì qua dashboard còn user qua trang chủ
+        window.location.href = redirectPath;
+      }, 1500);
+      
+    } else {
+      // Xử lý lỗi từ backend
+      console.log('Login failed:', result.message);
+      
+      // Highlight trường bị lỗi nếu có thể xác định
+      if (result.message?.toLowerCase().includes('email')) {
+        setErrors(prev => ({ ...prev, email: 'Email không đúng' }));
+      }
+      if (result.message?.toLowerCase().includes('password') || 
+          result.message?.toLowerCase().includes('mật khẩu')) {
+        setErrors(prev => ({ ...prev, password: 'Mật khẩu không đúng' }));
+      }
+    }
+  } catch (error) {
+    // Bây giờ catch này sẽ không bao giờ chạy trừ khi có lỗi không mong muốn
+    console.log('Unexpected error in handleSubmit:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    // Xử lý quên mật khẩu
+    window.location.href = '/forgot-password';
   };
 
   return (
@@ -34,30 +115,60 @@ const LoginForm = () => {
       <div className="login-form-card">
         {/* Form Header */}
         <div className="login-form-header text-center mb-4">
+          <div className="login-form-logo mb-3">
+            <i className="bi bi-hospital fs-1 text-primary"></i>
+          </div>
           <h2 className="login-form-title">Đăng Nhập Hệ Thống</h2>
           <p className="login-form-subtitle">
-            Truy cập vào trang quản trị Bản đồ Y tế Quốc gia
+            Truy cập vào Bản đồ Y tế Thông minh
           </p>
         </div>
 
+        {/* Hiển thị thông báo thành công */}
+        {loginSuccess && (
+          <div className="alert alert-success alert-dismissible fade show" role="alert">
+            <i className="bi bi-check-circle-fill me-2"></i>
+            Đăng nhập thành công! Đang chuyển hướng...
+            <div className="progress mt-2" style={{height: '3px'}}>
+              <div 
+                className="progress-bar bg-success" 
+                role="progressbar" 
+                style={{width: '100%'}}
+                aria-valuenow="100" 
+                aria-valuemin="0" 
+                aria-valuemax="100"
+              ></div>
+            </div>
+          </div>
+        )}
+
+
         {/* Login Form */}
-        <form onSubmit={handleSubmit}>
-          {/* Username Field */}
+        <form onSubmit={handleSubmit} noValidate>
+          {/* Email Field */}
           <div className="mb-3">
-            <label htmlFor="username" className="form-label">
-              <i className="bi bi-person me-2"></i>
-              Tên đăng nhập
+            <label htmlFor="email" className="form-label">
+              <i className="bi bi-envelope me-2"></i>
+              Địa chỉ Email
             </label>
             <input
-              type="text"
-              className="form-control form-control-lg"
-              id="username"
-              name="username"
-              value={formData.user_name}
+              type="email"
+              className={`form-control form-control-lg ${errors.email ? 'is-invalid' : ''}`}
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
-              placeholder="Nhập tên đăng nhập"
+              placeholder="Nhập địa chỉ email"
               required
+              autoComplete="email"
+              disabled={isLoading}
             />
+            {errors.email && (
+              <div className="invalid-feedback d-block">
+                <i className="bi bi-x-circle me-1"></i>
+                {errors.email}
+              </div>
+            )}
           </div>
 
           {/* Password Field */}
@@ -68,14 +179,22 @@ const LoginForm = () => {
             </label>
             <input
               type="password"
-              className="form-control form-control-lg"
+              className={`form-control form-control-lg ${errors.password ? 'is-invalid' : ''}`}
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="Nhập mật khẩu"
               required
+              autoComplete="current-password"
+              disabled={isLoading}
             />
+            {errors.password && (
+              <div className="invalid-feedback d-block">
+                <i className="bi bi-x-circle me-1"></i>
+                {errors.password}
+              </div>
+            )}
           </div>
 
           {/* Remember Me & Forgot Password */}
@@ -86,16 +205,22 @@ const LoginForm = () => {
                 type="checkbox"
                 id="rememberMe"
                 name="rememberMe"
-                //checked={formData.rememberMe}
+                checked={formData.rememberMe}
                 onChange={handleChange}
+                disabled={isLoading}
               />
               <label className="form-check-label" htmlFor="rememberMe">
                 Ghi nhớ đăng nhập
               </label>
             </div>
-            <a href="/forgot-password" className="forgot-password-link">
+            <button 
+              type="button"
+              className="btn btn-link forgot-password-link p-0"
+              onClick={handleForgotPassword}
+              disabled={isLoading}
+            >
               Quên mật khẩu?
-            </a>
+            </button>
           </div>
 
           {/* Submit Button */}
@@ -118,22 +243,7 @@ const LoginForm = () => {
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="login-divider my-4">
-          <span>hoặc đăng nhập với</span>
-        </div>
-
-        {/* Social Login */}
-        <div className="social-login-buttons">
-          <button className="btn btn-outline-dark btn-social">
-            <i className="bi bi-google"></i>
-            Google
-          </button>
-          <button className="btn btn-outline-primary btn-social">
-            <i className="bi bi-microsoft"></i>
-            Microsoft
-          </button>
-        </div>
+        
 
         {/* Register Link */}
         <div className="text-center mt-4">
@@ -143,6 +253,15 @@ const LoginForm = () => {
               Đăng ký ngay
             </a>
           </p>
+        </div>
+
+        {/* Thông tin hỗ trợ */}
+        <div className="support-info text-center mt-3">
+          <small className="text-muted">
+            <i className="bi bi-question-circle me-1"></i>
+            Cần hỗ trợ? Liên hệ: 
+            <a href="mailto:support@yte.vn" className="ms-1">support@yte.vn</a>
+          </small>
         </div>
       </div>
     </div>
