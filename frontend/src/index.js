@@ -16,6 +16,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Import Bootstrap JS (quan trọng cho components interactive)
 import 'bootstrap/dist/js/bootstrap.bundle.min';
+import { AuthProvider } from './contexts/AuthContext';
 
 // Tạo root element để render ứng dụng
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -28,7 +29,9 @@ root.render(
   <QueryClientProvider client={queryClient}>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </PersistGate>
     </Provider>
     <ReactQueryDevtools initialIsOpen={false} />

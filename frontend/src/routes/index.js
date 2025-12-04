@@ -1,24 +1,32 @@
 import React from "react"
 import Home from "../pages/HomePage/HomePage"
+import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute'
+import RoleBasedRoute from "../components/RoleBasedRoute/RoleBasedRoute"
+
 export const routes = [
     {
         path: '/',
         page: Home,
-        isShowHeader: true
+        isShowHeader: true,
+        isPublic: true
     },
     {
         path: '/login',
         page: React.lazy(() => import("../pages/LoginPage/LoginPage")),
-        isShowHeader: false
+        isShowHeader: false,
+        isPublic: true
     },
     {
         path: '/dashboard',
         page: React.lazy(() => import("../pages/UserDashboard/UserDashboard")),
-        isShowHeader: false
+        isShowHeader: false,
+        isPublic: false,
+        requiredRole: 'admin'
     },
-    // {
-    //     path: '/map',
-    //     page: React.lazy(() => import("../pages/PublicMapPage/PublicMapPage")),
-    //     isShowHeader: true
-    // }
+     {
+        path: '/unauthorized',
+        page: React.lazy(() => import("../pages/UnauthorizedPage/UnauthorizedPage")),
+        isShowHeader: false,
+        isPublic: true
+    }
 ]

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import './UserDashboard.css';
 import UserSidebar from './UserSidebar/UserSidebar';
 import UserHeader from './UserHeader/UserHeader';
@@ -12,7 +12,8 @@ import OutbreakForm from './FormComponents/OutbreakForm/OutbreakForm';
 import ReportForm from './FormComponents/ReportForm/ReportForm';
 import MapPicker from './MapComponents/MapPicker/MapPicker'
 import PolygonDrawer from './MapComponents/PolygonDrawer/PolygonDrawer';
-
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 const UserDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -21,7 +22,26 @@ const UserDashboard = () => {
   const [showReportForm, setShowReportForm] = useState(false);
   const [editingFacility, setEditingFacility] = useState(null);
   const [editingOutbreak, setEditingOutbreak] = useState(null);
-
+  const [accessDenied, setAccessDenied] = useState(false);
+  const navigate = useNavigate();
+  const { user, hasRole, loading } = useAuth();
+  // Kiểm tra quyền truy cập khi component mount
+  useEffect(() => {
+    if (!loading) {
+      // Kiểm tra xem user đã đăng nhập chưa
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+      
+      // Kiểm tra xem user có role admin không
+      if (!hasRole('admin')) {
+        setAccessDenied(true);
+        // Có thể chuyển hướng về trang unauthorized hoặc trang chủ
+         navigate('/unauthorized');
+      }
+    }
+  }, [user, hasRole, loading, navigate]);
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };

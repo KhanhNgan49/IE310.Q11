@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 import authService from '../../../services/authService';
 import './LoginForm.css';
 
 const LoginForm = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -10,8 +15,8 @@ const LoginForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,82 +37,103 @@ const LoginForm = () => {
         [name]: ''
       }));
     }
+    if (loginError) setLoginError('');
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoginSuccess(false);
-  
-  // Validate form phía frontend
-  const newErrors = {};
-  
-  if (!formData.email) {
-    newErrors.email = 'Vui lòng nhập email';
-  } else if (!validateEmail(formData.email)) {
-    newErrors.email = 'Email không hợp lệ. Ví dụ: name@example.com';
-  }
-  
-  if (!formData.password) {
-    newErrors.password = 'Vui lòng nhập mật khẩu';
-  } else if (formData.password.length < 6) {
-    newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
-  }
-  
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
-  
-  setIsLoading(true);
-  
-  try {
-    // Gọi API login - giờ không cần try-catch nữa vì authService không throw error
-    const result = await authService.login(formData.email, formData.password);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoginSuccess(false);
+    setLoginError('');
     
-    console.log('Login result:', result); // Chỉ log thông tin
+    // Validate form phía frontend
+    const newErrors = {};
     
-    if (result.message === 'Login successfully') {
-      // Lưu token
-      authService.setToken(result.token);
-      
-      // Lưu thông tin user
-      localStorage.setItem('user', JSON.stringify(result.user));
-      
-      // Hiển thị thông báo thành công
-      setLoginSuccess(true);
-      
-      // Tự động chuyển hướng sau 1.5 giây
-      setTimeout(() => {
-        // Kiểm tra role để chuyển hướng phù hợp
-        const redirectPath = result.user.role === 'admin' ? '/admin' : '/dashboard';  //admin thì qua dashboard còn user qua trang chủ
-        window.location.href = redirectPath;
-      }, 1500);
-      
-    } else {
-      // Xử lý lỗi từ backend
-      console.log('Login failed:', result.message);
-      
-      // Highlight trường bị lỗi nếu có thể xác định
-      if (result.message?.toLowerCase().includes('email')) {
-        setErrors(prev => ({ ...prev, email: 'Email không đúng' }));
-      }
-      if (result.message?.toLowerCase().includes('password') || 
-          result.message?.toLowerCase().includes('mật khẩu')) {
-        setErrors(prev => ({ ...prev, password: 'Mật khẩu không đúng' }));
-      }
+    if (!formData.email) {
+      newErrors.email = 'Vui lòng nhập email';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Email không hợp lệ. Ví dụ: name@example.com';
     }
-  } catch (error) {
-    // Bây giờ catch này sẽ không bao giờ chạy trừ khi có lỗi không mong muốn
-    console.log('Unexpected error in handleSubmit:', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+    
+    if (!formData.password) {
+      newErrors.password = 'Vui lòng nhập mật khẩu';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // Gọi API login
+      const result = await authService.login(formData.email, formData.password);
+      
+      console.log('Login result:', result);
+      
+      if (result.message === 'Login successfully') {
+        // Lưu token
+        authService.setToken(result.token);
+        
+        // Sử dụng AuthContext để cập nhật trạng thái đăng nhập
+        login(result.user, result.token);
+        
+        // Hiển thị thông báo thành công
+        setLoginSuccess(true);
+        setLoginError('');
+        
+        // Tự động chuyển hướng sau 1.5 giây
+        setTimeout(() => {
+          // Kiểm tra role để chuyển hướng phù hợp
+          if (result.user.role === 'admin') {
+            navigate('/dashboard');
+          } else {
+            navigate('/');
+          }
+        }, 1500);
+        
+      } else {
+        // Xử lý lỗi từ backend
+        console.log('Login failed:', result.message);
+        setLoginError(result.message || 'Đăng nhập thất bại');
+        
+        // Highlight trường bị lỗi nếu có thể xác định
+        if (result.message?.toLowerCase().includes('email')) {
+          setErrors(prev => ({ ...prev, email: 'Email không đúng' }));
+        }
+        if (result.message?.toLowerCase().includes('password') || 
+            result.message?.toLowerCase().includes('mật khẩu')) {
+          setErrors(prev => ({ ...prev, password: 'Mật khẩu không đúng' }));
+        }
+      }
+    } catch (error) {
+      // Xử lý lỗi không mong muốn
+      console.log('Unexpected error in handleSubmit:', error);
+      setLoginError('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại sau.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    // Xử lý quên mật khẩu
-    window.location.href = '/forgot-password';
+    navigate('/forgot-password');
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    navigate('/register');
+  };
+
+  const handleQuickLogin = (email, password) => {
+    setFormData({
+      email,
+      password,
+      rememberMe: false
+    });
+    setLoginError('');
   };
 
   return (
@@ -142,6 +168,19 @@ const handleSubmit = async (e) => {
           </div>
         )}
 
+        {/* Hiển thị lỗi đăng nhập */}
+        {loginError && !loginSuccess && (
+          <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {loginError}
+            <button 
+              type="button" 
+              className="btn-close" 
+              onClick={() => setLoginError('')}
+              disabled={isLoading}
+            ></button>
+          </div>
+        )}
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} noValidate>
@@ -243,15 +282,48 @@ const handleSubmit = async (e) => {
           </button>
         </form>
 
-        
+        {/* Demo accounts cho testing */}
+        <div className="demo-section mt-4">
+          <p className="text-center small text-muted mb-2">Tài khoản demo (click để thử):</p>
+          <div className="demo-buttons d-flex flex-wrap gap-2 justify-content-center">
+            <button 
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => handleQuickLogin('admin@ytek.vn', 'admin123')}
+              disabled={isLoading}
+            >
+              <i className="bi bi-person-badge me-1"></i>
+              Admin
+            </button>
+            <button 
+              className="btn btn-sm btn-outline-success"
+              onClick={() => handleQuickLogin('doctor@ytek.vn', 'doctor123')}
+              disabled={isLoading}
+            >
+              <i className="bi bi-heart-pulse me-1"></i>
+              Bác sĩ
+            </button>
+            <button 
+              className="btn btn-sm btn-outline-info"
+              onClick={() => handleQuickLogin('user@ytek.vn', 'user123')}
+              disabled={isLoading}
+            >
+              <i className="bi bi-person me-1"></i>
+              Người dùng
+            </button>
+          </div>
+        </div>
 
         {/* Register Link */}
         <div className="text-center mt-4">
           <p className="register-text">
             Chưa có tài khoản? 
-            <a href="/register" className="register-link ms-1">
+            <button 
+              className="btn btn-link register-link p-0 ms-1"
+              onClick={handleRegister}
+              disabled={isLoading}
+            >
               Đăng ký ngay
-            </a>
+            </button>
           </p>
         </div>
 
