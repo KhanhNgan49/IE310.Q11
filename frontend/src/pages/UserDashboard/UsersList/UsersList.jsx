@@ -2,17 +2,29 @@ import React, { useState, useEffect } from 'react';
 import './UsersList.css';
 import authService from '../../../services/authService';
 
-const UsersList = ({ onAddUser, onEditUser }) => {
+const UsersList = ({ onAddUser }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null); // Thêm state cho user hiện tại
 
-  // Fetch users from API
+  // Fetch users and current user info
   useEffect(() => {
     fetchUsers();
+    getCurrentUser();
   }, []);
+
+  const getCurrentUser = async () => {
+    try {
+      // Giả sử bạn có API để lấy thông tin user hiện tại
+      const user = await authService.getCurrentUser();
+      setCurrentUser(user);
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -103,6 +115,33 @@ const UsersList = ({ onAddUser, onEditUser }) => {
         alert('Không thể xóa người dùng. Vui lòng thử lại.');
       }
     }
+  };
+
+  const handleRoleChange = async (userId, newRole) => {
+    const roleName = newRole === 'admin' ? 'Quản trị viên' : 'Người dùng';
+    
+    if (window.confirm(`Bạn có chắc chắn muốn thay đổi vai trò người dùng thành "${roleName}"?`)) {
+      try {
+        // Call API to update user role
+        await authService.updateUserRole(userId, { role: newRole });
+        
+        // Update local state
+        setUsers(users.map(user => 
+          user.user_id === userId 
+            ? { ...user, role: newRole }
+            : user
+        ));
+        
+        alert(`Đã cập nhật vai trò người dùng thành công!`);
+      } catch (error) {
+        console.error('Error updating user role:', error);
+        alert('Không thể cập nhật vai trò. Vui lòng thử lại.');
+      }
+    }
+  };
+
+  const isCurrentUser = (userId) => {
+    return currentUser && currentUser.id === userId;
   };
 
   const stats = {
@@ -249,7 +288,19 @@ const UsersList = ({ onAddUser, onEditUser }) => {
                         </div>
                       </td>
                       <td>
-                        {getRoleBadge(user.role)}
+                        <div className="role-selector">
+                          <select
+                            className={`form-select form-select-sm role-select ${
+                              user.role === 'admin' ? 'role-admin' : 'role-user'
+                            }`}
+                            value={user.role}
+                            onChange={(e) => handleRoleChange(user.user_id, e.target.value)}
+                            disabled={isCurrentUser(user.user_id)} // Không cho phép thay đổi role của chính mình
+                          >
+                            <option value="user">Người dùng</option>
+                            <option value="admin">Quản trị viên</option>
+                          </select>
+                        </div>
                       </td>
                       <td>
                         <div className="user-date">
@@ -258,20 +309,21 @@ const UsersList = ({ onAddUser, onEditUser }) => {
                       </td>
                       <td>
                         <div className="action-buttons">
-                          <button 
-                            className="btn btn-sm btn-outline-primary" 
-                            title="Chỉnh sửa"
-                            onClick={() => onEditUser(user)}
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger" 
-                            title="Xóa"
-                            onClick={() => handleDeleteUser(user.user_id, user.user_name)}
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
+                          {user.role !== 'admin' && !isCurrentUser(user.user_id) && (
+                            <button 
+                              className="btn btn-sm btn-outline-danger" 
+                              title="Xóa"
+                              onClick={() => handleDeleteUser(user.user_id, user.user_name)}
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          )}
+                          {(user.role === 'admin' || isCurrentUser(user.user_id)) && (
+                            <span className="text-muted small">
+                              <i className="bi bi-info-circle me-1"></i>
+                              Không thể xóa
+                            </span>
+                          )}
                         </div>
                       </td>
                     </tr>
