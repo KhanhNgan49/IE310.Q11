@@ -15,7 +15,6 @@ const corsOptions = {
 // Sử dụng middleware CORS
 app.use(cors(corsOptions));
 
-app.use(cors())
 app.use(express.json());
 
 // Import routes tổng
