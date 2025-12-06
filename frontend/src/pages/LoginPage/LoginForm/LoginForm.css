@@ -142,3 +142,132 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Thêm vào LoginForm.css */
+
+/* Password visibility toggle */
+.input-group .btn-outline-secondary {
+  border-color: #dee2e6;
+  border-left: none;
+}
+
+.input-group .btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+}
+
+.input-group .form-control-lg {
+  border-right: none;
+}
+
+/* Demo accounts styling */
+.demo-accounts {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 1px dashed #dee2e6;
+}
+
+.demo-buttons .btn {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.demo-buttons .btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Alert improvements */
+.alert {
+  border-radius: 10px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Disabled state */
+.form-control:disabled,
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive improvements */
+@media (max-width: 576px) {
+  .demo-buttons {
+    flex-direction: column;
+  }
+  
+  .demo-buttons .btn {
+    width: 100%;
+  }
+}
+
+/* Thêm style cho demo buttons và success message */
+.demo-section {
+  padding: 1rem;
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  border-radius: 10px;
+  border: 1px dashed #dee2e6;
+}
+
+.demo-buttons .btn {
+  transition: all 0.3s ease;
+  min-width: 80px;
+}
+
+.demo-buttons .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+/* Progress bar animation */
+.progress-bar {
+  animation: progress-bar-stripes 1s linear infinite;
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+}
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 1rem 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* Support info */
+.support-info a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.support-info a:hover {
+  text-decoration: underline;
+}
+
+/* Disabled states */
+.form-control:disabled,
+.form-check-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

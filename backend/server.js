@@ -2,8 +2,18 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const dotenv = require("dotenv");
-
 dotenv.config();
+
+// Cấu hình CORS đơn giản
+const corsOptions = {
+  origin: 'http://localhost:3000', // Chỉ cho phép frontend localhost:3000
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+// Sử dụng middleware CORS
+app.use(cors(corsOptions));
 
 app.use(cors())
 app.use(express.json());
@@ -26,4 +36,5 @@ sequelize
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`CORS enabled for: http://localhost:3000`);
 });

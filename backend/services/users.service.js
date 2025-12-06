@@ -70,6 +70,7 @@ async function loginUser(email, password) {
   // Kiểm tra mật khẩu
   const isValidPassword = await bcrypt.compare(password, user.password); //cần thêm mã hóa mật khẩu
   if (!isValidPassword) {
+    console.log("Sai pass")
     return {
       success: false,
       message: "Password is incorect"

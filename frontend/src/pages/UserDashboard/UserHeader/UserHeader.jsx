@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './UserHeader.css';
 
 const UserHeader = ({ toggleSidebar, sidebarCollapsed }) => {
+  const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -29,6 +30,18 @@ const UserHeader = ({ toggleSidebar, sidebarCollapsed }) => {
     }
   ]);
 
+  // Lấy thông tin user từ localStorage khi component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAsRead = (id) => {
@@ -39,6 +52,55 @@ const UserHeader = ({ toggleSidebar, sidebarCollapsed }) => {
 
   const markAllAsRead = () => {
     setNotifications(notifications.map(notif => ({ ...notif, read: true })));
+  };
+
+  const getUserDisplayName = () => {
+    if (!user) return 'Người dùng';
+    
+    // Ưu tiên hiển thị username, nếu không có thì dùng email
+    return user.user_name || user.name || user.email || 'Người dùng';
+  };
+
+  const getUserAvatar = () => {
+    if (!user) return <i className="bi bi-person-circle"></i>;
+    
+    // Nếu user có avatar URL
+    if (user.avatar) {
+      return <img src={user.avatar} alt={getUserDisplayName()} />;
+    }
+    
+    // Nếu có tên, hiển thị chữ cái đầu
+    if (user.name || user.username) {
+      const name = user.name || user.username;
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+      return <span className="avatar-initials">{initials.substring(0, 2)}</span>;
+    }
+    
+    // Mặc định
+    return <i className="bi bi-person-circle"></i>;
+  };
+
+  const getUserRole = () => {
+    if (!user) return '';
+    
+    const roleNames = {
+      'admin': 'Quản trị viên',
+      'doctor': 'Bác sĩ',
+      'nurse': 'Y tá',
+      'staff': 'Nhân viên',
+      'user': 'Người dùng'
+    };
+    
+    return roleNames[user.role] || user.role || '';
+  };
+
+  const handleLogout = () => {
+    // Xóa token và user info khỏi localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    
+    // Chuyển hướng về trang login
+    window.location.href = '/login';
   };
 
   return (
@@ -135,25 +197,42 @@ const UserHeader = ({ toggleSidebar, sidebarCollapsed }) => {
                   data-bs-toggle="dropdown"
                 >
                   <div className="user-avatar-sm">
-                    <i className="bi bi-person-circle"></i>
+                    {getUserAvatar()}
                   </div>
-                  <span className="user-name">Nguyễn Văn A</span>
+                  <div className="user-info">
+                    <span className="user-name">{getUserDisplayName()}</span>
+                    {getUserRole() && (
+                      <span className="user-role">{getUserRole()}</span>
+                    )}
+                  </div>
                   <i className="bi bi-chevron-down"></i>
                 </button>
                 <div className="dropdown-menu dropdown-menu-end user-menu">
+                  <div className="user-menu-header">
+                    <div className="user-avatar-lg">
+                      {getUserAvatar()}
+                    </div>
+                    <div className="user-info-lg">
+                      <h6>{getUserDisplayName()}</h6>
+                      <small className="text-muted">{user?.email}</small>
+                      {getUserRole() && (
+                        <span className="user-badge">{getUserRole()}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="dropdown-divider"></div>
                   <a className="dropdown-item" href="/profile">
                     <i className="bi bi-person me-2"></i>
                     Hồ sơ cá nhân
                   </a>
-                  <a className="dropdown-item" href="/settings">
-                    <i className="bi bi-gear me-2"></i>
-                    Cài đặt
-                  </a>
                   <div className="dropdown-divider"></div>
-                  <a className="dropdown-item text-danger" href="/logout">
+                  <button 
+                    className="dropdown-item text-danger" 
+                    onClick={handleLogout}
+                  >
                     <i className="bi bi-box-arrow-right me-2"></i>
                     Đăng xuất
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>

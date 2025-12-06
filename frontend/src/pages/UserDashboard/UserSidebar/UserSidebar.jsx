@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './UserSidebar.css';
 import LogoImage from '../../../assets/Logo/LogoImage.png';
 
 const UserSidebar = ({ activeSection, setActiveSection, collapsed }) => {
+  const [user, setUser] = useState(null);
+
+  // Lấy thông tin user từ localStorage khi component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
+
   const menuItems = [
     {
       id: 'dashboard',
@@ -46,13 +60,59 @@ const UserSidebar = ({ activeSection, setActiveSection, collapsed }) => {
       id: 'help',
       icon: 'bi bi-question-circle',
       label: 'Trợ giúp'
-    },
-    {
-      id: 'logout',
-      icon: 'bi bi-box-arrow-right',
-      label: 'Đăng xuất'
     }
   ];
+
+  const getUserDisplayName = () => {
+    if (!user) return 'Người dùng';
+    
+    // Ưu tiên hiển thị username, nếu không có thì dùng email
+    return user.user_name || user.name || user.email || 'Người dùng';
+  };
+
+  const getUserAvatar = () => {
+    if (!user) return <i className="bi bi-person-circle"></i>;
+    
+    // Nếu user có avatar URL
+    if (user.avatar) {
+      return <img src={user.avatar} alt={getUserDisplayName()} />;
+    }
+    
+    // Nếu có tên, hiển thị chữ cái đầu
+    if (user.name || user.username) {
+      const name = user.name || user.username;
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+      return <span className="avatar-initials">{initials.substring(0, 2)}</span>;
+    }
+    
+    // Mặc định
+    return <i className="bi bi-person-circle"></i>;
+  };
+
+  const getUserRole = () => {
+    if (!user) return 'Người dùng';
+    
+    const roleNames = {
+      'admin': 'Quản trị viên',
+      'super_admin': 'Super Admin',
+      'doctor': 'Bác sĩ',
+      'nurse': 'Y tá',
+      'staff': 'Nhân viên',
+      'health_worker': 'Cán bộ y tế',
+      'user': 'Người dùng'
+    };
+    
+    return roleNames[user.role] || user.role || 'Người dùng';
+  };
+
+  const handleLogout = () => {
+    // Xóa token và user info khỏi localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    
+    // Chuyển hướng về trang login
+    window.location.href = '/login';
+  };
 
   return (
     <div className={`user-sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -108,17 +168,39 @@ const UserSidebar = ({ activeSection, setActiveSection, collapsed }) => {
             )}
           </button>
         ))}
+        
+        {/* Logout Button */}
+        <button
+          className="menu-item logout-btn"
+          onClick={handleLogout}
+        >
+          <div className="menu-icon">
+            <i className="bi bi-box-arrow-right"></i>
+          </div>
+          {!collapsed && (
+            <span className="menu-label">Đăng xuất</span>
+          )}
+        </button>
       </div>
 
       {/* User Info */}
       {!collapsed && (
         <div className="sidebar-user">
           <div className="user-avatar">
-            <i className="bi bi-person-circle"></i>
+            {getUserAvatar()}
           </div>
           <div className="user-info">
-            <div className="user-name">Nguyễn Văn A</div>
-            <div className="user-role">Cán bộ y tế</div>
+            <div className="user-name">{getUserDisplayName()}</div>
+            <div className="user-role">{getUserRole()}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Collapsed User Info */}
+      {collapsed && (
+        <div className="sidebar-user-collapsed">
+          <div className="user-avatar-sm" title={getUserDisplayName()}>
+            {getUserAvatar()}
           </div>
         </div>
       )}
