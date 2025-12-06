@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './RegisterForm.css'; // Tạo file CSS mới cho đăng ký
+import authService from '../../../services/authService';
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -16,7 +17,6 @@ const RegisterForm = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState(false);
-  const [registerError, setRegisterError] = useState('');
 
   // Validate functions
   const validateEmail = (email) => {
@@ -50,112 +50,112 @@ const RegisterForm = () => {
         [name]: ''
       }));
     }
-    if (registerError) setRegisterError('');
+
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setRegisterSuccess(false);
-    setRegisterError('');
-    
-    // Validate form
-    const newErrors = {};
-    
-    // Validate username
-    if (!formData.user_name) {
-      newErrors.user_name = 'Vui lòng nhập tên đăng nhập';
-    } else if (!validateUsername(formData.user_name)) {
-      newErrors.user_name = 'Tên đăng nhập từ 3-20 ký tự, chỉ chứa chữ, số và dấu gạch dưới';
-    }
-    
-    // Validate email
-    if (!formData.email) {
-      newErrors.email = 'Vui lòng nhập email';
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Email không hợp lệ. Ví dụ: name@example.com';
-    }
-    
-    // Validate password
-    if (!formData.password) {
-      newErrors.password = 'Vui lòng nhập mật khẩu';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ và 1 số';
-    }
-    
-    // Validate confirm password
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
-    }
-    
-    // Validate terms
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = 'Bạn phải đồng ý với điều khoản sử dụng';
-    }
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-        console.log('form',formData)
-      // Gọi API đăng ký
-    //   const response = await fetch('http://localhost:3001/api/users/register', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       user_name: formData.user_name,
-    //       email: formData.email,
-    //       password: formData.password,
-    //       confirmPassword: formData.confirmPassword
-    //     })
-    //   });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setRegisterSuccess(false);
+  
+  // Validate form
+  const newErrors = {};
+  
+  // Validate username
+  if (!formData.user_name) {
+    newErrors.user_name = 'Vui lòng nhập tên đăng nhập';
+  } else if (!validateUsername(formData.user_name)) {
+    newErrors.user_name = 'Tên đăng nhập từ 3-20 ký tự, chỉ chứa chữ, số và dấu gạch dưới';
+  }
+  
+  // Validate email
+  if (!formData.email) {
+    newErrors.email = 'Vui lòng nhập email';
+  } else if (!validateEmail(formData.email)) {
+    newErrors.email = 'Email không hợp lệ. Ví dụ: name@example.com';
+  }
+  
+  // Validate password
+  if (!formData.password) {
+    newErrors.password = 'Vui lòng nhập mật khẩu';
+  } else if (formData.password.length < 6) {
+    newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+  } else if (!validatePassword(formData.password)) {
+    newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ và 1 số';
+  }
+  
+  // Validate confirm password
+  if (!formData.confirmPassword) {
+    newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu';
+  } else if (formData.password !== formData.confirmPassword) {
+    newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+  }
+  
+  // Validate terms
+  if (!formData.acceptTerms) {
+    newErrors.acceptTerms = 'Bạn phải đồng ý với điều khoản sử dụng';
+  }
+  
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+  
+  setIsLoading(true);
+  
+  try {
+    // Clean data before sending
+    const registrationData = {
+      user_name: formData.user_name.trim(),
+      email: formData.email.trim(),
+      password: formData.password
+    };
+    const result = await authService.register(
+      registrationData.user_name,
+      registrationData.email,
+      registrationData.password
+    );
+    if (result.success === true && result.message === 'Register successfully') {
+      // Đăng ký thành công
+      setRegisterSuccess(true);
       
-    //   const result = await response.json();
+      // Tự động chuyển hướng đến trang login sau 2 giây
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
       
-    //   console.log('Register result:', result);
+    } else if (result.success === false) {
+      // Backend trả về lỗi
       
-    //   if (result.success) {
-    //     // Đăng ký thành công
-    //     setRegisterSuccess(true);
-    //     setRegisterError('');
-        
-    //     // Tự động chuyển hướng đến trang login sau 2 giây
-    //     setTimeout(() => {
-    //       navigate('/login');
-    //     }, 2000);
-        
-    //   } else {
-    //     // Xử lý lỗi từ backend
-    //     console.log('Register failed:', result.message);
-    //     setRegisterError(result.message || 'Đăng ký thất bại');
-        
-    //     // Xử lý lỗi cụ thể
-    //     if (result.message?.toLowerCase().includes('email')) {
-    //       setErrors(prev => ({ ...prev, email: 'Email đã tồn tại' }));
-    //     }
-    //     if (result.message?.toLowerCase().includes('username') || 
-    //         result.message?.toLowerCase().includes('tên đăng nhập')) {
-    //       setErrors(prev => ({ ...prev, user_name: 'Tên đăng nhập đã tồn tại' }));
-    //     }
-    //   }
-    } catch (error) {
-      // Xử lý lỗi không mong muốn
-      console.log('Unexpected error in handleSubmit:', error);
-      setRegisterError('Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      // Xử lý lỗi cụ thể 
+      const errorMsg = result.message || '';
+      
+      if (errorMsg === 'Email is already in use') {
+        setErrors(prev => ({ 
+          ...prev, 
+          email: 'Email đã được sử dụng. Vui lòng chọn email khác.' 
+        }));
+      }
+      
+      if (errorMsg === 'User name is already in use') {
+        setErrors(prev => ({ 
+          ...prev, 
+          user_name: 'Tên đăng nhập đã được sử dụng. Vui lòng chọn tên khác.' 
+        }));
+      }
 
+    }
+
+  } catch (error) {
+    // Xử lý lỗi không mong muốn
+    console.log('Unexpected error in handleSubmit:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
   const handleLogin = (e) => {
     e.preventDefault();
     navigate('/login');
@@ -166,7 +166,6 @@ const RegisterForm = () => {
       ...data,
       acceptTerms: false
     });
-    setRegisterError('');
   };
 
   return (
@@ -198,20 +197,6 @@ const RegisterForm = () => {
                 aria-valuemax="100"
               ></div>
             </div>
-          </div>
-        )}
-
-        {/* Hiển thị lỗi đăng ký */}
-        {registerError && !registerSuccess && (
-          <div className="alert alert-danger alert-dismissible fade show" role="alert">
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            {registerError}
-            <button 
-              type="button" 
-              className="btn-close" 
-              onClick={() => setRegisterError('')}
-              disabled={isLoading}
-            ></button>
           </div>
         )}
 

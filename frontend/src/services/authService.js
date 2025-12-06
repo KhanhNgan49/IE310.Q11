@@ -21,23 +21,15 @@ const authService = {
       if (error.response) {
         // Server trả về lỗi (4xx, 5xx)
         const backendError = error.response.data;
-        console.log('Login error from server:', backendError.error || backendError.message);
-        
+        //console.log('Login error from server:', backendError.error || backendError.message);
+
         // Trả về object lỗi thay vì throw
         return {
           success: false,
           message: backendError.error || 'Đăng nhập thất bại',
           status: error.response.status
         };
-        
-      } else if (error.request) {
-        // Không nhận được response từ server
-        console.log('Network error - No response received:', error.message);
-        return {
-          success: false,
-          message: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.',
-          originalError: 'Network error'
-        };
+
       } else {
         // Lỗi khác
         console.log('Login error:', error.message);
@@ -47,6 +39,23 @@ const authService = {
           originalError: error.message
         };
       }
+    }
+  },
+
+  register: async (user_name, email, password) => {
+    try {
+      const response = await api.post('/users/register', { user_name, email, password });
+      return response.data;
+    } catch (error) {
+      // console.log('Registration error details:', {
+      //   status: error.response?.status,
+      //   data: error.response?.data,
+      //   message: error.message
+      // });
+      return {
+        success: false,
+        message: error.response?.data?.error || error.response?.data?.message || 'Đăng ký thất bại'
+      };
     }
   },
 

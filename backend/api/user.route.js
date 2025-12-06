@@ -8,5 +8,5 @@ router.get("/findOne", controller.findUser);
 router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);
 router.post("/login", controller.login);
-
+router.post("/register", controller.register);
 module.exports = router;

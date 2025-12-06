@@ -16,7 +16,6 @@ const LoginForm = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
-  const [loginError, setLoginError] = useState('');
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,13 +36,11 @@ const LoginForm = () => {
         [name]: ''
       }));
     }
-    if (loginError) setLoginError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoginSuccess(false);
-    setLoginError('');
     
     // Validate form phía frontend
     const newErrors = {};
@@ -68,11 +65,7 @@ const LoginForm = () => {
     setIsLoading(true);
     
     try {
-      // Gọi API login
       const result = await authService.login(formData.email, formData.password);
-      
-      console.log('Login result:', result);
-      
       if (result.message === 'Login successfully') {
         // Lưu token
         authService.setToken(result.token);
@@ -82,7 +75,6 @@ const LoginForm = () => {
         
         // Hiển thị thông báo thành công
         setLoginSuccess(true);
-        setLoginError('');
         
         // Tự động chuyển hướng sau 1.5 giây
         setTimeout(() => {
@@ -96,22 +88,17 @@ const LoginForm = () => {
         
       } else {
         // Xử lý lỗi từ backend
-        console.log('Login failed:', result.message);
-        setLoginError(result.message || 'Đăng nhập thất bại');
-        
-        // Highlight trường bị lỗi nếu có thể xác định
-        if (result.message?.toLowerCase().includes('email')) {
-          setErrors(prev => ({ ...prev, email: 'Email không đúng' }));
+        const errorMsg = result.message || '';
+        if (errorMsg === 'Email is not existed') {
+          setErrors(prev => ({ ...prev, email: 'Email không tồn tại' }));
         }
-        if (result.message?.toLowerCase().includes('password') || 
-            result.message?.toLowerCase().includes('mật khẩu')) {
+        if (errorMsg === 'Password is incorrect') {
           setErrors(prev => ({ ...prev, password: 'Mật khẩu không đúng' }));
         }
       }
     } catch (error) {
       // Xử lý lỗi không mong muốn
       console.log('Unexpected error in handleSubmit:', error);
-      setLoginError('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại sau.');
     } finally {
       setIsLoading(false);
     }
@@ -127,14 +114,6 @@ const LoginForm = () => {
     navigate('/register');
   };
 
-  const handleQuickLogin = (email, password) => {
-    setFormData({
-      email,
-      password,
-      rememberMe: false
-    });
-    setLoginError('');
-  };
 
   return (
     <div className="login-form-container">
@@ -168,19 +147,6 @@ const LoginForm = () => {
           </div>
         )}
 
-        {/* Hiển thị lỗi đăng nhập */}
-        {loginError && !loginSuccess && (
-          <div className="alert alert-danger alert-dismissible fade show" role="alert">
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            {loginError}
-            <button 
-              type="button" 
-              className="btn-close" 
-              onClick={() => setLoginError('')}
-              disabled={isLoading}
-            ></button>
-          </div>
-        )}
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} noValidate>

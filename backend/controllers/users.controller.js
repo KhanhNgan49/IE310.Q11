@@ -151,4 +151,48 @@ module.exports = {
       });
     }
   },
+
+async register(req, res) {
+  try {
+    const { user_name, email, password } = req.body;
+    
+    // Kiểm tra basic validation
+    if (!user_name || !email || !password) {
+      return res.status(400).json({ 
+        success: false,
+        message: "User name, Email and Password are required" 
+      });
+    }
+
+    // Gọi service
+    const result = await userService.registerUser( user_name, email, password );
+    
+    if (result.success) {
+      // Thành công
+      return res.status(201).json({
+        success: true,
+        message: "Register successfully",
+        user: result.user
+      });
+    } else {
+      // Lỗi từ service
+      return res.status(400).json({
+        success: false,
+        message: result.message
+      });
+    }
+    
+  } catch (err) {
+    console.error('Register controller error:', {
+      message: err.message,
+      stack: err.stack,
+      name: err.name
+    });
+    
+    return res.status(500).json({ 
+      success: false,
+      message: "Internal server error. Please try again later."
+    });
+  }   
+}
 };
