@@ -37,6 +37,12 @@ const UserSidebar = ({ activeSection, setActiveSection, collapsed }) => {
       badge: '12'
     },
     {
+      id: 'pharmacies',
+      icon: 'bi bi-capsule',   
+      label: 'Nhà thuốc',
+      badge: null              
+    },
+    {
       id: 'outbreak',
       icon: 'bi bi-virus',
       label: 'Quản lý dịch',

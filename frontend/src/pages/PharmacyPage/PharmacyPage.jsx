@@ -7,7 +7,7 @@ export default function PharmacyPage() {
   const [pharmacies, setPharmacies] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/pharmacy")
+    axios.get("http://localhost:3001/api/pharmacies")
       .then(res => setPharmacies(res.data))
       .catch(err => console.log(err));
   }, []);

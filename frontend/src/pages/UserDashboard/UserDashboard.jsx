@@ -4,10 +4,12 @@ import UserSidebar from './UserSidebar/UserSidebar';
 import UserHeader from './UserHeader/UserHeader';
 import DashboardStats from './DashboardStats/DashboardStats';
 import MedicalFacilities from './MedicalFacilities/MedicalFacilities';
+import Pharmacies from './Pharmacies/Pharmacies';
 import OutbreakManagement from './OutbreakManagement/OutbreakManagement';
 import QuickActions from './QuickActions/QuickActions';
 import RecentActivity from './RecentActivity/RecentActivity';
 import FacilityForm from './FormComponents/FacilityForm/FacilityForm';
+import PharmacyForm from "./FormComponents/PharmacyForm/PharmacyForm";
 import OutbreakForm from './FormComponents/OutbreakForm/OutbreakForm';
 import ReportForm from './FormComponents/ReportForm/ReportForm';
 import MapPicker from './MapComponents/MapPicker/MapPicker'
@@ -20,10 +22,12 @@ const UserDashboard = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showUserForm, setShowUserForm] = useState(false);
   const [showFacilityForm, setShowFacilityForm] = useState(false);
+  const [showPharmacyForm, setShowPharmacyForm] = useState(false);
   const [showOutbreakForm, setShowOutbreakForm] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [editingFacility, setEditingFacility] = useState(null);
+  const [editingPharmacy, setEditingPharmacy] = useState(null);
   const [editingOutbreak, setEditingOutbreak] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
   const navigate = useNavigate();
@@ -70,6 +74,18 @@ const UserDashboard = () => {
     alert(editingFacility ? 'Cập nhật cơ sở y tế thành công!' : 'Thêm cơ sở y tế thành công!');
   };
 
+  // Xử lý form nhà thuốc
+  const handlePharmacySubmit = (pharmacyData) => {
+    console.log('Pharmacy data submitted:', pharmacyData);
+    // Gửi API hoặc xử lý dữ liệu
+    setShowPharmacyForm(false);
+    setEditingPharmacy(null);
+
+    // Hiển thị thông báo thành công
+    alert(editingPharmacy ? 'Cập nhật nhà thuốc thành công!' : 'Thêm nhà thuốc thành công!');
+  };
+
+
   // Xử lý form vùng dịch
   const handleOutbreakSubmit = (outbreakData) => {
     console.log('Outbreak data submitted:', outbreakData);
@@ -101,6 +117,25 @@ const UserDashboard = () => {
     setEditingFacility(facility);
     setShowFacilityForm(true);
     setActiveSection('facilities');
+  };
+
+  const handleDeleteFacility = async (facilityId) => {
+    if (!window.confirm("Bạn có chắc muốn xoá cơ sở này không?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/api/medical-facilities/${facilityId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Xoá thất bại");
+
+      alert("Đã xoá thành công!");
+
+      // Reload danh sách cơ sở
+      setActiveSection("facilities");
+    } catch (err) {
+      alert("Lỗi: " + err.message);
+    }
   };
 
   // Mở form chỉnh sửa vùng dịch
@@ -142,6 +177,17 @@ const UserDashboard = () => {
           <MedicalFacilities
             onAddFacility={() => setShowFacilityForm(true)}
             onEditFacility={handleEditFacility}
+            onDeleteFacility={handleDeleteFacility}
+          />
+        );
+      case 'pharmacies':
+        return (
+          <Pharmacies
+            onAddPharmacy={() => setShowPharmacyForm(true)}
+            onEditPharmacy={(pharmacy) => {
+              setEditingPharmacy(pharmacy);
+              setShowPharmacyForm(true);
+            }}
           />
         );
       case 'outbreak':
@@ -249,8 +295,8 @@ const UserDashboard = () => {
             <div className="modal-content large">
               <div className="modal-header">
                 <h5>
-                  {editingUser ? 'Chỉnh Sửa Người Dùng' : 'Thêm Người Dùng Mới' }
-                  </h5>
+                  {editingUser ? 'Chỉnh Sửa Người Dùng' : 'Thêm Người Dùng Mới'}
+                </h5>
                 <button
                   className="btn-close"
                   onClick={() => {
@@ -260,18 +306,43 @@ const UserDashboard = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <FacilityForm
-                  onSubmit={handleUserSubmit}
-                  initialData={editingUser || {}} 
-                  mode={editingUser ?
-                    'edit' : 'create'}
-                />
+                {/* SỬA: Thay FacilityForm bằng UserForm component */}
+                {editingUser ? (
+                  <div className="alert alert-warning">
+                    <p><strong>Chỉnh sửa người dùng</strong></p>
+                    <div className="mb-3">
+                      <label className="form-label">ID người dùng</label>
+                      <input type="text" className="form-control" value={editingUser.user_id || editingUser.id || ''} readOnly />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Tên người dùng</label>
+                      <input type="text" className="form-control" defaultValue={editingUser.username || editingUser.name || ''} />
+                    </div>
+                    <button className="btn btn-primary mt-2" onClick={() => {
+                      alert("Cập nhật người dùng (chức năng đang phát triển)");
+                      setShowUserForm(false);
+                      setEditingUser(null);
+                    }}>
+                      Cập nhật
+                    </button>
+                  </div>
+                ) : (
+                  <div className="alert alert-info">
+                    <p>Form thêm người dùng mới (chức năng đang phát triển)</p>
+                    <button className="btn btn-primary" onClick={() => {
+                      alert("Thêm người dùng mới (chức năng đang phát triển)");
+                      setShowUserForm(false);
+                    }}>
+                      Thêm
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-      )
-      }
+      )}
+
       {showFacilityForm && (
         <div className="modal-overlay active">
           <div className="modal-container">
@@ -292,6 +363,40 @@ const UserDashboard = () => {
                 <FacilityForm
                   onSubmit={handleFacilitySubmit}
                   initialData={editingFacility || {}} // Đảm bảo luôn có object
+                  mode={editingFacility ? 'edit' : 'create'}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showFacilityForm && (
+        <div className="modal-overlay active">
+          <div className="modal-container">
+            <div className="modal-content large">
+              <div className="modal-header">
+                <h5>
+                  {editingFacility ? 'Chỉnh Sửa Cơ Sở Y Tế' : 'Thêm Cơ Sở Y Tế Mới'}
+                  {editingFacility && ` (ID: ${editingFacility.facility_id || editingFacility.id})`}
+                </h5>
+                <button className="btn-close" onClick={() => { setShowFacilityForm(false); setEditingFacility(null); }}></button>
+              </div>
+              <div className="modal-body">
+                {/* DEBUG INFO */}
+                {editingFacility && (
+                  <div className="alert alert-info mb-3">
+                    <p><strong>Debug - Dữ liệu đang chỉnh sửa:</strong></p>
+                    <p>Mode: {editingFacility ? 'EDIT' : 'CREATE'}</p>
+                    <p>Facility ID: {editingFacility.facility_id || editingFacility.id}</p>
+                    <p>Tên: {editingFacility.facility_name || editingFacility.name}</p>
+                    <p>API sẽ dùng: {editingFacility ? 'PUT' : 'POST'}</p>
+                  </div>
+                )}
+                
+                <FacilityForm
+                  onSubmit={handleFacilitySubmit}
+                  initialData={editingFacility || {}}
                   mode={editingFacility ? 'edit' : 'create'}
                 />
               </div>

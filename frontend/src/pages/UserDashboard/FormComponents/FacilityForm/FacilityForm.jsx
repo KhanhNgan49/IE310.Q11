@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // THÊM useEffect
 import MapPicker from '../../MapComponents/MapPicker/MapPicker';
 import './FacilityForm.css';
 import { jwtDecode } from "jwt-decode";
@@ -12,7 +12,11 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
     phone: '',
     province: '',
     services: [],
-    location: null
+    location: null,
+    workingHours: {
+      morning: { start: '', end: '' },
+      afternoon: { start: '', end: '' }
+    }
   };
 
   const token = localStorage.getItem("authToken");
@@ -21,17 +25,59 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
   if (token) {
     decodedToken = jwtDecode(token);
   }
-  console.log("decodedToken:", decodedToken);
-  const userId = decodedToken.user_id;
+  const userId = decodedToken?.user_id;
 
-  const [formData, setFormData] = useState({
-    ...defaultFormData,
-    ...initialData, // Ghi đè bằng initialData nếu có
-    workingHours: {
-      ...defaultFormData.workingHours,
-      ...(initialData?.workingHours || {}) // Đảm bảo workingHours luôn tồn tại
+  // THÊM: state cho selectedServices và formData
+  const [formData, setFormData] = useState(defaultFormData);
+  const [selectedServices, setSelectedServices] = useState([]);
+
+  // THÊM: useEffect để xử lý initialData khi mode edit
+  useEffect(() => {
+    console.log("=== FACILITY FORM DEBUG ===");
+    console.log("Mode:", mode);
+    console.log("InitialData received:", initialData);
+    console.log("Has facility_id?", initialData?.facility_id);
+    console.log("Has id?", initialData?.id);
+    console.log("Has facility_name?", initialData?.facility_name);
+    console.log("Has name?", initialData?.name);
+    console.log("Has services?", initialData?.services);
+    
+    if (mode === 'edit' && initialData) {
+      // Map dữ liệu từ API vào form
+      const servicesArray = Array.isArray(initialData.services) 
+        ? initialData.services 
+        : (typeof initialData.services === 'string' 
+            ? JSON.parse(initialData.services || '[]') 
+            : []);
+      
+      setSelectedServices(servicesArray);
+      
+      // Trong useEffect, sửa phần map location:
+      setFormData({
+        name: initialData.facility_name || initialData.name || '',
+        type: initialData.type_id || initialData.type || 'hospital',
+        address: initialData.address || '',
+        phone: initialData.phone || '',
+        province: initialData.province_id || initialData.province || '',
+        // SỬA: Xử lý location an toàn
+        location: initialData.facility_point_id || initialData.location || null,
+        workingHours: initialData.workingHours || defaultFormData.workingHours
+      });
+      
+      console.log("Form data after mapping:", {
+        name: initialData.facility_name || initialData.name,
+        type: initialData.type_id || initialData.type,
+        address: initialData.address,
+        phone: initialData.phone,
+        province: initialData.province_id || initialData.province,
+        servicesCount: servicesArray.length
+      });
+    } else {
+      // Reset cho create mode
+      setFormData(defaultFormData);
+      setSelectedServices([]);
     }
-  });
+  }, [initialData, mode]);
 
   const [currentStep, setCurrentStep] = useState(1);
   const nextStep = () => {
@@ -48,33 +94,32 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
     { value: 'pharmacy', label: 'Nhà thuốc', icon: 'bi bi-capsule' }
   ];
   const provinces = [
-  "Hà Nội",
-  "Hải Phòng",
-  "Đà Nẵng",
-  "TP. Hồ Chí Minh",
-  "Cần Thơ",
-  "Tuyên Quang",
-  "Lào Cai",
-  "Thái Nguyên", 
-  "Phú Thọ",
-  "Bắc Ninh",  
-  "Hưng Yên",
-  "Ninh Bình",  
-  "Quảng Trị",
-  "Quảng Ngãi",  
-  "Gia Lai",  
-  "Khánh Hòa",  
-  "Lâm Đồng",
-  "Đắk Lắk",
-  "Đồng Nai",
-  "Tây Ninh",
-  "Vĩnh Long",
-  "An Giang",
-  "Đồng Tháp",
-  "Cà Mau"
+    "Hà Nội",
+    "Hải Phòng",
+    "Đà Nẵng",
+    "TP. Hồ Chí Minh",
+    "Cần Thơ",
+    "Tuyên Quang",
+    "Lào Cai",
+    "Thái Nguyên", 
+    "Phú Thọ",
+    "Bắc Ninh",  
+    "Hưng Yên",
+    "Ninh Bình",  
+    "Quảng Trị",
+    "Quảng Ngãi",  
+    "Gia Lai",  
+    "Khánh Hòa",  
+    "Lâm Đồng",
+    "Đắk Lắk",
+    "Đồng Nai",
+    "Tây Ninh",
+    "Vĩnh Long",
+    "An Giang",
+    "Đồng Tháp",
+    "Cà Mau"
   ];
 
-  const [selectedServices, setSelectedServices] = useState([]);
   const serviceOptions = [
     'Khám tổng quát',
     'Cấp cứu 24/7',
@@ -99,7 +144,7 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
     setFormData(prev => ({
       ...prev,
       location,
-      address: location.address
+      address: location.address || prev.address
     }));
   };
 
@@ -111,14 +156,13 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
     );
   };
 
-  // Hàm xử lý thay đổi giờ làm việc an toàn
   const handleWorkingHoursChange = (period, timeType, value) => {
     setFormData(prev => ({
       ...prev,
       workingHours: {
         ...prev.workingHours,
         [period]: {
-          ...(prev.workingHours?.[period] || {}), // Đảm bảo period tồn tại
+          ...(prev.workingHours?.[period] || {}),
           [timeType]: value
         }
       }
@@ -127,37 +171,52 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Lấy ID cho edit mode
+    const facilityId = initialData?.facility_id || initialData?.id;
+    
+    console.log("=== SUBMIT DEBUG ===");
+    console.log("Mode:", mode);
+    console.log("Facility ID:", facilityId);
+    console.log("InitialData:", initialData);
+    console.log("Form data name:", formData.name);
+    console.log("Selected services:", selectedServices);
+
     const payload = {
-        facility_name: formData.name,
-        type_id: formData.type,
-        address: formData.address,
-        phone: formData.phone,
-        province_id: formData.province,
-        services: selectedServices,    // array
-        facility_point_id: formData.location,   // nếu có
-        creator_id: userId          // lấy từ token
-      };
+      facility_name: formData.name,
+      type_id: formData.type,
+      address: formData.address,
+      phone: formData.phone,
+      province_id: formData.province,
+      services: selectedServices,
+      facility_point_id: formData.location,
+      creator_id: userId
+    };
 
-//       console.log("Payload gửi lên:", {
-//   facility_name: formData.name,
-//   type_id: formData.type,
-//   address: formData.address,
-//   phone: formData.phone,
-//   province_id: formData.province,
-//   services: selectedServices,
-//   facility_point_id: formData.location,   // nếu có
-//   creator_id: userId  
-// });
+    // Xác định API endpoint và method
+    const apiUrl = formData.type === "pharmacy"
+      ? "http://localhost:3001/api/pharmacies"
+      : "http://localhost:3001/api/medical-facilities";
 
-      const apiUrl = formData.type === "pharmacy"
-        ? "http://localhost:3001/api/pharmacies"
-        : "http://localhost:3001/api/medical-facilities";  
+    // QUAN TRỌNG: Sử dụng PUT cho edit, POST cho create
+    const method = mode === 'edit' && facilityId ? 'PUT' : 'POST';
+    let url = apiUrl;
+    
+    if (mode === 'edit' && facilityId) {
+      // Thêm ID vào URL cho edit
+      url = `${apiUrl}/${facilityId}`;
+    }
 
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-         },
+    console.log(`Calling ${method} ${url}`);
+    console.log("Payload:", payload);
+
+    try {
+      const res = await fetch(url, {
+        method: method,  // SỬA: Dùng biến method, không cứng POST
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload)
       });
 
@@ -165,19 +224,23 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
       if (res.status !== 204) {
         result = await res.json();
       }
+      
       if (res.ok) {
-        alert("Thêm cơ sở thành công!");
+        alert(mode === 'edit' ? "Cập nhật cơ sở thành công!" : "Thêm cơ sở thành công!");
+        
+        // Gọi callback với kết quả
+        if (onSubmit) {
+          onSubmit(result || { ...payload, facility_id: facilityId });
+        }
       } else {
         console.error("Error:", result);
-        alert("Có lỗi xảy ra!");
+        alert(result?.message || `Có lỗi xảy ra khi ${mode === 'edit' ? 'cập nhật' : 'thêm'} cơ sở!`);
       }
-    // onSubmit({
-    //   ...formData,
-    //   services: selectedServices
-    // });
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Lỗi kết nối đến server!");
+    }
   };
-
-
 
   // Đảm bảo workingHours luôn có giá trị
   const workingHours = formData.workingHours || defaultFormData.workingHours;
@@ -189,7 +252,25 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
       <div className="form-header">
         <h4>
           {mode === 'create' ? 'Thêm Cơ Sở Y Tế Mới' : 'Chỉnh Sửa Cơ Sở Y Tế'}
+          {mode === 'edit' && initialData && (
+            <span className="text-muted ms-2">
+              (ID: {initialData.facility_id || initialData.id})
+            </span>
+          )}
         </h4>
+        
+        {/* THÊM: Debug info */}
+        {mode === 'edit' && (
+          <div className="alert alert-info mt-2 mb-0 p-2">
+            <small>
+              <i className="bi bi-info-circle me-1"></i>
+              Chế độ chỉnh sửa | ID: {initialData?.facility_id || initialData?.id} | 
+              API sẽ dùng: PUT {formData.type === "pharmacy" ? "/pharmacies/" : "/medical-facilities/"}
+              {initialData?.facility_id || initialData?.id}
+            </small>
+          </div>
+        )}
+        
         <div className="step-indicator">
           <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>
             <span>1</span>
@@ -222,6 +303,11 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
                     placeholder="VD: Bệnh viện Bạch Mai"
                     required
                   />
+                  {mode === 'edit' && initialData?.facility_name && (
+                    <small className="text-muted">
+                      Tên hiện tại: {initialData.facility_name}
+                    </small>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -260,50 +346,54 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
             </div>
 
             <div className="row">
-                <div className="form-group">
-                    <label>Địa chỉ chi tiết *</label>
-                    <textarea
-                      className="form-control"
-                      rows="2"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                      required
-                    />
-                </div>
+              <div className="form-group">
+                <label>Địa chỉ chi tiết *</label>
+                <textarea
+                  className="form-control"
+                  rows="2"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                  required
+                />
+              </div>
             </div>
 
             <div className="row">
-                {formData.type !== 'pharmacy' && (
-                  <>
+              {formData.type !== 'pharmacy' && (
+                <>
                   <div className="form-group">
-                      <label>Số điện thoại *</label>
-                      <input
-                        type="tel"
-                        className="form-control"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        placeholder="VD: 024 3869 3731"
-                        required
-                      />
+                    <label>Số điện thoại *</label>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder="VD: 024 3869 3731"
+                      required={formData.type !== 'pharmacy'}
+                    />
                   </div>
                   <div className="form-group">
-                  <label>Dịch vụ cung cấp</label>
-                  <div className="services-selector">
-                    {serviceOptions.map(service => (
-                      <div
-                        key={service}
-                        className={`service-option ${selectedServices.includes(service) ? 'selected' : ''}`}
-                        onClick={() => toggleService(service)}
-                      >
-                        <i className="bi bi-check-circle-fill"></i>
-                        <span>{service}</span>
-                      </div>
-                    ))}
+                    <label>Dịch vụ cung cấp</label>
+                    <div className="services-selector">
+                      {serviceOptions.map(service => (
+                        <div
+                          key={service}
+                          className={`service-option ${selectedServices.includes(service) ? 'selected' : ''}`}
+                          onClick={() => toggleService(service)}
+                        >
+                          <i className="bi bi-check-circle-fill"></i>
+                          <span>{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <small className="text-muted">
+                      Đã chọn: {selectedServices.length} dịch vụ
+                      {selectedServices.length > 0 && ` (${selectedServices.join(', ')})`}
+                    </small>
                   </div>
-                </div>
                 </>
-                )}             
+              )}             
             </div>
 
             <div className="form-actions">
@@ -324,6 +414,9 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
                 initialLocation={formData.location}
                 height="300px"
               />
+              <small className="text-muted">
+                {formData.location ? `Đã chọn vị trí: ${formData.location.address || 'Có tọa độ'}` : 'Chưa chọn vị trí'}
+              </small>
             </div>
 
             <div className="form-actions">
@@ -340,15 +433,19 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
         {/* Step 3: Hoàn tất */}
         {currentStep === 3 && (
           <div className="form-step">
-
-            <div className= "form-group">
+            <div className="form-group">
               <label>Tóm tắt thông tin:</label>   
-
               <div className="form-summary">
                 <div className="summary-grid">
                   <div className="summary-item">
+                    <label>Chế độ:</label>
+                    <span className={`badge bg-${mode === 'edit' ? 'warning' : 'info'}`}>
+                      {mode === 'edit' ? 'CHỈNH SỬA' : 'THÊM MỚI'}
+                    </span>
+                  </div>
+                  <div className="summary-item">
                     <label>Tên cơ sở:</label>
-                    <span>{formData.name || '(Chưa nhập tên)'}</span>
+                    <span className="fw-bold">{formData.name || '(Chưa nhập tên)'}</span>
                   </div>
                   <div className="summary-item">
                     <label>Loại hình:</label>
@@ -356,14 +453,14 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
                   </div>
                   {formData.type !== 'pharmacy' && (
                     <>
-                    <div className="summary-item">
-                      <label>Số điện thoại:</label>
-                      <span>{formData.phone || '(Chưa nhập số điện thoại)'}</span>
-                    </div>
-                    <div className="summary-item">
-                      <label>Dịch vụ:</label>
-                      <span>{selectedServices.length} dịch vụ</span>
-                    </div>
+                      <div className="summary-item">
+                        <label>Số điện thoại:</label>
+                        <span>{formData.phone || '(Chưa nhập số điện thoại)'}</span>
+                      </div>
+                      <div className="summary-item">
+                        <label>Dịch vụ:</label>
+                        <span>{selectedServices.length} dịch vụ</span>
+                      </div>
                     </>
                   )}
                   <div className="summary-item" style={{ gridColumn: "span 2" }}>
