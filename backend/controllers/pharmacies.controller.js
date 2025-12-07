@@ -1,14 +1,31 @@
 const pharmacyService = require("../services/pharmacies.service");
 
 module.exports = {
-  async create(req, res) {
-    try {
-      const newPharmacy = await pharmacyService.createPharmacy(req.body);
-      res.status(201).json(newPharmacy);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  },
+  async create(req, res) { console.log("Body nhận được:", req.body);
+      try {
+        const body = req.body;
+        const payload = {
+        pharmacy_name: body.facility_name, 
+        //type_id: body.type_id,
+        address: body.address,
+        //phone: body.phone,
+        province_id: body.province_id,
+        //services: (body.services || []).join(', '),
+        creator_id: req.user.user_id         // từ decoded token
+      };
+  
+  
+        const facility = await pharmacyService.createPharmacy(payload);
+        res.status(201).json({
+          message: "Tạo nhà thuốc thành công",
+          facility
+        });
+      } catch (err) {
+        res.status(500).json({
+          error: err.message
+        });
+      }
+    },
 
   async findAll(req, res) {
     try {

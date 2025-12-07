@@ -10,7 +10,7 @@ module.exports = {
       address: body.address,
       phone: body.phone,
       province_id: body.province_id,
-      services: JSON.stringify(body.services || []),
+      services: (body.services || []).join(', '),
       creator_id: req.user.user_id         // từ decoded token
     };
 

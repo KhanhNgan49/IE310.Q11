@@ -12,10 +12,6 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
     phone: '',
     province: '',
     services: [],
-    workingHours: {
-      morning: { start: '07:00', end: '12:00' },
-      afternoon: { start: '13:00', end: '17:00' }
-    },
     location: null
   };
 
@@ -38,11 +34,9 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
   });
 
   const [currentStep, setCurrentStep] = useState(1);
-
   const nextStep = () => {
     setCurrentStep(prev => prev + 1);
   };
-
   const prevStep = () => {
     setCurrentStep(prev => prev - 1);
   };
@@ -144,20 +138,22 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
         creator_id: userId          // lấy từ token
       };
 
-      console.log("Payload gửi lên:", {
-  facility_name: formData.name,
-  type_id: formData.type,
-  address: formData.address,
-  phone: formData.phone,
-  province_id: formData.province,
-  services: selectedServices,
-  facility_point_id: formData.location,   // nếu có
-  creator_id: userId  
-});
+//       console.log("Payload gửi lên:", {
+//   facility_name: formData.name,
+//   type_id: formData.type,
+//   address: formData.address,
+//   phone: formData.phone,
+//   province_id: formData.province,
+//   services: selectedServices,
+//   facility_point_id: formData.location,   // nếu có
+//   creator_id: userId  
+// });
 
+      const apiUrl = formData.type === "pharmacy"
+        ? "http://localhost:3001/api/pharmacies"
+        : "http://localhost:3001/api/medical-facilities";  
 
-      const token = localStorage.getItem("authToken");
-      const res = await fetch("http://localhost:3001/api/medical-facilities", {
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json",
                   Authorization: `Bearer ${token}`,
@@ -165,11 +161,14 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
         body: JSON.stringify(payload)
       });
 
-      const result = await res.json();
-
-      if (result.success) {
+      let result = null;
+      if (res.status !== 204) {
+        result = await res.json();
+      }
+      if (res.ok) {
         alert("Thêm cơ sở thành công!");
       } else {
+        console.error("Error:", result);
         alert("Có lỗi xảy ra!");
       }
     // onSubmit({
