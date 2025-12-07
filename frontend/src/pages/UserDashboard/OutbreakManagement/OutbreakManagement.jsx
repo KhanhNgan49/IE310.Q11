@@ -316,22 +316,7 @@ const OutbreakManagement = ({ onAddOutbreak, onEditOutbreak }) => {
             </div>
           </div>
         </div>
-        <div className="header-actions">
-          <button 
-            className="btn btn-primary me-2"
-            onClick={onAddOutbreak}
-          >
-            <i className="bi bi-plus-circle me-2"></i>
-            Thêm Vùng Dịch
-          </button>
-          <button 
-            className="btn btn-outline-primary"
-            onClick={handleExportReport}
-          >
-            <i className="bi bi-download me-2"></i>
-            Xuất Báo Cáo
-          </button>
-        </div>
+      
       </div>
 
       {/* Alert Banner */}
@@ -355,7 +340,7 @@ const OutbreakManagement = ({ onAddOutbreak, onEditOutbreak }) => {
         </div>
         
         {/* Map Component */}
-        <div className="outbreak-map-wrapper">
+        <div className="outbreak-map-wrapper ">
           {isLoading ? (
             <div className="map-loading">
               <div className="spinner-border text-primary" role="status">
@@ -472,6 +457,22 @@ const OutbreakManagement = ({ onAddOutbreak, onEditOutbreak }) => {
       <div className="outbreaks-list">
         <div className="list-header">
           <h5>Danh Sách Vùng Dịch ({filteredOutbreaks.length})</h5>
+            <div className="header-actions">
+          <button 
+            className="btn btn-primary me-2"
+            onClick={onAddOutbreak}
+          >
+            <i className="bi bi-plus-circle me-2"></i>
+            Thêm Vùng Dịch
+          </button>
+          <button 
+            className="btn btn-outline-primary"
+            onClick={handleExportReport}
+          >
+            <i className="bi bi-download me-2"></i>
+            Xuất Báo Cáo
+          </button>
+        </div>
         </div>
 
         {filteredOutbreaks.length === 0 ? (
@@ -486,10 +487,7 @@ const OutbreakManagement = ({ onAddOutbreak, onEditOutbreak }) => {
                 : 'Chưa có vùng dịch nào được thêm vào hệ thống'
               }
             </p>
-            <button className="btn btn-primary mt-3" onClick={onAddOutbreak}>
-              <i className="bi bi-plus-circle me-2"></i>
-              Thêm Vùng Dịch Đầu Tiên
-            </button>
+          
           </div>
         ) : (
           <div className="outbreaks-grid">
@@ -573,33 +571,7 @@ const OutbreakManagement = ({ onAddOutbreak, onEditOutbreak }) => {
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="quick-actions-outbreak">
-        <h5>Hành Động Nhanh</h5>
-        <div className="action-buttons">
-          <button 
-            className="btn btn-outline-primary"
-            onClick={handleSendAlert}
-          >
-            <i className="bi bi-send me-2"></i>
-            Gửi cảnh báo
-          </button>
-          <button 
-            className="btn btn-outline-warning"
-            onClick={handleDailyReport}
-          >
-            <i className="bi bi-clipboard-data me-2"></i>
-            Báo cáo hàng ngày
-          </button>
-          <button 
-            className="btn btn-outline-info"
-            onClick={handlePreventiveMeasures}
-          >
-            <i className="bi bi-shield-check me-2"></i>
-            Biện pháp phòng ngừa
-          </button>
-        </div>
-      </div>
+     
     </div>
   );
 };
