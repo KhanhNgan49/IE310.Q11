@@ -1,0 +1,8 @@
+.map-fullscreen {
+  position: fixed !important;
+  inset: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: white;
+  z-index: 9999;
+}

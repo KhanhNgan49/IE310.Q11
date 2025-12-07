@@ -1,5 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import { useEffect, useState } from "react";
+import './PublicMapPage.css';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -16,6 +17,7 @@ export default function MapView() {
   const [outbreakAreas, setOutbreakAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Tạo các icon tùy chỉnh cho từng loại đối tượng
   const customIcons = {
@@ -227,7 +229,7 @@ const combinedPoint = {
         <hr style={{ margin: '5px 0' }} />
         
         <div><strong>Loại đối tượng:</strong> {point.object_type || 'Không xác định'}</div>
-{point.type === 'pharmacy' && point.details && (
+        {point.type === 'pharmacy' && point.details && (
           <>
             <div><strong>Tên nhà thuốc:</strong> {point.details.pharmacy_name || 'Không có tên'}</div>
             {point.details.phone && <div><strong>Điện thoại:</strong> {point.details.phone}</div>}
@@ -307,13 +309,24 @@ const combinedPoint = {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div
+      className={isFullscreen ? "map-fullscreen" : ""}
+      style={{ 
+        position: isFullscreen ? "fixed" : "relative",
+        top: isFullscreen ? 0 : "unset",
+        left: isFullscreen ? 0 : "unset",
+        width: isFullscreen ? "100vw" : "100%",
+        height: isFullscreen ? "100vh" : "600px",
+        zIndex: isFullscreen ? 9999 : "auto",
+        background: "#fff",
+       }}
+    >
       {/* Legend cho bản đồ */}
       <div style={{
         position: 'absolute',
-        top: '10px',
+        top: '80px',
         right: '10px',
-backgroundColor: 'white',
+        backgroundColor: 'white',
         padding: '10px',
         borderRadius: '5px',
         boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
@@ -383,10 +396,42 @@ backgroundColor: 'white',
         </div>
       </div>
 
+      <button
+        onClick={() => setIsFullscreen(!isFullscreen)}
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "10px", 
+          zIndex: 1200,
+          padding: "8px 16px",
+          borderRadius: "8px",
+          border: "none",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          cursor: "pointer",
+          fontWeight: "bold",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          transition: "0.3s ease"
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.opacity = "0.85";
+          e.target.style.transform = "scale(1.05)";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.opacity = "1";
+          e.target.style.transform = "scale(1)";
+        }}
+      >
+        {isFullscreen ? "❌ Thoát full màn hình" : "🗺️ Mở full màn hình"}
+      </button>
+
       <MapContainer
         center={[10.762622, 106.660172]}
         zoom={13}
-        style={{ height: "600px", width: "100%" }}
+        style={{
+          height: "100%",
+          width: "100%"
+        }}
         scrollWheelZoom={true}
       >
         <TileLayer
@@ -396,7 +441,7 @@ backgroundColor: 'white',
 
         {/* Layer outbreak areas - NẰM DƯỚI layer location */}
         {Array.isArray(outbreakAreas) && outbreakAreas.map((area, index) => {
-if (!area.processed_coordinates || area.processed_coordinates.length === 0) {
+            if (!area.processed_coordinates || area.processed_coordinates.length === 0) {
             return null;
           }
 
