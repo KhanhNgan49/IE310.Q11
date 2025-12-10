@@ -80,44 +80,20 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
   }, [initialData, mode]);
 
   const [currentStep, setCurrentStep] = useState(1);
-  const nextStep = () => {
-    setCurrentStep(prev => prev + 1);
-  };
-  const prevStep = () => {
-    setCurrentStep(prev => prev - 1);
-  };
+  const nextStep = () => setCurrentStep(prev => prev + 1);
+  const prevStep = () => setCurrentStep(prev => prev - 1);
 
   const facilityTypes = [
-    { value: 'hospital', label: 'Bệnh viện', icon: 'bi bi-hospital' },
-    { value: 'clinic', label: 'Phòng khám', icon: 'bi bi-plus-circle' },
-    { value: 'medical_center', label: 'Trung tâm y tế', icon: 'bi bi-building' },
-    { value: 'pharmacy', label: 'Nhà thuốc', icon: 'bi bi-capsule' }
+    { value: 'Bệnh viện', label: 'Bệnh viện', icon: 'bi bi-hospital' },
+    { value: 'Phòng khám', label: 'Phòng khám', icon: 'bi bi-plus-circle' },
+    { value: 'Trung tâm y tế', label: 'Trung tâm y tế', icon: 'bi bi-building' },
+    //{ value: 'pharmacy', label: 'Nhà thuốc', icon: 'bi bi-capsule' }
   ];
   const provinces = [
-    "Hà Nội",
-    "Hải Phòng",
-    "Đà Nẵng",
-    "TP. Hồ Chí Minh",
-    "Cần Thơ",
-    "Tuyên Quang",
-    "Lào Cai",
-    "Thái Nguyên", 
-    "Phú Thọ",
-    "Bắc Ninh",  
-    "Hưng Yên",
-    "Ninh Bình",  
-    "Quảng Trị",
-    "Quảng Ngãi",  
-    "Gia Lai",  
-    "Khánh Hòa",  
-    "Lâm Đồng",
-    "Đắk Lắk",
-    "Đồng Nai",
-    "Tây Ninh",
-    "Vĩnh Long",
-    "An Giang",
-    "Đồng Tháp",
-    "Cà Mau"
+    "Hà Nội","Hải Phòng","Đà Nẵng","TP. Hồ Chí Minh","Cần Thơ","Tuyên Quang","Lào Cai",
+    "Thái Nguyên","Phú Thọ","Bắc Ninh","Hưng Yên","Ninh Bình","Quảng Trị","Quảng Ngãi",
+    "Gia Lai","Khánh Hòa","Lâm Đồng","Đắk Lắk","Đồng Nai","Tây Ninh","Vĩnh Long",
+    "An Giang","Đồng Tháp","Cà Mau"
   ];
 
   const serviceOptions = [
@@ -193,10 +169,52 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
       creator_id: userId
     };
 
+  //       // Nếu là chỉnh sửa, thêm ID vào payload
+  //   if (mode === 'edit' && initialData && initialData.facility_id) {
+  //     payload.id = initialData.facility_id;
+  //   }
+
+  //   try {
+  //     const token = localStorage.getItem("authToken");
+      
+  //     // SỬA: Dùng method PUT nếu là edit
+  //     const method = mode === 'edit' ? 'PUT' : 'POST';
+  //     const url = mode === 'edit' 
+  //       ? `http://localhost:3001/api/facilities/${initialData.facility_id}` 
+  //       : "http://localhost:3001/api/facilities";
+      
+  //     const res = await fetch(url, {
+  //       method: method,
+  //       headers: { 
+  //         "Content-Type": "application/json",
+  //         Authorization: token ? `Bearer ${token}` : ''
+  //       },
+  //       body: JSON.stringify(payload)
+  //     });
+
+  //     const result = await res.json();
+  //     console.log(`${mode} facility result:`, result);
+
+  //     // Lấy dữ liệu trả về
+  //     const responseData = result && result.facility_id ? result : (result.data || result.created || null);
+
+  //     if (res.ok && responseData) {
+  //       // Gọi callback với dữ liệu đã được xử lý
+  //       if (typeof onSubmit === 'function') {
+  //         onSubmit(responseData);
+  //       }
+  //       alert(mode === 'edit' ? "Cập nhật cơ sở y tế thành công!" : "Thêm cơ sở y tế thành công!");
+  //     } else {
+  //       console.error(`${mode} facility failed:`, result);
+  //       alert(result?.message || `Có lỗi xảy ra khi ${mode === 'edit' ? 'cập nhật' : 'thêm'} cơ sở y tế`);
+  //     }
+  //   } catch (err) {
+  //     console.error(`${mode} facility error:`, err);
+  //     alert(`Có lỗi mạng khi ${mode === 'edit' ? 'cập nhật' : 'thêm'} cơ sở y tế`);
+  //   }
+  // };
     // Xác định API endpoint và method
-    const apiUrl = formData.type === "pharmacy"
-      ? "http://localhost:3001/api/pharmacies"
-      : "http://localhost:3001/api/medical-facilities";
+    const apiUrl = "http://localhost:3001/api/medical-facilities";
 
     // QUAN TRỌNG: Sử dụng PUT cho edit, POST cho create
     const method = mode === 'edit' && facilityId ? 'PUT' : 'POST';
@@ -229,9 +247,9 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
         alert(mode === 'edit' ? "Cập nhật cơ sở thành công!" : "Thêm cơ sở thành công!");
         
         // Gọi callback với kết quả
-        if (onSubmit) {
-          onSubmit(result || { ...payload, facility_id: facilityId });
-        }
+      if (onSubmit) {
+        onSubmit(result ? result : { facility_id: facilityId });
+      }
       } else {
         console.error("Error:", result);
         alert(result?.message || `Có lỗi xảy ra khi ${mode === 'edit' ? 'cập nhật' : 'thêm'} cơ sở!`);
@@ -241,11 +259,6 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
       alert("Lỗi kết nối đến server!");
     }
   };
-
-  // Đảm bảo workingHours luôn có giá trị
-  const workingHours = formData.workingHours || defaultFormData.workingHours;
-  const morningHours = workingHours.morning || defaultFormData.workingHours.morning;
-  const afternoonHours = workingHours.afternoon || defaultFormData.workingHours.afternoon;
 
   return (
     <div className="facility-form">
@@ -360,40 +373,36 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
             </div>
 
             <div className="row">
-              {formData.type !== 'pharmacy' && (
-                <>
-                  <div className="form-group">
-                    <label>Số điện thoại *</label>
-                    <input
-                      type="tel"
-                      className="form-control"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="VD: 024 3869 3731"
-                      required={formData.type !== 'pharmacy'}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Dịch vụ cung cấp</label>
-                    <div className="services-selector">
-                      {serviceOptions.map(service => (
-                        <div
-                          key={service}
-                          className={`service-option ${selectedServices.includes(service) ? 'selected' : ''}`}
-                          onClick={() => toggleService(service)}
-                        >
-                          <i className="bi bi-check-circle-fill"></i>
-                          <span>{service}</span>
-                        </div>
-                      ))}
+              <div className="form-group">
+                <label>Số điện thoại *</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="VD: 024 3869 3731"
+                  required={formData.type !== 'pharmacy'}
+                />
+              </div>
+              <div className="form-group">
+                <label>Dịch vụ cung cấp</label>
+                <div className="services-selector">
+                  {serviceOptions.map(service => (
+                    <div
+                      key={service}
+                      className={`service-option ${selectedServices.includes(service) ? 'selected' : ''}`}
+                      onClick={() => toggleService(service)}
+                    >
+                      <i className="bi bi-check-circle-fill"></i>
+                      <span>{service}</span>
                     </div>
-                    <small className="text-muted">
-                      Đã chọn: {selectedServices.length} dịch vụ
-                      {selectedServices.length > 0 && ` (${selectedServices.join(', ')})`}
-                    </small>
-                  </div>
-                </>
-              )}             
+                  ))}
+                </div>
+                <small className="text-muted">
+                  Đã chọn: {selectedServices.length} dịch vụ
+                  {selectedServices.length > 0 && ` (${selectedServices.join(', ')})`}
+                </small>
+              </div>        
             </div>
 
             <div className="form-actions">
@@ -434,10 +443,10 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
         {currentStep === 3 && (
           <div className="form-step">
             <div className="form-group">
-              <label>Tóm tắt thông tin:</label>   
+              <label>Xác nhận thông tin:</label>   
               <div className="form-summary">
                 <div className="summary-grid">
-                  <div className="summary-item">
+                  <div className="summary-item" style={{ gridColumn: "span 2" }}>
                     <label>Chế độ:</label>
                     <span className={`badge bg-${mode === 'edit' ? 'warning' : 'info'}`}>
                       {mode === 'edit' ? 'CHỈNH SỬA' : 'THÊM MỚI'}
@@ -449,20 +458,20 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
                   </div>
                   <div className="summary-item">
                     <label>Loại hình:</label>
-                    <span>{facilityTypes.find(t => t.value === formData.type)?.label}</span>
+                    <span>{facilityTypes.find(t => t.value === formData.type)?.label || '(Chưa chọn loại hình)'}</span>
                   </div>
-                  {formData.type !== 'pharmacy' && (
-                    <>
-                      <div className="summary-item">
-                        <label>Số điện thoại:</label>
-                        <span>{formData.phone || '(Chưa nhập số điện thoại)'}</span>
-                      </div>
-                      <div className="summary-item">
-                        <label>Dịch vụ:</label>
-                        <span>{selectedServices.length} dịch vụ</span>
-                      </div>
-                    </>
-                  )}
+                  <div className="summary-item">
+                    <label>Tỉnh/Thành:</label>
+                    <span>{formData.province || '(Chưa chọn)'}</span>
+                  </div>
+                  <div className="summary-item">
+                    <label>Số điện thoại:</label>
+                    <span>{formData.phone || '(Chưa nhập số điện thoại)'}</span>
+                  </div>
+                  <div className="summary-item">
+                    <label>Dịch vụ:</label>
+                    <span>{selectedServices.length} dịch vụ</span>
+                  </div>
                   <div className="summary-item" style={{ gridColumn: "span 2" }}>
                     <label>Địa chỉ:</label>
                     <span>{formData.address || '(Chưa nhập địa chỉ)'}</span>

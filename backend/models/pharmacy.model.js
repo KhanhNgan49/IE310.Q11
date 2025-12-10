@@ -23,6 +23,7 @@ Pharmacy.init({
   },
   pharmacy_point_id: {
     type: DataTypes.STRING,
+    allowNull: true,
     references: {
       model: "locations",
       key: "location_id"

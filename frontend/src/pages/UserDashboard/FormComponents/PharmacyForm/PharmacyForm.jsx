@@ -39,6 +39,8 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
   }, [initialData]);
 
   const [currentStep, setCurrentStep] = useState(1);
+  const nextStep = () => setCurrentStep(prev => prev + 1);
+  const prevStep = () => setCurrentStep(prev => prev - 1);
 
   const provinces = [
     "Hà Nội","Hải Phòng","Đà Nẵng","TP. Hồ Chí Minh","Cần Thơ","Tuyên Quang","Lào Cai",
@@ -46,9 +48,6 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
     "Gia Lai","Khánh Hòa","Lâm Đồng","Đắk Lắk","Đồng Nai","Tây Ninh","Vĩnh Long",
     "An Giang","Đồng Tháp","Cà Mau"
   ];
-
-  const nextStep = () => setCurrentStep(prev => prev + 1);
-  const prevStep = () => setCurrentStep(prev => prev - 1);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -71,7 +70,7 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
     // Tạo payload phù hợp cho cả create và update
     const payload = {
       pharmacy_name: formData.name,  // Map từ formData.name
-      pharmacy_point_id: formData.location || null,
+      pharmacy_point_id: formData.location,
       creator_id: userId,
       address: formData.address,
       province_id: formData.province
@@ -83,7 +82,6 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
     }
 
     try {
-      const token = localStorage.getItem("authToken");
       
       // SỬA: Dùng method PUT nếu là edit
       const method = mode === 'edit' ? 'PUT' : 'POST';
@@ -95,7 +93,7 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
         method: method,
         headers: { 
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : ''
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload)
       });
@@ -104,13 +102,11 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
       console.log(`${mode} pharmacy result:`, result);
 
       // Lấy dữ liệu trả về
-      const responseData = result && result.pharmacy_id ? result : (result.data || result.created || null);
+      const pharmacyObj = result.pharmacy || result.data || result.created || result;
 
-      if (res.ok && responseData) {
-        // Gọi callback với dữ liệu đã được xử lý
-        if (typeof onSubmit === 'function') {
-          onSubmit(responseData);
-        }
+      // Gọi callback nếu có id
+      if (res.ok && pharmacyObj && pharmacyObj.pharmacy_id) {
+        onSubmit(pharmacyObj);
         alert(mode === 'edit' ? "Cập nhật nhà thuốc thành công!" : "Thêm nhà thuốc thành công!");
       } else {
         console.error(`${mode} pharmacy failed:`, result);
@@ -126,14 +122,14 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
     <div className="pharmacy-form">
       <div className="form-header">
         <h4>
-          {mode === 'create' ? 'Thêm Nhà Thuốc' : 'Chỉnh Sửa Nhà Thuốc'}
+          {mode === 'create' ? 'Thêm Nhà Thuốc Mới' : 'Chỉnh Sửa Nhà Thuốc'}
           {mode === 'edit' && initialData && initialData.pharmacy_name && 
             `: ${initialData.pharmacy_name}`}
         </h4>
 
         <div className="step-indicator">
           <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>
-            <span>1</span> Thông tin
+            <span>1</span> Thông tin cơ bản
           </div>
           <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>
             <span>2</span> Vị trí
@@ -161,7 +157,7 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
               {/* DEBUG: Hiển thị giá trị ban đầu */}
               {initialData && initialData.pharmacy_name && (
                 <small className="text-muted">
-                  Giá trị ban đầu: {initialData.pharmacy_name}
+                  Tên hiện tại: {initialData.pharmacy_name}
                 </small>
               )}
             </div>
@@ -182,7 +178,7 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
             </div>
 
             <div className="form-group">
-              <label>Địa chỉ *</label>
+              <label>Địa chỉ chi tiết*</label>
               <textarea
                 className="form-control"
                 rows="2"
@@ -227,27 +223,35 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
         {/* STEP 3 */}
         {currentStep === 3 && (
           <div className="form-step">
-            <div className="form-summary">
-              <h5>Xác nhận thông tin</h5>
-              <div className="summary-grid">
-                <div className="summary-item">
-                  <label>Tên nhà thuốc:</label>
-                  <span className="fw-bold">{formData.name || '(Chưa nhập)'}</span>
-                </div>
-                <div className="summary-item">
-                  <label>Tỉnh/Thành:</label>
-                  <span>{formData.province || '(Chưa chọn)'}</span>
-                </div>
-                <div className="summary-item" style={{ gridColumn: 'span 2' }}>
-                  <label>Địa chỉ:</label>
-                  <span>{formData.address || '(Chưa nhập)'}</span>
-                </div>
-                {mode === 'edit' && initialData && (
-                  <div className="summary-item">
-                    <label>ID nhà thuốc:</label>
-                    <span className="text-muted">{initialData.pharmacy_id}</span>
+            <div className="form-group">
+              <label>Xác nhận thông tin</label>
+              <div className="form-summary">
+                <div className="summary-grid">
+                  <div className="summary-item" style={{ gridColumn: "span 2" }}>
+                    <label>Chế độ:</label>
+                    <span className={`badge bg-${mode === 'edit' ? 'warning' : 'info'}`}>
+                      {mode === 'edit' ? 'CHỈNH SỬA' : 'THÊM MỚI'}
+                    </span>
                   </div>
-                )}
+                  <div className="summary-item">
+                    <label>Tên nhà thuốc:</label>
+                    <span className="fw-bold">{formData.name || '(Chưa nhập tên)'}</span>
+                  </div>
+                  <div className="summary-item">
+                    <label>Tỉnh/Thành:</label>
+                    <span>{formData.province || '(Chưa chọn)'}</span>
+                  </div>
+                  <div className="summary-item" style={{ gridColumn: 'span 2' }}>
+                    <label>Địa chỉ:</label>
+                    <span>{formData.address || '(Chưa nhập)'}</span>
+                  </div>
+                  {mode === 'edit' && initialData && (
+                    <div className="summary-item">
+                      <label>ID nhà thuốc:</label>
+                      <span className="text-muted">{initialData.pharmacy_id}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

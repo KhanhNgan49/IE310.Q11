@@ -71,21 +71,52 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
     fetchFacilities();
   }, []);
 
+  // map cho data mới add
+  const mapFacility = (item) => {
+    let servicesArr = [];
+    try {
+      if (Array.isArray(item.services)) servicesArr = item.services;
+      else servicesArr = JSON.parse(item.services || '[]');
+    } catch { servicesArr = []; }
+
+    return {
+      id: item.facility_id || item.id,
+      raw: item,
+      name: item.facility_name || item.name || '',
+      type: item.type_id || item.type || '',
+      address: item.address || '',
+      phone: item.phone || '—',
+      status: item.status || 'unknown',
+      services: servicesArr,
+      province: item.province || '',
+      lastUpdated: item.updatedAt?.slice(0, 10) || ''
+    };
+  };
+
   const getProvinceFromGeometry = (geometry) => {
     // Đây là hàm mẫu, cần tích hợp với GIS service thực tế
     return 'Hồ Chí Minh';
   };
 
   // THÊM: hàm xử lý khi thêm thành công (giống Pharmacies.jsx)
-  const handleAddFacilityResult = (created) => {
-    // created có thể dùng key 'facility_id'
-    // Thêm lên đầu danh sách để thấy ngay
-    setFacilities(prev => [created, ...prev]);
-    // Ẩn form
+  const handleAddFacilityResult = async (created) => {
+    const facility = created.facility || created;
+
+    // lấy id mới
+    const newId = created.facility.facility_id || facility.id;
+
+    // gọi API để lấy bản ghi đầy đủ
+    const res = await fetch(`http://localhost:3001/api/medical-facilities/${newId}`);
+    const full = await res.json();
+    console.log("FULL response:", full);
+
+    const mapped = mapFacility(full);
+
+    setFacilities(prev => [mapped, ...prev]);
     setShowForm(false);
   };
 
-  // THÊM: hàm xử lý khi chỉnh sửa thành công (giống Pharmacies.jsx)
+  // CHỈNH SỬA: hàm xử lý khi chỉnh sửa thành công (giống Pharmacies.jsx)
   const handleEditFacilityResult = (updated) => {
     setFacilities(prev => prev.map(f => 
       (f.id === updated.facility_id || f.id === updated.id ? updated : f)
@@ -94,7 +125,7 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
     setShowForm(false);
   };
 
-  // THÊM: hàm xử lý xóa (giống Pharmacies.jsx)
+  // XÓA: hàm xử lý xóa (giống Pharmacies.jsx)
   const handleDeleteClick = async (facilityId, facilityName) => {
     // Sử dụng prop nếu có, nếu không dùng window.confirm
     if (onDeleteFacility) {
@@ -347,17 +378,17 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
         <div className="list-header">
           <h5>Danh Sách Cơ Sở Y Tế ({filteredFacilities.length})</h5>
             <div className="header-actions">
-          <button 
+          {/* <button 
             className="btn btn-primary me-2"
             onClick={onAddFacility}
           >
             <i className="bi bi-plus-circle me-2"></i>
             Thêm Cơ Sở Y Tế
-          </button>
+          </button> */}
                   {/* SỬA: dùng setShowForm thay vì onAddFacility prop */}
-        {/* <button className="btn btn-primary" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
+        <button className="btn btn-primary" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
           <i className="bi bi-plus-circle me-2"></i> Thêm Cơ Sở Mới
-        </button> */}
+        </button>
           <button 
             className="btn btn-outline-primary"
             onClick={handleExportReport}

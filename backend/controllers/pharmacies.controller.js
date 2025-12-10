@@ -5,7 +5,7 @@ module.exports = {
       try {
         const body = req.body;
         const payload = {
-        pharmacy_name: body.facility_name, 
+        pharmacy_name: body.pharmacy_name, 
         //type_id: body.type_id,
         address: body.address,
         //phone: body.phone,
@@ -15,10 +15,10 @@ module.exports = {
       };
   
   
-        const facility = await pharmacyService.createPharmacy(payload);
+        const pharmacy = await pharmacyService.createPharmacy(payload);
         res.status(201).json({
           message: "Tạo nhà thuốc thành công",
-          facility
+          pharmacy
         });
       } catch (err) {
         res.status(500).json({

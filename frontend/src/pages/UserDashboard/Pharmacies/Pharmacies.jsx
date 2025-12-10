@@ -8,6 +8,7 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => { //
     const [searchTerm, setSearchTerm] = useState('');
     const [pharmacies, setPharmacies] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     // modal state
     const [showForm, setShowForm] = useState(false);
@@ -17,6 +18,7 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => { //
     useEffect(() => {
         const fetchPharmacies = async () => {
             setLoading(true);
+            setErrorMsg(null);
             const res = await pharmacyService.getAllPharmacies();
             console.log("GET pharmacies response:", res);
 
@@ -36,9 +38,11 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => { //
 
     // THÊM (update state trực tiếp)
     const handleAddPharmacyResult = (created) => {
+        console.log("NEW PHARMACY:", created);
         // created có thể dùng key 'pharmacy_id'
         // Thêm lên đầu danh sách để thấy ngay
         setPharmacies(prev => [created, ...prev]);
+        setSearchTerm('');
         // Ẩn form nếu dùng modal
         setShowForm(false);
     };
@@ -112,6 +116,22 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => { //
     );
   }
 
+    if (errorMsg) {
+    return (
+      <div className="pharmacies-page">
+        <div className="error-state">
+          <i className="bi bi-exclamation-triangle"></i>
+          <h5>Có lỗi xảy ra</h5>
+          <p>{errorMsg}</p>
+          <button className="btn btn-primary mt-3" onClick={setPharmacies}>
+            <i className="bi bi-arrow-clockwise me-2"></i>
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
     return (
         <div className="pharmacies-page">
 
@@ -153,17 +173,17 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => { //
                 <div className="list-header">
                 <h5>Danh Sách Nhà Thuốc ({filteredPharmacies.length})</h5>
                     <div className="header-actions">
-                <button 
+                {/* <button 
                     className="btn btn-primary me-2"
                     onClick={onAddPharmacy}
                 >
                     <i className="bi bi-plus-circle me-2"></i>
                     Thêm Nhà Thuốc
-                </button>
-                        {/* SỬA: dùng setShowForm thay vì onAddFacility prop */}
-                {/* <button className="btn btn-primary" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
-                <i className="bi bi-plus-circle me-2"></i> Thêm Cơ Sở Mới
                 </button> */}
+                        {/* SỬA: dùng setShowForm thay vì onAddFacility prop */}
+                <button className="btn btn-primary" onClick={() => { setEditingPharmacy(null); setShowForm(true); }}>
+                <i className="bi bi-plus-circle me-2"></i> Thêm Nhà Thuốc Mới
+                </button>
                 <button 
                     className="btn btn-outline-primary"
                     onClick={handleExportReport}
