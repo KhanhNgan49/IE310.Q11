@@ -12,7 +12,44 @@ const outbreakServices = {
                 message: 'Không thể lấy danh sách bùng phát'
             }
         }
+    },
+    createOutbreak: async (data) => {
+        try {
+            console.log('data',data)
+            const response = await api.post('/outbreak-areas', data);
+            return response.data;
+        } catch (error) {
+            console.log('Create outbreak error:', error.message);
+            return {
+                success: false,
+                message: 'Không thể tạo vùng dịch'
+            }
+        }
+    },
+    updateOutbreak: async (id, data) => {
+        try {
+            const response = await api.put(`/outbreak-areas/${id}`, data);
+            return response.data;
+        } catch (error) {
+            console.log('Update outbreak error:', error.message);
+            return {
+                success: false,
+                message: 'Không thể cập nhật vùng dịch'
+            }
+        }
+    },
+    deleteOutbreak: async (id) => {
+        try {
+            const response = await api.delete(`/outbreak-areas/${id}`);
+            return response.data;
+        } catch (error) {
+            console.log('Delete outbreak error:', error.message);
+            return {
+                success: false,
+                message: 'Không thể xóa vùng dịch'
+            }
+        }
     }
 }
 
-export default outbreakServices
+export default outbreakServices;

@@ -17,6 +17,8 @@ import PolygonDrawer from './MapComponents/PolygonDrawer/PolygonDrawer';
 import UsersList from './UsersList/UsersList';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import outbreakServices from '../../services/outbreakServices';
+
 const UserDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -30,25 +32,26 @@ const UserDashboard = () => {
   const [editingPharmacy, setEditingPharmacy] = useState(null);
   const [editingOutbreak, setEditingOutbreak] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Thêm state loading
+
   const navigate = useNavigate();
   const { user, hasRole, loading } = useAuth();
+
   // Kiểm tra quyền truy cập khi component mount
   useEffect(() => {
     if (!loading) {
-      // Kiểm tra xem user đã đăng nhập chưa
       if (!user) {
         navigate('/login');
         return;
       }
 
-      // Kiểm tra xem user có role admin không
       if (!hasRole('admin')) {
         setAccessDenied(true);
-        // Có thể chuyển hướng về trang unauthorized hoặc trang chủ
         navigate('/unauthorized');
       }
     }
   }, [user, hasRole, loading, navigate]);
+
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
@@ -87,16 +90,47 @@ const UserDashboard = () => {
 
 
   // Xử lý form vùng dịch
-  const handleOutbreakSubmit = (outbreakData) => {
-    console.log('Outbreak data submitted:', outbreakData);
-    // Gửi API hoặc xử lý dữ liệu
-    setShowOutbreakForm(false);
-    setEditingOutbreak(null);
-
-    // Hiển thị thông báo thành công
-    alert(editingOutbreak ? 'Cập nhật vùng dịch thành công!' : 'Khai báo vùng dịch thành công!');
+   const handleOutbreakSubmit = async (outbreakData) => {
+    console.log('Outbreak data to submit:', outbreakData);
+    
+    setIsSubmitting(true);
+    
+    try {
+      let result;
+      
+      if (editingOutbreak) {
+        // Chỉnh sửa vùng dịch
+        result = await outbreakServices.updateOutbreak(editingOutbreak.outbreak_id || editingOutbreak.id, outbreakData);
+      } else {
+        // Tạo mới vùng dịch
+        result = await outbreakServices.createOutbreak(outbreakData);
+      }
+      
+      console.log('API response:', result);
+      
+      if (result.success !== false) {
+        // Thành công
+        alert(editingOutbreak ? 'Cập nhật vùng dịch thành công!' : 'Khai báo vùng dịch thành công!');
+        
+        // Đóng form
+        setShowOutbreakForm(false);
+        setEditingOutbreak(null);
+        
+        // Nếu đang ở trang quản lý vùng dịch, reload danh sách
+        if (activeSection === 'outbreak') {
+          // Có thể thêm logic reload danh sách ở đây
+        }
+      } else {
+        // Thất bại
+        alert(result.message || 'Có lỗi xảy ra khi gửi dữ liệu');
+      }
+    } catch (error) {
+      console.error('Error submitting outbreak:', error);
+      alert('Có lỗi xảy ra khi gửi dữ liệu. Vui lòng thử lại.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
   // Xử lý form báo cáo
   const handleReportSubmit = (reportData) => {
     console.log('Report data submitted:', reportData);
@@ -306,7 +340,6 @@ const UserDashboard = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {/* SỬA: Thay FacilityForm bằng UserForm component */}
                 {editingUser ? (
                   <div className="alert alert-warning">
                     <p><strong>Chỉnh sửa người dùng</strong></p>
@@ -405,7 +438,7 @@ const UserDashboard = () => {
         </div>
       )}
 
-      {showOutbreakForm && (
+       {showOutbreakForm && (
         <div className="modal-overlay active">
           <div className="modal-container">
             <div className="modal-content large">
@@ -416,9 +449,12 @@ const UserDashboard = () => {
                 <button
                   className="btn-close"
                   onClick={() => {
-                    setShowOutbreakForm(false);
-                    setEditingOutbreak(null);
+                    if (!isSubmitting) {
+                      setShowOutbreakForm(false);
+                      setEditingOutbreak(null);
+                    }
                   }}
+                  disabled={isSubmitting}
                 ></button>
               </div>
               <div className="modal-body">
@@ -426,6 +462,7 @@ const UserDashboard = () => {
                   onSubmit={handleOutbreakSubmit}
                   initialData={editingOutbreak}
                   mode={editingOutbreak ? 'edit' : 'create'}
+                  isSubmitting={isSubmitting}
                 />
               </div>
             </div>
