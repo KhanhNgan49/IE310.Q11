@@ -1,6 +1,7 @@
 // src/pages/UserDashboard/MedicalFacilities/MedicalFacilities.jsx
 import React, { useState, useEffect } from 'react';
 import './MedicalFacilities.css';
+import facilityService from '../../../services/facilityService'; 
 import FacilityForm from '../FormComponents/FacilityForm/FacilityForm';
 
 const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) => {
@@ -20,6 +21,7 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
       setErrorMsg(null);
       try {
         const res = await fetch('http://localhost:3001/api/medical-facilities');
+
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
@@ -102,15 +104,19 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
   const handleAddFacilityResult = async (created) => {
     const facility = created.facility || created;
 
-    // lấy id mới
-    const newId = created.facility.facility_id || facility.id;
+//     // lấy id mới
+//     const newId = created.facility.facility_id || facility.id;
 
-    // gọi API để lấy bản ghi đầy đủ
-    const res = await fetch(`http://localhost:3001/api/medical-facilities/${newId}`);
-    const full = await res.json();
-    console.log("FULL response:", full);
+//     // gọi API để lấy bản ghi đầy đủ
+//     const res = await fetch(`http://localhost:3001/api/medical-facilities/${newId}`);
+//     const full = await res.json();
+//     console.log("FULL response:", full);
+//     if (!full || !full.facility_id) {
+//   console.error("Facility not found!");
+//   return; // không push cái rác vào danh sách
+// }
 
-    const mapped = mapFacility(full);
+    const mapped = mapFacility(facility);
 
     setFacilities(prev => [mapped, ...prev]);
     setShowForm(false);
@@ -118,9 +124,13 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
 
   // CHỈNH SỬA: hàm xử lý khi chỉnh sửa thành công (giống Pharmacies.jsx)
   const handleEditFacilityResult = (updated) => {
-    setFacilities(prev => prev.map(f => 
-      (f.id === updated.facility_id || f.id === updated.id ? updated : f)
-    ));
+  const mapped = mapFacility(updated);
+
+  setFacilities(prev =>
+    prev.map(f =>
+      f.id === mapped.id ? mapped : f
+    )
+  );
     setEditingFacility(null);
     setShowForm(false);
   };
@@ -128,32 +138,42 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
   // XÓA: hàm xử lý xóa (giống Pharmacies.jsx)
   const handleDeleteClick = async (facilityId, facilityName) => {
     // Sử dụng prop nếu có, nếu không dùng window.confirm
-    if (onDeleteFacility) {
-      // Gọi prop function
-      onDeleteFacility(facilityId);
-    } else {
+    console.log("onDeleteFacility =", onDeleteFacility);
+
+    // if (onDeleteFacility) {
+    //   // Gọi prop function
+    //   onDeleteFacility(facilityId);
+    // } else {
       // Fallback: dùng window.confirm
       if (!window.confirm(`Xác nhận xóa cơ sở "${facilityName}"?`)) return;
       
       console.log("Deleting facility ID:", facilityId);
       
       try {
-        const response = await fetch(`http://localhost:3001/api/medical-facilities/${facilityId}`, {
+        const response = await //facilityService.deleteFacility(facilityId); { //
+          fetch(`http://localhost:3001/api/medical-facilities/${facilityId}`, {
           method: 'DELETE',
         });
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        
+            if (response?.success === false) {
+        alert(response.message || 'Xóa thất bại');
+        return;
+            }
         // Cập nhật state local
-        setFacilities(prev => prev.filter(f => f.id !== facilityId));
+      setFacilities(prev => {
+        const updated = prev.filter(f => f.id !== facilityId);
+        console.log("Facilities sau khi xoá:", updated);
+        return updated;
+      });
         alert(`Đã xóa cơ sở "${facilityName}" thành công!`);
       } catch (err) {
         console.error("Error deleting facility:", err);
         alert(`Xóa thất bại: ${err.message}`);
       }
-    }
+    //}
   };
 
   // Hàm lọc Facilities
@@ -198,6 +218,7 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
     console.log('Exporting outbreak report');
     alert('Đã xuất báo cáo thành công!');
   };
+console.log("facilities =", facilities);
 
   // Thống kê nhanh
   const stats = {

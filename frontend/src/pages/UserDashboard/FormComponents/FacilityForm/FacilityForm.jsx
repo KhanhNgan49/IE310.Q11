@@ -164,7 +164,7 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
       address: formData.address,
       phone: formData.phone,
       province_id: formData.province,
-      services: selectedServices,
+      services: JSON.stringify(selectedServices),
       facility_point_id: formData.location,
       creator_id: userId
     };
@@ -224,7 +224,7 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
       // Thêm ID vào URL cho edit
       url = `${apiUrl}/${facilityId}`;
     }
-
+    console.log(">>> URL thực tế:", url);
     console.log(`Calling ${method} ${url}`);
     console.log("Payload:", payload);
 
