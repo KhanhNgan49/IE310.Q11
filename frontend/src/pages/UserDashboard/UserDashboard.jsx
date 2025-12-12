@@ -270,7 +270,7 @@ const UserDashboard = () => {
                   <MapPicker
                     onLocationSelect={(location) => {
                       console.log('Selected location:', location);
-                      alert(`Đã chọn vị trí: ${location.address}`);
+                      //alert(`Đã chọn vị trí: ${location.address}`);
                     }}
                     height="300px"
                   />
@@ -283,7 +283,7 @@ const UserDashboard = () => {
                   <PolygonDrawer
                     onPolygonComplete={(polygon) => {
                       console.log('Polygon completed:', polygon);
-                      alert(`Đã vẽ vùng dịch với ${polygon.length} điểm`);
+                      //alert(`Đã vẽ vùng dịch với ${polygon.length} điểm`);
                     }}
                     height="300px"
                   />

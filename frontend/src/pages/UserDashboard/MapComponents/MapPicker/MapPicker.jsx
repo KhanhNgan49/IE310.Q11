@@ -1,202 +1,284 @@
-import React, { useState, useEffect, useRef } from 'react';
-import LocationSearch from '../LocationSearch/LocationSearch';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import './MapPicker.css';
 
-const MapPicker = ({ onLocationSelect, initialLocation, height = '400px' }) => {
-  const [selectedLocation, setSelectedLocation] = useState(initialLocation || {
-    lat: 21.0278,
-    lng: 105.8342,
-    address: 'Hà Nội, Vietnam'
+// Fix cho icon marker trong React-Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+
+// Component chọn điểm
+const PointPicker = ({ onPointSelect, selectedPoint, isSelecting }) => {
+  const map = useMapEvents({
+    click: (e) => {
+      if (!isSelecting) return;
+      
+      const { lat, lng } = e.latlng;
+      const point = { lat, lng };
+      
+      // Gọi callback với điểm đã chọn
+      onPointSelect(point);
+      
+      // Tạo marker cho điểm đã chọn
+      const marker = L.marker([lat, lng], {
+        icon: new L.DivIcon({
+          className: 'point-marker',
+          iconSize: [12, 12]
+        })
+      }).addTo(map);
+      
+      marker.bindTooltip(`Điểm đã chọn: ${lat.toFixed(6)}, ${lng.toFixed(6)}`, {
+        permanent: true,
+        direction: 'top'
+      });
+      
+      // Xóa marker cũ nếu có
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker && layer !== marker) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      // Zoom vào điểm đã chọn
+      map.setView([lat, lng], 16);
+    }
   });
+
+  // Hiển thị marker nếu có selectedPoint
+  useEffect(() => {
+    if (selectedPoint) {
+      const { lat, lng } = selectedPoint;
+      
+      // Xóa tất cả markers cũ
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      // Tạo marker mới
+      const marker = L.marker([lat, lng], {
+        icon: new L.DivIcon({
+          className: 'point-marker',
+          iconSize: [12, 12]
+        })
+      }).addTo(map);
+      
+      marker.bindTooltip(`Điểm đã chọn: ${lat.toFixed(6)}, ${lng.toFixed(6)}`, {
+        permanent: true,
+        direction: 'top'
+      });
+      
+      // Zoom vào điểm
+      map.setView([lat, lng], 16);
+    }
+  }, [selectedPoint, map]);
+
+  return null;
+};
+
+// Component chính
+const MapPicker = ({ 
+  onLocationSelect, 
+  initialPoint = null, 
+  height = "400px",
+  showClearButton = true 
+}) => {
   const [isSelecting, setIsSelecting] = useState(false);
-  const mapRef = useRef(null);
+  const [selectedPoint, setSelectedPoint] = useState(initialPoint);
+  const mapRef = useRef();
 
-  // Giả lập tích hợp Leaflet/Google Maps
-  const handleMapClick = (e) => {
-    if (!isSelecting) return;
+  // Khởi tạo điểm nếu có initialPoint
+  useEffect(() => {
+    if (initialPoint) {
+      setSelectedPoint(initialPoint);
+    }
+  }, [initialPoint]);
+
+  const handlePointSelect = useCallback((point) => {
+    console.log('Point selected:', point);
     
-    const newLocation = {
-      lat: e.latlng.lat,
-      lng: e.latlng.lng,
-      address: `Vị trí đã chọn: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`
-    };
+    setSelectedPoint(point);
     
-    setSelectedLocation(newLocation);
-    onLocationSelect(newLocation);
+    // Gọi callback với dữ liệu điểm
+    if (onLocationSelect) {
+      onLocationSelect(point);
+    }
+    
+    // Tự động thoát chế độ chọn sau khi chọn
     setIsSelecting(false);
-  };
+  }, [onLocationSelect]);
 
-  const startSelection = () => {
+  const handleStartSelecting = () => {
     setIsSelecting(true);
   };
 
-  const handleLocationSearchSelect = (location) => {
-    const newLocation = {
-      lat: location.lat,
-      lng: location.lng,
-      address: location.address,
-      name: location.name
-    };
-    
-    setSelectedLocation(newLocation);
-    onLocationSelect(newLocation);
-  };
-
-  const handleCurrentLocation = () => {
-    // Giả lập lấy vị trí hiện tại
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            address: 'Vị trí hiện tại của bạn',
-            name: 'Vị trí hiện tại'
-          };
-          setSelectedLocation(location);
-          onLocationSelect(location);
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          alert('Không thể lấy vị trí hiện tại. Vui lòng kiểm tra quyền truy cập vị trí.');
-        }
-      );
-    } else {
-      alert('Trình duyệt không hỗ trợ lấy vị trí.');
-    }
-  };
-
-  const clearSelection = () => {
-    setSelectedLocation(null);
+  const handleCancelSelecting = () => {
     setIsSelecting(false);
   };
 
-  return (
-    <div className="map-picker">
-      {/* Search và Controls - ĐÃ SỬA VỊ TRÍ */}
-      <div className="map-controls-top">
-        <div className="search-section">
-          <LocationSearch
-            onLocationSelect={handleLocationSearchSelect}
-            placeholder="Tìm kiếm địa chỉ hoặc tên cơ sở y tế..."
-            className="compact"
-            showCurrentLocation={false}
-          />
-        </div>
-        
-        <div className="control-buttons">
-          <button 
-            className={`btn btn-sm ${isSelecting ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={startSelection}
-            type="button"
-          >
-            <i className="bi bi-geo-alt me-1"></i>
-            {isSelecting ? 'Đang chọn...' : 'Chọn trên bản đồ'}
-          </button>
-          
-          <button 
-            className="btn btn-sm btn-outline-success"
-            onClick={handleCurrentLocation}
-            type="button"
-          >
-            <i className="bi bi-crosshair me-1"></i>
-            Vị trí của tôi
-          </button>
+  const handleClearSelection = () => {
+    setSelectedPoint(null);
+    setIsSelecting(false);
+    
+    // Xóa tất cả markers trên bản đồ
+    if (mapRef.current) {
+      mapRef.current.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          mapRef.current.removeLayer(layer);
+        }
+      });
+    }
+    
+    // Reset về view mặc định
+    if (mapRef.current) {
+      mapRef.current.setView([10.762622, 106.660172], 14);
+    }
+  };
 
-          {selectedLocation && (
+  // Định dạng tọa độ cho hiển thị
+  const formatCoordinates = (point) => {
+    if (!point) return null;
+    
+    return {
+      lat: point.lat.toFixed(6),
+      lng: point.lng.toFixed(6)
+    };
+  };
+
+  return (
+    <div className="map-picker-container">
+      {/* Control Panel */}
+      <div className="picker-controls">
+        <div className="picker-buttons">
+          {!isSelecting ? (
+            !selectedPoint ? (
+              <button 
+                className="btn btn-sm btn-primary"
+                onClick={handleStartSelecting}
+              >
+                <i className="bi bi-geo-alt me-1"></i>
+                Chọn điểm
+              </button>
+            ) : (
+              <button 
+                className="btn btn-sm btn-success"
+                disabled
+              >
+                <i className="bi bi-check-circle me-1"></i>
+                Đã chọn
+              </button>
+            )
+          ) : (
+            <>
+              <button 
+                className="btn btn-sm btn-secondary"
+                disabled
+              >
+                <i className="bi bi-cursor me-1"></i>
+                Đang chọn điểm
+              </button>
+              
+              <button 
+                className="btn btn-sm btn-danger"
+                onClick={handleCancelSelecting}
+              >
+                <i className="bi bi-x-circle me-1"></i>
+                Hủy chọn
+              </button>
+            </>
+          )}
+          
+          {showClearButton && (
             <button 
               className="btn btn-sm btn-outline-danger"
-              onClick={clearSelection}
-              type="button"
+              onClick={handleClearSelection}
+              disabled={!selectedPoint}
             >
-              <i className="bi bi-x me-1"></i>
-              Xóa
+              <i className="bi bi-trash me-1"></i>
+              Xóa điểm
             </button>
           )}
+        </div>
+
+        <div className="picker-instructions">
+          <div className="instruction-item">
+            <span className="instruction-icon">🎯</span>
+            <span>Nhấn "Chọn điểm" để bắt đầu</span>
+          </div>
+          <div className="instruction-item">
+            <span className="instruction-icon">🖱️</span>
+            <span>Click trên bản đồ để chọn điểm</span>
+          </div>
+          <div className="instruction-item">
+            <span className="instruction-icon">⎋</span>
+            <span>Hủy để thoát chế độ chọn</span>
+          </div>
+          <div className="instruction-item">
+            <span className="instruction-icon">🗑️</span>
+            <span>Xóa điểm để chọn lại</span>
+          </div>
         </div>
       </div>
 
       {/* Map Container */}
-      <div 
-        ref={mapRef}
-        className="map-container"
-        style={{ height }}
-        onClick={handleMapClick}
-      >
-        <div className="map-placeholder">
-          <div className="placeholder-content">
-            <i className="bi bi-map"></i>
-            <h5>Bản Đồ Chọn Vị Trí</h5>
-            <p>
-              {isSelecting 
-                ? 'Nhấp vào bản đồ để chọn vị trí' 
-                : 'Sử dụng thanh tìm kiếm hoặc nút "Chọn trên bản đồ"'
-              }
-            </p>
-            
-            {selectedLocation && (
-              <div className="selected-location-info">
-                <div className="location-coordinates">
-                  <strong>Tọa độ:</strong> {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
-                </div>
-                <div className="location-address">
-                  <strong>Địa chỉ:</strong> {selectedLocation.address}
-                </div>
-              </div>
-            )}
-            
-            {/* Marker cho vị trí đã chọn */}
-            {selectedLocation && !isSelecting && (
-              <div 
-                className="location-marker"
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)'
-                }}
-              >
-                <i className="bi bi-geo-alt-fill marker-icon"></i>
-              </div>
-            )}
-            
-            {/* Crosshair khi đang chọn */}
-            {isSelecting && (
-              <div className="selection-crosshair">
-                <div className="crosshair"></div>
-                <div className="instruction">Nhấp để chọn vị trí</div>
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="picker-map-container" style={{ height }}>
+        <MapContainer
+          center={[10.762622, 106.660172]}
+          zoom={14}
+          className="picker-map"
+          scrollWheelZoom={true}
+          style={{ height: "100%", width: "100%" }}
+          whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}
+          zoomControl={false}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+
+          {/* Component chọn điểm */}
+          <PointPicker 
+            onPointSelect={handlePointSelect}
+            selectedPoint={selectedPoint}
+            isSelecting={isSelecting}
+          />
+        </MapContainer>
       </div>
 
-      {/* Location Details */}
-      {selectedLocation && (
-        <div className="location-details">
-          <h6>Thông Tin Vị Trí Đã Chọn</h6>
-          <div className="details-grid">
-            <div className="detail-item">
-              <label>Vĩ độ:</label>
-              <span>{selectedLocation.lat.toFixed(6)}</span>
-            </div>
-            <div className="detail-item">
-              <label>Kinh độ:</label>
-              <span>{selectedLocation.lng.toFixed(6)}</span>
-            </div>
-            <div className="detail-item full-width">
-              <label>Địa chỉ:</label>
-              <span>{selectedLocation.address}</span>
-            </div>
-            {selectedLocation.name && (
-              <div className="detail-item full-width">
-                <label>Tên địa điểm:</label>
-                <span>{selectedLocation.name}</span>
-              </div>
-            )}
-          </div>
+      {/* Info Panel */}
+      <div className="picker-info-panel">
+        <div className="picker-header">
+          <h6>Thông tin điểm đã chọn</h6>
+          <span className={`badge ${selectedPoint ? 'bg-success' : 'bg-secondary'}`}>
+            {selectedPoint ? 'Đã chọn' : 'Chưa chọn'}
+          </span>
         </div>
-      )}
+        
+        {!selectedPoint ? (
+          <div className="no-selection">
+            <i className="bi bi-geo-alt"></i>
+            <p>Chưa chọn điểm nào</p>
+            <small className="text-muted">Nhấn "Chọn điểm" để chọn một điểm trên bản đồ</small>
+          </div>
+        ) : (
+          <div className="selection-info">
+            <div className="coordinates-display">
+              <small className="text-muted">Tọa độ:</small>
+              <div className="coordinate-value">
+                <code>
+                  {formatCoordinates(selectedPoint).lat}, {formatCoordinates(selectedPoint).lng}
+                </code>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

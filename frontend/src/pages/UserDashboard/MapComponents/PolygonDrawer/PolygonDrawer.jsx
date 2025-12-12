@@ -453,22 +453,7 @@ const PolygonDrawer = ({ onPolygonComplete, initialPolygon, height = "400px" }) 
             <span className="instruction-icon">⎋</span>
             <span>ESC để hủy vẽ</span>
           </div>
-        </div>
-        
-        {/* Hiển thị số điểm hiện tại khi đang vẽ */}
-        {isDrawing && (
-          <div className="drawing-status">
-            <div className="alert alert-info mb-0 py-1">
-              <small>
-                <i className="bi bi-info-circle me-1"></i>
-                Đang vẽ: <strong>{getCurrentPointCount()}</strong> điểm 
-                {getCurrentPointCount() < 3 && 
-                  <span className="text-danger"> (cần thêm {3 - getCurrentPointCount()} điểm để hoàn thành)</span>
-                }
-              </small>
-            </div>
-          </div>
-        )}
+        </div> 
       </div>
 
       {/* Map Container */}

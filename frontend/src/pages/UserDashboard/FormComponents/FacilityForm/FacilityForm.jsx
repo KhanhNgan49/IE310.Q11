@@ -418,11 +418,14 @@ const FacilityForm = ({ onSubmit, initialData, mode = 'create' }) => {
           <div className="form-step">
             <div className="form-group">
               <label>Chọn vị trí trên bản đồ *</label>
-              <MapPicker
+              <div className='map-container'>
+                <MapPicker
                 onLocationSelect={handleLocationSelect}
                 initialLocation={formData.location}
                 height="300px"
               />
+              </div>
+              
               <small className="text-muted">
                 {formData.location ? `Đã chọn vị trí: ${formData.location.address || 'Có tọa độ'}` : 'Chưa chọn vị trí'}
               </small>

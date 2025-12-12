@@ -202,11 +202,14 @@ const PharmacyForm = ({ onSubmit, initialData, mode = 'create' }) => {
           <div className="form-step">
             <div className="form-group">
               <label>Chọn vị trí trên bản đồ *</label>
-              <MapPicker
+              <div className='map-container'>
+                <MapPicker
                 onLocationSelect={handleLocationSelect}
                 initialLocation={formData.location}
                 height="300px"
               />
+              </div>
+             
             </div>
 
             <div className="form-actions">
