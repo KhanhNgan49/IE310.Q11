@@ -81,7 +81,77 @@ const authService = {
   isAuthenticated: () => {
     const token = localStorage.getItem('authToken');
     return !!token;
-  }
+  },
+
+  updateUserRole: async (userId, data) => {
+  try {
+    const response = await api.put(`/users/${userId}`, data);
+    console.log('Update role API response:', response); // Debug
+    
+    // Đảm bảo luôn trả về object có cấu trúc
+    return {
+      success: true,
+      data: response.data,
+      message: response.data?.message || 'Cập nhật thành công'
+    };
+  } catch (error) {
+    throw error;
+  }},
+
+  deleteUser: async (userId) => {
+    try {
+      const response = await api.delete(`/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.log('Delete user error:', error.message);
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Không thể xóa người dùng',
+        status: error.response?.status
+      };
+    }
+  },
+
+  getCurrentUser: async () => {
+    try {
+      // Lấy user từ localStorage
+      const userStr = localStorage.getItem('user');
+
+      // Parse user object từ localStorage
+      const user = JSON.parse(userStr);
+      
+      // Lấy userId từ user object (kiểm tra nhiều trường có thể có)
+      const userId = user.user_id
+      
+      if (!userId) {
+        return {
+          success: false,
+          message: 'Không tìm thấy ID người dùng'
+        };
+      }
+
+      // Gọi API với userId
+      const response = await api.get(`/users/findOne?user_id=${userId}`);
+      return response.data;
+      
+    } catch (error) {
+      console.log('Get current user error:', error.message);
+      
+      // Xử lý lỗi chi tiết
+      if (error.response) {
+        return {
+          success: false,
+          message: error.response.data?.message || 'Không thể lấy thông tin người dùng',
+          status: error.response.status
+        };
+      }
+      
+      return {
+        success: false,
+        message: error.message || 'Không thể lấy thông tin người dùng'
+      };
+    }
+  },
 };
 
 const token = authService.getToken();

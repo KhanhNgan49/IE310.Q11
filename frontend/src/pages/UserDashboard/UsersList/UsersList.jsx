@@ -8,32 +8,33 @@ const UsersList = ({ onAddUser }) => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentUser, setCurrentUser] = useState(null); // Thêm state cho user hiện tại
+  const [currentUser, setCurrentUser] = useState({ user_id: null }); // Thêm state cho user hiện tại
 
   // Fetch users and current user info
   useEffect(() => {
     fetchUsers();
-    //getCurrentUser();
+    getCurrentUser();
   }, []);
 
-  // const getCurrentUser = async () => {
-  //   try {
-  //     // Giả sử bạn có API để lấy thông tin user hiện tại
-  //     const user = await authService.getCurrentUser();
-  //     setCurrentUser(user);
-  //   } catch (error) {
-  //     console.error('Error fetching current user:', error);
-  //   }
-  // };
+  const getCurrentUser = async () => {
+    try {
+      // Giả sử bạn có API để lấy thông tin user hiện tại
+      const user = await authService.getCurrentUser();
+      setCurrentUser(user);
+      console.log(currentUser)
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
       setError('');
-      
+
       // Call actual API from authService
       const response = await authService.getAllUsers();
-      
+
       // Transform API response to match component structure
       const formattedUsers = response.map(user => ({
         user_id: user.id || user.user_id,
@@ -42,7 +43,7 @@ const UsersList = ({ onAddUser }) => {
         role: user.role || 'user',
         created_at: user.created_at || user.createdDate || new Date().toISOString(),
       }));
-      
+
       setUsers(formattedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -53,15 +54,15 @@ const UsersList = ({ onAddUser }) => {
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = 
+    const matchesSearch =
       (user.user_name && user.user_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (user.role && user.role.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesTab = 
-      activeTab === 'all' || 
+
+    const matchesTab =
+      activeTab === 'all' ||
       user.role === activeTab;
-    
+
     return matchesSearch && matchesTab;
   });
 
@@ -70,13 +71,13 @@ const UsersList = ({ onAddUser }) => {
       admin: { label: 'Quản trị viên', class: 'danger', icon: 'bi-shield-check' },
       user: { label: 'Người dùng', class: 'primary', icon: 'bi-person' },
     };
-    
-    const config = roleConfig[role] || { 
-      label: role || 'Người dùng', 
-      class: 'secondary', 
-      icon: 'bi-person' 
+
+    const config = roleConfig[role] || {
+      label: role || 'Người dùng',
+      class: 'secondary',
+      icon: 'bi-person'
     };
-    
+
     return (
       <span className={`badge bg-${config.class}`}>
         <i className={`bi ${config.icon} me-1`}></i>
@@ -87,7 +88,7 @@ const UsersList = ({ onAddUser }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    
+
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('vi-VN', {
@@ -95,7 +96,7 @@ const UsersList = ({ onAddUser }) => {
         month: '2-digit',
         year: 'numeric'
       });
-    } catch (error) {
+} catch (error) {
       console.error('Error formatting date:', error);
       return 'N/A';
     }
@@ -106,7 +107,7 @@ const UsersList = ({ onAddUser }) => {
       try {
         // Call API to delete user
         await authService.deleteUser(userId);
-        
+
         // Update local state
         setUsers(users.filter(user => user.user_id !== userId));
         alert('Đã xóa người dùng thành công!');
@@ -118,30 +119,58 @@ const UsersList = ({ onAddUser }) => {
   };
 
   const handleRoleChange = async (userId, newRole) => {
+    // Debug
+    console.log('Current User:', currentUser);
+    console.log('Target User ID:', userId);
+
+    // Kiểm tra nếu đang thay đổi role của chính mình
+    const isCurrent = isCurrentUser(userId);
+    console.log('Is current user?', isCurrent);
+
+    if (isCurrent) {
+      alert("Bạn không thể thay đổi vai trò của chính mình!");
+      return;
+    }
+    /////
+
+    // if (isCurrentUser(userId)) {
+    //   alert("Bạn không thể thay đổi vai trò của chính mình!");
+    //   return;
+    // }
+
+    const currentUserRole = users.find(user => user.user_id === userId)?.role;
+    if (currentUserRole === newRole) return;
+
     const roleName = newRole === 'admin' ? 'Quản trị viên' : 'Người dùng';
-    
-    if (window.confirm(`Bạn có chắc chắn muốn thay đổi vai trò người dùng thành "${roleName}"?`)) {
-      try {
-        // Call API to update user role
-        await authService.updateUserRole(userId, { role: newRole });
-        
-        // Update local state
-        setUsers(users.map(user => 
-          user.user_id === userId 
-            ? { ...user, role: newRole }
-            : user
-        ));
-        
-        alert(`Đã cập nhật vai trò người dùng thành công!`);
-      } catch (error) {
-        console.error('Error updating user role:', error);
-        alert('Không thể cập nhật vai trò. Vui lòng thử lại.');
+    const currentRoleName = currentUserRole === 'admin' ? 'Quản trị viên' : 'Người dùng';
+
+    if (!window.confirm(`Thay đổi vai trò từ "${currentRoleName}" sang "${roleName}"?`)) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const result = await authService.updateUserRole(userId, { role: newRole });
+
+      if (result?.success) {
+        setUsers(prevUsers =>
+          prevUsers.map(user =>
+            user.user_id === userId ? { ...user, role: newRole } : user
+          )
+        );
+        alert(`Đã cập nhật vai trò thành công!`);
+      } else {
+        alert(`Không thể cập nhật vai trò!`);
       }
+    } catch (error) {
+      alert(`Có lỗi xảy ra!`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const isCurrentUser = (userId) => {
-    return currentUser && currentUser.id === userId;
+     return String(currentUser.user_id) === String(userId);
   };
 
   const stats = {
@@ -166,7 +195,7 @@ const UsersList = ({ onAddUser }) => {
       {/* Quick Stats */}
       <div className="row mb-4">
         <div className="col-md-4 col-sm-6">
-          <div className="quick-stat">
+<div className="quick-stat">
             <div className="stat-icon">
               <i className="bi bi-people-fill"></i>
             </div>
@@ -253,7 +282,7 @@ const UsersList = ({ onAddUser }) => {
             <i className="bi bi-exclamation-triangle"></i>
             <h5>Có lỗi xảy ra</h5>
             <p>{error}</p>
-            <button className="btn btn-primary mt-3" onClick={fetchUsers}>
+<button className="btn btn-primary mt-3" onClick={fetchUsers}>
               <i className="bi bi-arrow-clockwise me-2"></i>
               Thử lại
             </button>
@@ -290,9 +319,8 @@ const UsersList = ({ onAddUser }) => {
                       <td>
                         <div className="role-selector">
                           <select
-                            className={`form-select form-select-sm role-select ${
-                              user.role === 'admin' ? 'role-admin' : 'role-user'
-                            }`}
+                            className={`form-select form-select-sm role-select ${user.role === 'admin' ? 'role-admin' : 'role-user'
+                              }`}
                             value={user.role}
                             onChange={(e) => handleRoleChange(user.user_id, e.target.value)}
                             disabled={isCurrentUser(user.user_id)} // Không cho phép thay đổi role của chính mình
@@ -310,15 +338,15 @@ const UsersList = ({ onAddUser }) => {
                       <td>
                         <div className="action-buttons">
                           {user.role !== 'admin' && !isCurrentUser(user.user_id) && (
-                            <button 
-                              className="btn btn-sm btn-outline-danger" 
+                            <button
+                              className="btn btn-sm btn-outline-danger"
                               title="Xóa"
                               onClick={() => handleDeleteUser(user.user_id, user.user_name)}
                             >
                               <i className="bi bi-trash"></i>
                             </button>
                           )}
-                          {(user.role === 'admin' || isCurrentUser(user.user_id)) && (
+{(user.role === 'admin' || isCurrentUser(user.user_id)) && (
                             <span className="text-muted small">
                               <i className="bi bi-info-circle me-1"></i>
                               Không thể xóa
