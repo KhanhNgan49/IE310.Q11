@@ -32,12 +32,14 @@ export const routes = [
     {
         path: '/map',
         page: React.lazy(() => import("../pages/PublicMapPage/PublicMapPage")),
-        isShowHeader: true
+        isShowHeader: true,
+        isPublic: true
     },
     {
         path: '/pharmacy',
         page: React.lazy(() => import("../pages/PharmacyPage/PharmacyPage")),
-        isShowHeader: true
+        isShowHeader: true,
+        isPublic: true
     },
     {
         path: '/unauthorized',
@@ -45,4 +47,28 @@ export const routes = [
         isShowHeader: false,
         isPublic: true
     },
+    {
+        path: '/other',
+        page: React.lazy(() => import("../pages/OtherOption/OtherOption")),
+        isShowHeader: false,
+        isPublic: true
+    },
+    {
+        path: '/symptom-results',
+        page: React.lazy(() => import("../pages/SymptomResultsPage/SymptomResultsPage")),
+        isShowHeader: true,
+        isPublic: true
+    },
+    {
+        path: '/filtered-results',
+        page: React.lazy(() => import("../pages/FilteredResultsPage/FilteredResultsPage")),
+        isShowHeader: true,
+        isPublic: true
+    },
+        {
+        path: '/my-appointments',
+        page: React.lazy(() => import("../pages/MyAppointmentsPage/MyAppointmentsPage")),
+        isShowHeader: true,
+        isPublic: true
+    }
 ]

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './SearchUserSection.css';
+import { Link, useNavigate } from 'react-router-dom'; 
 
 const SearchUserSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   // Lấy thông tin user từ localStorage khi component mount
   useEffect(() => {
@@ -98,26 +100,19 @@ const SearchUserSection = () => {
   };
 
   const handleLogout = () => {
-    // Xóa token và user info khỏi localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
-    
-    // Reset state
     setUser(null);
     setIsAuthenticated(false);
-    
-    // Chuyển hướng về trang chủ hoặc reload
-    window.location.href = '/';
+    navigate('/'); // Sử dụng navigate thay vì window.location
   };
 
   const handleViewProfile = () => {
-    // Chuyển hướng đến trang profile
-    window.location.href = '/profile';
+    navigate('/profile'); // Sử dụng navigate
   };
 
   const handleAdminDashboard = () => {
-    // Chuyển hướng đến trang admin nếu user là admin
-    window.location.href = '/dashboard';
+    navigate('/dashboard'); // Sử dụng navigate
   };
 
   return (
@@ -183,22 +178,22 @@ const SearchUserSection = () => {
               </button>
             </li>
             <li>
-              <a className="dropdown-item" href="/my-appointments">
+              <Link className="dropdown-item" to="/my-appointments">
                 <i className="bi bi-calendar-check me-2"></i>
                 Lịch hẹn của tôi
-              </a>
+              </Link>
             </li>
             <li>
-              <a className="dropdown-item" href="/favorites">
+              <Link className="dropdown-item" to="/favorites">
                 <i className="bi bi-heart me-2"></i>
                 Đã lưu
-              </a>
+              </Link>
             </li>
             <li>
-              <a className="dropdown-item" href="/reviews">
+              <Link className="dropdown-item" to="/reviews">
                 <i className="bi bi-chat-text me-2"></i>
                 Đánh giá của tôi
-              </a>
+              </Link>
             </li>
             
             {/* Admin menu nếu user là admin */}

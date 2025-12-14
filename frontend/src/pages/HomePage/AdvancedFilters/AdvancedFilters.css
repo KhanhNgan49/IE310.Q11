@@ -1,0 +1,249 @@
+.advanced-filters-section {
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: white;
+  transition: transform 0.3s ease;
+}
+
+.advanced-filters-section:hover {
+  transform: translateY(-2px);
+}
+
+.advanced-filters-section .card-body {
+  padding: 1.5rem;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  color: #1a237e;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.active-filters-badge {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.filter-item {
+  margin-bottom: 0;
+}
+
+.filter-item label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-item label i {
+  color: #1a237e;
+}
+
+.filter-item .form-select {
+  border-radius: 10px;
+  border: 1px solid #dee2e6;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+.filter-item .form-select:focus {
+  border-color: #1a237e;
+  box-shadow: 0 0 0 0.2rem rgba(26, 35, 126, 0.15);
+  background-color: white;
+}
+
+.filter-item .form-select:hover {
+  border-color: #1a237e;
+}
+
+.rating-slider {
+  padding: 0 0.5rem;
+}
+
+.rating-slider .form-range {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #dee2e6, #ffc107);
+  cursor: pointer;
+}
+
+.rating-slider .form-range:focus {
+  box-shadow: none;
+}
+
+.rating-slider .form-range::-webkit-slider-thumb {
+  background: #1a237e;
+  border: 2px solid white;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.rating-slider .form-range::-webkit-slider-thumb:hover {
+  background: #0d1b6b;
+  transform: scale(1.1);
+}
+
+.rating-slider .form-range::-moz-range-thumb {
+  background: #1a237e;
+  border: 2px solid white;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.rating-labels {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  color: #666;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.filter-actions .btn {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+}
+
+.filter-actions .btn-outline-secondary {
+  border: 2px solid #dc3545;
+  color: #dc3545;
+}
+
+.filter-actions .btn-outline-secondary:hover:not(:disabled) {
+  background: #dc3545;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.filter-actions .btn-outline-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #999;
+  color: #999;
+}
+
+.filter-actions .btn-primary {
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  border: none;
+}
+
+.filter-actions .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0d1b6b, #283593);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(26, 35, 126, 0.3);
+}
+
+.filter-actions .btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #999;
+}
+
+.filter-tips {
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.filter-tips small {
+  color: #666;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.filter-tips i {
+  color: #1a237e;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .advanced-filters-section .card-body {
+    padding: 1rem;
+  }
+
+  .filter-group {
+    gap: 1rem;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+}
+
+/* Thêm vào AdvancedFilters.css */
+.filter-item:first-child {
+  margin-top: 0;
+}
+
+.bi-geo-alt {
+  color: #0d6efd;
+}

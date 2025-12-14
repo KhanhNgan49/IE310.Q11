@@ -1,7 +1,7 @@
 // src/pages/UserDashboard/MedicalFacilities/MedicalFacilities.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './MedicalFacilities.css';
-import facilityService from '../../../services/facilityService'; 
+import facilityService from '../../../services/facilityService';
 import FacilityForm from '../FormComponents/FacilityForm/FacilityForm';
 
 const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) => {
@@ -10,7 +10,11 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
   const [facilities, setFacilities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
-  
+
+  // State phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   // THÊM: state cho modal form (giống Pharmacies.jsx)
   const [showForm, setShowForm] = useState(false);
   const [editingFacility, setEditingFacility] = useState(null);
@@ -54,13 +58,14 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
             status: item.status || 'unknown',
             verified: item.verified ?? true,
             services: servicesArr,
-            lastUpdated: item.updatedAt ? item.updatedAt.slice(0,10) : '',
+            lastUpdated: item.updatedAt ? item.updatedAt.slice(0, 10) : '',
             // Thêm thông tin mặc định cho các trường không có trong API
             province: getProvinceFromGeometry(item.area_geom),
           };
         });
 
         setFacilities(mapped);
+        setCurrentPage(1); // Reset về trang 1 khi fetch dữ liệu mới
       } catch (err) {
         console.error("Error fetching facilities:", err);
         setErrorMsg(err.message || 'Lỗi khi lấy dữ liệu');
@@ -103,34 +108,22 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
   // THÊM: hàm xử lý khi thêm thành công (giống Pharmacies.jsx)
   const handleAddFacilityResult = async (created) => {
     const facility = created.facility || created;
-
-//     // lấy id mới
-//     const newId = created.facility.facility_id || facility.id;
-
-//     // gọi API để lấy bản ghi đầy đủ
-//     const res = await fetch(`http://localhost:3001/api/medical-facilities/${newId}`);
-//     const full = await res.json();
-//     console.log("FULL response:", full);
-//     if (!full || !full.facility_id) {
-//   console.error("Facility not found!");
-//   return; // không push cái rác vào danh sách
-// }
-
     const mapped = mapFacility(facility);
 
     setFacilities(prev => [mapped, ...prev]);
     setShowForm(false);
+    setCurrentPage(1); // Reset về trang 1 khi thêm mới
   };
 
   // CHỈNH SỬA: hàm xử lý khi chỉnh sửa thành công (giống Pharmacies.jsx)
   const handleEditFacilityResult = (updated) => {
-  const mapped = mapFacility(updated);
+    const mapped = mapFacility(updated);
 
-  setFacilities(prev =>
-    prev.map(f =>
-      f.id === mapped.id ? mapped : f
-    )
-  );
+    setFacilities(prev =>
+      prev.map(f =>
+        f.id === mapped.id ? mapped : f
+      )
+    );
     setEditingFacility(null);
     setShowForm(false);
   };
@@ -140,69 +133,114 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
     // Sử dụng prop nếu có, nếu không dùng window.confirm
     console.log("onDeleteFacility =", onDeleteFacility);
 
-    // if (onDeleteFacility) {
-    //   // Gọi prop function
-    //   onDeleteFacility(facilityId);
-    // } else {
-      // Fallback: dùng window.confirm
-      if (!window.confirm(`Xác nhận xóa cơ sở "${facilityName}"?`)) return;
-      
-      console.log("Deleting facility ID:", facilityId);
-      
-      try {
-        const response = await //facilityService.deleteFacility(facilityId); { //
-          fetch(`http://localhost:3001/api/medical-facilities/${facilityId}`, {
-          method: 'DELETE',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-            if (response?.success === false) {
-        alert(response.message || 'Xóa thất bại');
-        return;
-            }
-        // Cập nhật state local
+    // Fallback: dùng window.confirm
+    if (!window.confirm(`Xác nhận xóa cơ sở "${facilityName}"?`)) return;
+
+    console.log("Deleting facility ID:", facilityId);
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/medical-facilities/${facilityId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      // Cập nhật state local
       setFacilities(prev => {
         const updated = prev.filter(f => f.id !== facilityId);
         console.log("Facilities sau khi xoá:", updated);
         return updated;
       });
-        alert(`Đã xóa cơ sở "${facilityName}" thành công!`);
-      } catch (err) {
-        console.error("Error deleting facility:", err);
-        alert(`Xóa thất bại: ${err.message}`);
+
+      // Nếu trang hiện tại trống sau khi xóa, quay lại trang trước đó
+      if (currentFacilities.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
       }
-    //}
+
+      alert(`Đã xóa cơ sở "${facilityName}" thành công!`);
+    } catch (err) {
+      console.error("Error deleting facility:", err);
+      alert(`Xóa thất bại: ${err.message}`);
+    }
   };
 
   // Hàm lọc Facilities
-  const filteredFacilities = facilities.filter(facility => {
-    // Lọc theo loại hình cơ sở y tế
-    if (activeTab !== 'all' && facility.status !== activeTab) {
-      return false;
+  const filteredFacilities = useMemo(() => {
+    return facilities.filter(facility => {
+      // Lọc theo loại hình cơ sở y tế
+      if (activeTab !== 'all' && facility.status !== activeTab) {
+        return false;
+      }
+
+      // Lọc theo từ khóa tìm kiếm
+      if (searchTerm.trim() !== '') {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          facility.name.toLowerCase().includes(searchLower) ||
+          facility.type.toLowerCase().includes(searchLower) ||
+          facility.services.join(", ").toLowerCase().includes(searchLower) ||
+          facility.province.toLowerCase().includes(searchLower)
+        );
+      }
+
+      return true;
+    });
+  }, [facilities, activeTab, searchTerm]);
+
+  // Tính toán phân trang
+  const totalPages = Math.ceil(filteredFacilities.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentFacilities = filteredFacilities.slice(startIndex, endIndex);
+
+  // Điều hướng trang
+  const goToPage = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  // Tạo mảng các số trang để hiển thị
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5; // Số trang hiển thị tối đa
+
+    if (totalPages <= maxVisiblePages) {
+      // Hiển thị tất cả các trang nếu tổng số trang ít
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Hiển thị một số trang xung quanh trang hiện tại
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, currentPage + 2);
+
+      // Điều chỉnh nếu ở đầu hoặc cuối
+      if (currentPage <= 3) {
+        endPage = maxVisiblePages;
+      } else if (currentPage >= totalPages - 2) {
+        startPage = totalPages - maxVisiblePages + 1;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+
+      // Thêm ellipsis nếu cần
+      if (startPage > 1) {
+        pageNumbers.unshift('...');
+        pageNumbers.unshift(1);
+      }
+      if (endPage < totalPages) {
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
     }
 
-    // Lọc theo từ khóa tìm kiếm
-
-    if (searchTerm.trim() !== '') {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        facility.name.toLowerCase().includes(searchLower) ||
-        facility.type.toLowerCase().includes(searchLower) ||
-        facility.services.join(", ").toLowerCase().includes(searchLower) ||
-        facility.province.toLowerCase().includes(searchLower)
-
-    // const q = (searchTerm || '').toString().toLowerCase();
-    // const name = (facility.name || '').toString().toLowerCase();
-    // const addr = (facility.address || '').toString().toLowerCase();
-    // const matchesTab = activeTab === 'all' || (facility.status || '') === activeTab;
-    // return matchesTab && (name.includes(q) || addr.includes(q));
-      );
-    }
-    
-    return true;
-  });
+    return pageNumbers;
+  };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -214,11 +252,10 @@ const MedicalFacilities = ({ onAddFacility, onEditFacility, onDeleteFacility }) 
     return <span className={`badge bg-${config.class}`}>{config.label}</span>;
   };
 
-    const handleExportReport = () => {
+  const handleExportReport = () => {
     console.log('Exporting outbreak report');
     alert('Đã xuất báo cáo thành công!');
   };
-console.log("facilities =", facilities);
 
   // Thống kê nhanh
   const stats = {
@@ -226,13 +263,15 @@ console.log("facilities =", facilities);
     activeStatus: facilities.filter(o => o.status === 'active').length,
     pendingStatus: facilities.filter(o => o.status === 'pending').length,
     inactiveStatus: facilities.filter(o => o.status === 'inactive').length,
-    totalFaci: facilities.reduce((sum, o) => sum + o.type, 0)
   };
 
   // Thống kê theo bộ lọc hiện tại
   const filteredStats = {
     showing: filteredFacilities.length,
-    total: facilities.length
+    total: facilities.length,
+    showingRange: filteredFacilities.length > 0
+      ? `Hiển thị ${startIndex + 1}-${Math.min(endIndex, filteredFacilities.length)} trong tổng số ${filteredFacilities.length} cơ sở y tế`
+      : 'Không có dữ liệu'
   };
 
   if (isLoading) {
@@ -255,7 +294,7 @@ console.log("facilities =", facilities);
           <i className="bi bi-exclamation-triangle"></i>
           <h5>Có lỗi xảy ra</h5>
           <p>{errorMsg}</p>
-          <button className="btn btn-primary mt-3" onClick={setFacilities}>
+          <button className="btn btn-primary mt-3" onClick={() => window.location.reload()}>
             <i className="bi bi-arrow-clockwise me-2"></i>
             Thử lại
           </button>
@@ -270,7 +309,7 @@ console.log("facilities =", facilities);
         <div className="header-content">
           <h2>Quản Lý Cơ Sở Y Tế</h2>
           <p>Quản lý thông tin các cơ sở y tế trên toàn quốc</p>
-{/* ////////////////// */}
+
           {/* Quick Stats */}
           <div className="facility-stats-overview">
             <div className="stat-item">
@@ -293,101 +332,83 @@ console.log("facilities =", facilities);
         </div>
       </div>
 
-      {/* Facility Map Preview */}
-      {/* <div className="outbreak-map-preview">
-        <div className="map-header">
-          <h5>Bản Đồ Cơ Sở Y Tế</h5>
-          
-        </div> */}
-        
-        {/* Map Component */}
-        {/* <div className="outbreak-map-wrapper ">
-          {isLoading ? (
-            <div className="map-loading">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Đang tải...</span>
-              </div>
-              <p className="mt-3">Đang tải bản đồ...</p>
-            </div>
-          ) : error ? (
-            <div className="map-error">
-              <i className="bi bi-exclamation-triangle"></i>
-              <p>Không thể tải bản đồ</p>
-              <button 
-                className="btn btn-sm btn-outline-primary mt-2"
-                onClick={setFacilities}
-              >
-                <i className="bi bi-arrow-clockwise me-1"></i>
-                Thử lại
-              </button>
-            </div>
-          ) : facilities.length === 0 ? (
-            <div className="map-empty-state">
-              <i className="bi bi-map"></i>
-              <h6>Chưa có dữ liệu cơ sở y tế</h6>
-              <p>Bản đồ sẽ hiển thị khi có cơ sở y tế được thêm vào</p>
-            </div>
-          ) : (
-            <OutbreakMap 
-              outbreakId={mapOutbreakId}
-              onOutbreakClick={handleMapOutbreakClick}
-            />
-          )}
-        </div> */}
-      
-              {/* Map Controls */}
-              {/* <div className="map-controls">
-                <div className="btn-group">
-                  <button 
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => setMapOutbreakId(null)}
-                    title="Xem tất cả vùng dịch"
-                    disabled={!mapOutbreakId}
-                  >
-                    <i className="bi bi-fullscreen"></i>
-                  </button>
-                  <button 
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={fetchOutbreaks}
-                    title="Làm mới bản đồ"
-                  >
-                    <i className="bi bi-arrow-clockwise"></i>
-                  </button>
-                </div>
-              </div>
-            </div> */}
-{/* ////////////////// */}
-      {/*Filters and Search*/}
+      {/* Filters and Search */}
       <div className="facilities-filters">
         <div className="row g-3">
-          <div className="col-md-6">
+          <div className="col-md-12">
             <div className="search-box">
               <i className="bi bi-search"></i>
               <input
                 type="text"
                 placeholder="Tìm kiếm cơ sở y tế (tên hoặc địa chỉ)..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
+                }}
               />
             </div>
           </div>
+        </div>
 
-          <div className="col-md-6">
-            <div className="filter-tabs">
-              <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>Tất cả ({stats.total})</button>
-              <button className={`tab-btn ${activeTab === 'active' ? 'active' : ''}`} onClick={() => setActiveTab('active')}>Hoạt động ({stats.activeStatus})</button>
-              <button className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')}>Đang chờ duyệt ({stats.pendingStatus})</button>
-              <button className={`tab-btn ${activeTab === 'inactive' ? 'active' : ''}`} onClick={() => setActiveTab('inactive')}>Ngưng hoạt động ({stats.inactiveStatus})</button>
+        <div className="row g-3 mt-2">
+          <div className="col-md-8">
+            <div className="status-filter-row">
+              <div className="filter-tabs">
+                <button
+                  className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
+                >
+                  Tất cả ({stats.total})
+                </button>
+                <button
+                  className={`tab-btn ${activeTab === 'active' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('active'); setCurrentPage(1); }}
+                >
+                  Hoạt động ({stats.activeStatus})
+                </button>
+                <button
+                  className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('pending'); setCurrentPage(1); }}
+                >
+                  Đang chờ duyệt ({stats.pendingStatus})
+                </button>
+                <button
+                  className={`tab-btn ${activeTab === 'inactive' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('inactive'); setCurrentPage(1); }}
+                >
+                  Ngưng hoạt động ({stats.inactiveStatus})
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="items-per-page-selector">
+              <label className="me-2">Hiển thị:</label>
+              <select
+                className="form-select form-select-sm d-inline-block w-auto"
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1); // Reset về trang 1 khi thay đổi số lượng mỗi trang
+                }}
+              >
+                <option value={5}>5 dòng/trang</option>
+                <option value={10}>10 dòng/trang</option>
+                <option value={20}>20 dòng/trang</option>
+                <option value={50}>50 dòng/trang</option>
+              </select>
             </div>
           </div>
         </div>
 
         {/* Results summary */}
-        <div className="filter-summary">
+        <div className="filter-summary mt-3">
           <small>
-            Đang hiển thị <strong>{filteredStats.showing}</strong> trong tổng số <strong>{filteredStats.total}</strong> cơ sở y tế
+            {filteredStats.showingRange}
             {searchTerm && ` - Kết quả tìm kiếm cho: "${searchTerm}"`}
-            {activeTab !== 'all' && ` - Lọc theo trạng thái hoạt động: ${activeTab === 'active' ? 'hoạt động' : activeTab === 'pending' ? 'đang chờ duyệt' : 'ngưng hoạt động'}`}
+            {activeTab !== 'all' && ` - Lọc theo trạng thái: ${activeTab === 'active' ? 'hoạt động' : activeTab === 'pending' ? 'đang chờ duyệt' : 'ngưng hoạt động'}`}
           </small>
         </div>
       </div>
@@ -398,53 +419,44 @@ console.log("facilities =", facilities);
       <div className="facility-list">
         <div className="list-header">
           <h5>Danh Sách Cơ Sở Y Tế ({filteredFacilities.length})</h5>
-            <div className="header-actions">
-          {/* <button 
-            className="btn btn-primary me-2"
-            onClick={onAddFacility}
-          >
-            <i className="bi bi-plus-circle me-2"></i>
-            Thêm Cơ Sở Y Tế
-          </button> */}
-                  {/* SỬA: dùng setShowForm thay vì onAddFacility prop */}
-        <button className="btn btn-primary" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
-          <i className="bi bi-plus-circle me-2"></i> Thêm Cơ Sở Mới
-        </button>
-          <button 
-            className="btn btn-outline-primary"
-            onClick={handleExportReport}
-          >
-            <i className="bi bi-download me-2"></i>
-            Xuất Báo Cáo
-          </button>
-        </div>
+          <div className="header-actions">
+            <button className="btn btn-primary" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
+              <i className="bi bi-plus-circle me-2"></i> Thêm Cơ Sở Mới
+            </button>
+            <button
+              className="btn btn-outline-primary"
+              onClick={handleExportReport}
+            >
+              <i className="bi bi-download me-2"></i>
+              Xuất Báo Cáo
+            </button>
+          </div>
         </div>
 
-        {/* <div className="facilities-table-container mt-3"> */}
-          {filteredFacilities.length === 0 ? (
-            <div className="empty-state">
-              <i className="bi bi-hospital"></i>
-              <h5>Không tìm thấy cơ sở y tế nào</h5>
-              <p>
-                {searchTerm 
+        {currentFacilities.length === 0 ? (
+          <div className="empty-state">
+            <i className="bi bi-hospital"></i>
+            <h5>Không tìm thấy cơ sở y tế nào</h5>
+            <p>
+              {searchTerm
                 ? `Không tìm thấy cơ sở y tế nào phù hợp với từ khóa "${searchTerm}"`
                 : activeTab !== 'all'
-                ? `Không có cơ sở y tế nào có trạng thái ${activeTab === 'active' ? 'hoạt động' : activeTab === 'pending' ? 'đang chờ duyệt' : 'ngưng hoạt động'}`
-                : 'Chưa có vùng dịch nào được thêm vào hệ thống'
+                  ? `Không có cơ sở y tế nào có trạng thái ${activeTab === 'active' ? 'hoạt động' : activeTab === 'pending' ? 'đang chờ duyệt' : 'ngưng hoạt động'}`
+                  : 'Chưa có cơ sở y tế nào được thêm vào hệ thống'
               }
-              </p>
-
-              {/* THÊM: nút thêm cơ sở đầu tiên */}
-              {/* <button className="btn btn-primary mt-3" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
-                <i className="bi bi-plus-circle me-2"></i>
-                Thêm Cơ Sở Đầu Tiên
-              </button> */}
-            </div>
-          ) : (
+            </p>
+            <button className="btn btn-primary mt-3" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
+              <i className="bi bi-plus-circle me-2"></i>
+              Thêm Cơ Sở Đầu Tiên
+            </button>
+          </div>
+        ) : (
+          <>
             <div className="table-responsive">
               <table className="table facilities-table">
                 <thead>
                   <tr>
+                    <th>STT</th>
                     <th>Tên cơ sở</th>
                     <th>Loại hình</th>
                     <th>Địa chỉ</th>
@@ -454,8 +466,9 @@ console.log("facilities =", facilities);
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredFacilities.map(f => (
+                  {currentFacilities.map((f, index) => (
                     <tr key={f.id || f.name}>
+                      <td>{startIndex + index + 1}</td>
                       <td><strong>{f.name}</strong></td>
                       <td>{f.type}</td>
                       <td><small>{f.address}</small></td>
@@ -463,34 +476,33 @@ console.log("facilities =", facilities);
                       <td>{getStatusBadge(f.status)}</td>
                       <td>
                         <div className="action-buttons">
-                          {/* SỬA: Truyền toàn bộ raw data, không chỉ f.raw */}
-                          <button 
-                            className="btn btn-sm btn-outline-primary" 
-                            onClick={() => { 
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => {
                               console.log("Editing facility - Full object:", f);
                               console.log("Facility name:", f.name);
                               console.log("Facility ID:", f.id);
                               console.log("Raw data:", f.raw);
-                              
+
                               // Tạo object đầy đủ với tất cả field cần thiết
-                            const facilityData = {
-                              facility_id: f.id,
-                              id: f.id,
-                              facility_name: f.name,
-                              name: f.name,
-                              type_id: f.type,
-                              type: f.type,
-                              address: f.address,
-                              phone: f.phone,
-                              province_id: f.raw?.province_id || '',
-                              province: f.raw?.province || '',
-                              services: f.services,
-                              status: f.status,
-                              // SỬA: Xử lý location an toàn
-                              location: f.raw?.facility_point_id || null,
-                              facility_point_id: f.raw?.facility_point_id || null
-                            };;
-                              
+                              const facilityData = {
+                                facility_id: f.id,
+                                id: f.id,
+                                facility_name: f.name,
+                                name: f.name,
+                                type_id: f.type,
+                                type: f.type,
+                                address: f.address,
+                                phone: f.phone,
+                                province_id: f.raw?.province_id || '',
+                                province: f.raw?.province || '',
+                                services: f.services,
+                                status: f.status,
+                                // SỬA: Xử lý location an toàn
+                                location: f.raw?.facility_point_id || null,
+                                facility_point_id: f.raw?.facility_point_id || null
+                              };
+
                               console.log("Data to pass to form:", facilityData);
                               setEditingFacility(facilityData);
                               setShowForm(true);
@@ -498,17 +510,16 @@ console.log("facilities =", facilities);
                           >
                             <i className="bi bi-pencil"></i>
                           </button>
-                          
-                          <button 
-                            className="btn btn-sm btn-outline-info" 
+
+                          <button
+                            className="btn btn-sm btn-outline-info"
                             onClick={() => alert(`Chi tiết: ${f.name}\nĐịa chỉ: ${f.address}\nLoại: ${f.type}\nTrạng thái: ${f.status}`)}
                           >
                             <i className="bi bi-eye"></i>
                           </button>
-                          
-                          {/* SỬA: dùng handleDeleteClick */}
-                          <button 
-                            className="btn btn-sm btn-outline-danger" 
+
+                          <button
+                            className="btn btn-sm btn-outline-danger"
                             onClick={() => handleDeleteClick(f.id, f.name)}
                           >
                             <i className="bi bi-trash"></i>
@@ -520,8 +531,66 @@ console.log("facilities =", facilities);
                 </tbody>
               </table>
             </div>
-          )}
-        {/* </div> */}
+
+            {/* Phân trang */}
+            {totalPages > 1 && (
+              <div className="pagination-container">
+                <nav aria-label="Page navigation">
+                  <ul className="pagination justify-content-center">
+                    {/* Nút Previous */}
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => goToPage(currentPage - 1)}
+                        aria-label="Previous"
+                      >
+                        <span aria-hidden="true">&laquo;</span>
+                      </button>
+                    </li>
+
+                    {/* Các số trang */}
+                    {getPageNumbers().map((pageNum, index) => (
+                      <li
+                        key={index}
+                        className={`page-item ${pageNum === '...' ? 'disabled' :
+                            pageNum === currentPage ? 'active' : ''
+                          }`}
+                      >
+                        {pageNum === '...' ? (
+                          <span className="page-link">...</span>
+                        ) : (
+                          <button
+                            className="page-link"
+                            onClick={() => goToPage(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        )}
+                      </li>
+                    ))}
+
+                    {/* Nút Next */}
+                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => goToPage(currentPage + 1)}
+                        aria-label="Next"
+                      >
+                        <span aria-hidden="true">&raquo;</span>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+
+                <div className="pagination-info">
+                  <span>
+                    Trang {currentPage} / {totalPages}
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* THÊM: Modal form (giống Pharmacies.jsx) */}
