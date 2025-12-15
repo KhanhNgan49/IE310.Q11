@@ -33,6 +33,7 @@ export const routes = [
         path: '/map',
         page: React.lazy(() => import("../pages/PublicMapPage/PublicMapPage")),
         isShowHeader: true,
+        isShowFooter: false,
         isPublic: true
     },
     {

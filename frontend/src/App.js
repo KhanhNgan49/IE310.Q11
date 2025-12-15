@@ -13,6 +13,11 @@ function App() {
           {routes.map((route) => {
             const Page = route.page;
             const Layout = route.isShowHeader ? DefaultComponent : Fragment;
+
+            // Props cho DefaultComponent
+            const layoutProps = route.isShowHeader ? {
+              isShowFooter: route.isShowFooter !== false // Mặc định true nếu không set
+            } : {};
             
             // Nếu route là public, render bình thường
             if (route.isPublic) {
@@ -21,7 +26,7 @@ function App() {
                   key={route.path}
                   path={route.path}
                   element={
-                    <Layout>
+                    <Layout {...layoutProps}>
                       <Page />
                     </Layout>
                   }
@@ -36,7 +41,7 @@ function App() {
                 path={route.path}
                 element={
                   <ProtectedRoute requiredRole={route.requiredRole}>
-                    <Layout>
+                    <Layout {...layoutProps}>
                       <Page />
                     </Layout>
                   </ProtectedRoute>
