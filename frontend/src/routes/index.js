@@ -65,5 +65,29 @@ export const routes = [
         page: React.lazy(() => import("../pages/MyAppointmentsPage/MyAppointmentsPage")),
         isShowHeader: true,
         isPublic: true
+    },
+    {
+        path: '/symptom-function',
+        page: React.lazy(() => import("../pages/SymptomSearchPage/SymptomSearchPage")),
+        isShowHeader: true,
+        isPublic: true
+    },
+    {
+        path: '/nearbyfacilities-function',
+        page: React.lazy(() => import("../pages/NearbyFacilitiesPage/NearbyFacilitiesPage")),
+        isShowHeader: true,
+        isPublic: true
+    },
+    {
+        path: '/onlinebooking-function',
+        page: React.lazy(() => import("../pages/OnlineBookingPage/OnlineBookingPage")),
+        isShowHeader: true,
+        isPublic: true
+    },
+    {
+        path: '/filtered-function',
+        page: React.lazy(() => import("../pages/FiltersPage/FiltersPage")),
+        isShowHeader: true,
+        isPublic: true
     }
 ]
