@@ -12,75 +12,59 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
+export const pharmacyIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  shadowSize: [41, 41]
+});
+
 // Component con để điều khiển map
-const MapController = ({ outbreakToZoom, outbreakAreas }) => {
+const MapController = ({ pharmacyToZoom, pharmacyAreas }) => {
   const map = useMap();
 
   useEffect(() => {
-    if (outbreakToZoom && outbreakAreas.length > 0) {
-      const outbreak = outbreakAreas.find(o => o.id === outbreakToZoom);
-      if (outbreak && outbreak.coordinates && outbreak.coordinates.length > 0) {
-        // Tạo bounds từ coordinates của vùng dịch
-        const bounds = L.latLngBounds(outbreak.coordinates);
-        
-        // Zoom vào vùng dịch với padding
-        map.fitBounds(bounds, {
-          padding: [50, 50],
-          maxZoom: 18,
-          animate: true
-        });
+     if (!pharmacyToZoom || !pharmacyAreas.length) return;
 
-        // Mở popup của vùng dịch
-        const marker = L.marker(outbreak.center, { icon: outbreak.icon });
-        marker.bindPopup(`
-          <div style="min-width: 250px">
-            <div style="color: black; padding: 5px 10px; margin: -10px -10px 10px -10px;">
-              <strong>⚠️ ${outbreak.name}</strong>
-            </div>
-            <div style="margin-bottom: 10px;">
-              <div><strong>Bệnh:</strong> ${outbreak.disease_name || outbreak.disease_id}</div>
-              <div><strong>Số ca:</strong> <span style="color: ${outbreak.severity === 'high' ? '#dc3545' : '#000'}">${outbreak.cases}</span></div>
-              <div><strong>Mức độ:</strong> <span style="color: ${outbreak.severity === 'high' ? '#dc3545' : outbreak.severity === 'medium' ? '#fd7e14' : '#28a745'}">
-                ${getSeverityText(outbreak.severity)}
-              </span></div>
-            </div>
-            <div style="margin-bottom: 10px;">
-              <div><strong>Bắt đầu:</strong> ${formatDate(outbreak.startDate)}</div>
-              <div><strong>Kết thúc:</strong> ${formatDate(outbreak.endDate)}</div>
-            </div>
-          </div>
-        `).openPopup();
-      }
-    }
-  }, [outbreakToZoom, outbreakAreas, map]);
+    const pharmacy = pharmacyAreas.find(p => p.pharmacy_id === pharmacyToZoom);
+    if (!pharmacy || !pharmacy.location) return;
+
+    const { lat, lng } = pharmacy.location;
+
+    // Zoom tới điểm nhà thuốc
+    map.setView(pharmacy.location, 17, { animate: true });
+
+    // Tạo marker
+    const marker = L.marker(pharmacy.location).addTo(map);
+
+    marker.bindPopup(`
+      <div style="min-width: 260px; color: #000">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+          <span style="font-size:20px">💊</span>
+          <strong style="font-size:16px">${pharmacy.name}</strong>
+        </div>
+
+        <div style="font-size:14px">
+          <div><strong>Tỉnh/Thành phố:</strong> ${pharmacy.province}</div>
+          <div><strong>Địa chỉ:</strong> ${pharmacy.address}</div>
+        </div>
+      </div>
+    `).openPopup();
+
+    return () => {
+      map.removeLayer(marker);
+    };
+  }, [pharmacyToZoom, pharmacyAreas, map]);
 
   return null;
 };
 
-// Helper functions
-const getSeverityText = (severity) => {
-  switch(severity) {
-    case 'high': return 'Cao';
-    case 'medium': return 'Trung bình';
-    case 'low': return 'Thấp';
-    default: return 'Không xác định';
-  }
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'Đang diễn ra';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN');
-  } catch (error) {
-    return dateString;
-  }
-};
-
-const OutbreakMap = ({ 
-  outbreaks = [], // QUAN TRỌNG: Nhận outbreaks từ props thay vì tự fetch
-  onOutbreakClick, 
-  selectedOutbreakId,
+const PharmacyMap = ({ 
+  pharmacies = [], // QUAN TRỌNG: Nhận pharmacies từ props thay vì tự fetch
+  onPharmacyClick, 
+  selectedPharmacyId,
   showLoading = false 
 }) => {
   const [mapCenter] = useState([10.762622, 106.660172]);
@@ -88,113 +72,89 @@ const OutbreakMap = ({
   const mapRef = useRef();
   const isZoomingRef = useRef(false);
 
-  // Tạo icon cho vùng dịch theo mức độ nghiêm trọng
-  const getOutbreakIcon = useCallback((severity) => {
-    const iconUrl = severity === 'high' 
-      ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png'
-      : severity === 'medium'
-      ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png'
-      : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png';
+  // lấy location cho mỗi pharmacy
+  const [pharmaciesWithLocation, setPharmaciesWithLocation] = useState([]);
 
-    return new L.Icon({
-      iconUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-      shadowSize: [41, 41]
-    });
-  }, []);
+  useEffect(() => {
+  async function enrichPharmacies() {
+    if (!pharmacies || pharmacies.length === 0) return;
 
-  // Hàm lấy màu sắc cho outbreak area dựa trên severity level
-  const getColorBySeverity = useCallback((severity) => {
-    switch(severity) {
-      case 'high': return '#ff0000';
-      case 'medium': return '#ff9900';
-      case 'low': return '#ffff00';
-      default: return '#cccccc';
-    }
-  }, []);
+    const enriched = await Promise.all(
+      pharmacies.map(async (p) => {
+        if (!p.pharmacy_point_id) return null;
 
-  // Hàm xử lý dữ liệu geometry từ API - Sửa để xử lý trực tiếp từ prop
-  const processOutbreakData = useCallback((outbreak) => {
-    const coordinates = processGeometry(outbreak.area_geom);
-    
-    // Tính trung tâm của polygon để đặt marker
-    let center = mapCenter;
-    if (coordinates.length > 0) {
-      const sum = coordinates.reduce((acc, coord) => {
-        return [acc[0] + coord[0], acc[1] + coord[1]];
-      }, [0, 0]);
-      center = [sum[0] / coordinates.length, sum[1] / coordinates.length];
-    }
+        try {
+           const res = await fetch(
+            `http://localhost:3001/api/locations/${p.pharmacy_point_id}`
+          );
+
+          //if (!res.ok) return null;
+
+          const location = await res.json();
+          return {
+            ...p,
+            location
+          };
+        } catch (err) {
+          console.error("Load location failed", p.pharmacy_id, err);
+          return null;
+        }
+      })
+    );
+
+    setPharmaciesWithLocation(enriched.filter(Boolean));
+  }
+
+  enrichPharmacies();
+}, [pharmacies]);
+
+  const processPharmacyData = useCallback((pharmacy) => {
+    if (!pharmacy.location || !pharmacy.location.coordinates) return null;
+
+    // GeoJSON POINT: [lng, lat]
+    const [lng, lat] = pharmacy.location.coordinates.coordinates;
 
     return {
-      ...outbreak,
-      id: outbreak.outbreak_id,
-      name: outbreak.outbreak_name,
-      disease_name: outbreak.disease_name || outbreak.disease_id,
-      cases: outbreak.disease_cases,
-      severity: outbreak.severity_level,
-      startDate: outbreak.start_date,
-      endDate: outbreak.end_date,
-      coordinates,
-      center,
-      fillColor: getColorBySeverity(outbreak.severity_level),
-      borderColor: getColorBySeverity(outbreak.severity_level),
-      icon: getOutbreakIcon(outbreak.severity_level)
+      id: pharmacy.pharmacy_id,
+      name: pharmacy.pharmacy_name,
+      address: pharmacy.address,
+      province: pharmacy.province_id,
+
+      location: [lat, lng],
+      fillColor: '#00ff00',
+      borderColor: '#00ff00',
+      icon: pharmacyIcon
     };
-  }, [mapCenter, getColorBySeverity, getOutbreakIcon]);
+  });
 
-  // Hàm xử lý geometry
-  const processGeometry = useCallback((geometry) => {
-    if (!geometry || !geometry.coordinates) return [];
-    
-    try {
-      const polygonCoordinates = geometry.coordinates[0];
-      return polygonCoordinates.map(coord => [coord[1], coord[0]]);
-    } catch (error) {
-      console.error('Error processing geometry:', error);
-      return [];
-    }
-  }, []);
+  // Process pharmacies data từ props
+  const processedPharmacies = useMemo(() => {
+    if (!pharmaciesWithLocation.length) return [];
+    return pharmaciesWithLocation.map(processPharmacyData).filter(Boolean);
+  }, [pharmaciesWithLocation, processPharmacyData]);
 
-  // Process outbreaks data từ props
-  const processedOutbreaks = useMemo(() => {
-    if (!outbreaks || outbreaks.length === 0) return [];
-    return outbreaks.map(outbreak => processOutbreakData(outbreak));
-  }, [outbreaks, processOutbreakData]);
-
-  // Theo dõi sự thay đổi của selectedOutbreakId
+  // Theo dõi sự thay đổi của selectedPharmacyId
   useEffect(() => {
-    if (selectedOutbreakId) {
+    if (selectedPharmacyId) {
       isZoomingRef.current = true;
       setTimeout(() => {
         isZoomingRef.current = false;
       }, 1000);
     }
-  }, [selectedOutbreakId]);
+  }, [selectedPharmacyId]);
 
-  // Hàm xử lý khi click vào vùng dịch
-  const handleOutbreakClick = useCallback((outbreak) => {
-    if (onOutbreakClick) {
-      onOutbreakClick(outbreak);
-    }
-    
-    // Zoom vào vùng dịch được click
-    if (mapRef.current && outbreak.coordinates && outbreak.coordinates.length > 0) {
-      const map = mapRef.current;
-      const bounds = L.latLngBounds(outbreak.coordinates);
-      map.fitBounds(bounds, {
-        padding: [50, 50],
-        maxZoom: 30,
-        animate: true
-      });
-    }
-  }, [onOutbreakClick]);
+  // Hàm xử lý khi click vào nhà thuốc
+  const handlePharmacyClick = useCallback((pharmacy) => {
+      onPharmacyClick?.(pharmacy);
+      
+      if (mapRef.current && pharmacy.location) {
+        mapRef.current.setView(pharmacy.location, 17, { animate: true });
+      }
+  }, [onPharmacyClick]);
 
-  // Hàm render popup cho vùng dịch
-  const renderOutbreakPopup = (outbreak) => {
+  // Hàm render popup cho nhà thuốc
+  const renderPharmacyPopup = (pharmacy) => {
+
     return (
       <div style={{ minWidth: '250px' }}>
         <div style={{ 
@@ -204,47 +164,28 @@ const OutbreakMap = ({
           borderTopLeftRadius: '4px',
           borderTopRightRadius: '4px'
         }}>
-          <strong>⚠️ {outbreak.name}</strong>
+          <strong>💊 {pharmacy.name}</strong>
         </div>
-        
-        <div style={{ marginBottom: '10px' }}>
-          <div><strong>Bệnh:</strong> {outbreak.disease_name || outbreak.disease_id}</div>
-          <div><strong>Số ca:</strong> <span style={{ color: outbreak.severity === 'high' ? '#dc3545' : '#000' }}>{outbreak.cases}</span></div>
-          <div><strong>Mức độ:</strong> <span style={{ color: outbreak.severity === 'high' ? '#dc3545' : outbreak.severity === 'medium' ? '#fd7e14' : '#28a745' }}>
-            {getSeverityText(outbreak.severity)}
-          </span></div>
-        </div>
-        
-        <div style={{ marginBottom: '10px' }}>
-          <div><strong>Bắt đầu:</strong> {formatDate(outbreak.startDate)}</div>
-          <div><strong>Kết thúc:</strong> {formatDate(outbreak.endDate)}</div>
-        </div>
-        
-        {outbreak.description && (
-          <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
-            <strong>Mô tả:</strong>
-            <p style={{ margin: '5px 0 0 0', fontSize: '0.9em' }}>{outbreak.description}</p>
-          </div>
-        )}
+
       </div>
     );
   };
 
-  // Empty state khi không có outbreaks
-  if (!showLoading && (!outbreaks || outbreaks.length === 0)) {
+  // Empty state khi không có pharmacies
+  if (!showLoading && (!pharmacies || pharmacies.length === 0)) {
     return (
-      <div className="outbreak-map-container">
+      <div className="pharmacy-map-container">
         <div className="map-empty-state">
           <i className="bi bi-map"></i>
-          <h5>Không có dữ liệu vùng dịch</h5>
-          <p>Không tìm thấy vùng dịch nào phù hợp với bộ lọc</p>
+          <h5>Không có dữ liệu nhà thuốc</h5>
+          <p>Không tìm thấy nhà thuốc nào phù hợp với bộ lọc</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="outbreak-map-container">
+    <div className="pharmacy-map-container">
       {/* Loading state */}
       {showLoading && (
         <div className="map-loading-overlay">
@@ -252,17 +193,17 @@ const OutbreakMap = ({
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Đang tải...</span>
             </div>
-            <p className="mt-3">Đang tải bản đồ vùng dịch...</p>
+            <p className="mt-3">Đang tải bản đồ nhà thuốc...</p>
           </div>
         </div>
       )}
       
       {/* Map */}
-      <div className={`outbreak-map-wrapper ${showLoading ? 'loading' : 'loaded'}`}>
+      <div className={`pharmacy-map-wrapper ${showLoading ? 'loading' : 'loaded'}`}>
         <MapContainer
           center={mapCenter}
           zoom={mapZoom}
-          className="outbreak-map"
+          className="pharmacy-map"
           scrollWheelZoom={true}
           style={{ height: "500px", width: "100%" }}
           whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}
@@ -273,55 +214,29 @@ const OutbreakMap = ({
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
 
-          {/* Map controller để zoom vào vùng dịch cụ thể */}
+          {/* Map controller để zoom vào nhà thuốc cụ thể */}
           <MapController 
-            outbreakToZoom={selectedOutbreakId} 
-            outbreakAreas={processedOutbreaks} 
+            pharmacyToZoom={selectedPharmacyId} 
+            pharmacyAreas={processedPharmacies} 
           />
 
-          {/* Hiển thị các vùng dịch từ props */}
-          {!showLoading && processedOutbreaks.map((outbreak, index) => {
-            if (!outbreak.coordinates || outbreak.coordinates.length === 0) {
-              return null;
-            }
-
-            const isSelected = outbreak.id === selectedOutbreakId;
+          {/* Hiển thị các nhà thuốc từ props */}
+          {!showLoading && processedPharmacies.map((pharmacy) => {
+            if (!pharmacy.location) return null;
 
             return (
-              <React.Fragment key={outbreak.id || index}>
-                {/* Polygon cho vùng dịch */}
-                <Polygon
-                  positions={outbreak.coordinates}
-                  pathOptions={{
-                    fillColor: outbreak.fillColor,
-                    color: isSelected ? '#000000' : outbreak.borderColor,
-                    weight: isSelected ? 4 : 3,
-                    opacity: isSelected ? 1 : 0.8,
-                    fillOpacity: isSelected ? 0.4 : 0.3,
-                    dashArray: isSelected ? '10, 10' : undefined
-                  }}
-                  eventHandlers={{
-                    click: () => handleOutbreakClick(outbreak)
-                  }}
-                >
-                  <Popup>
-                    {renderOutbreakPopup(outbreak)}
-                  </Popup>
-                </Polygon>
-
-                {/* Marker ở trung tâm vùng dịch */}
-                <Marker
-                  position={outbreak.center}
-                  icon={outbreak.icon}
-                  eventHandlers={{
-                    click: () => handleOutbreakClick(outbreak)
-                  }}
-                >
-                  <Popup>
-                    {renderOutbreakPopup(outbreak)}
-                  </Popup>
-                </Marker>
-              </React.Fragment>
+              <Marker
+                key={pharmacy.id}
+                position={pharmacy.location}
+                icon={pharmacy.icon}
+                eventHandlers={{
+                  click: () => handlePharmacyClick(pharmacy)
+                }}
+              >
+                <Popup>
+                  {renderPharmacyPopup(pharmacy)}
+                </Popup>
+              </Marker>
             );
           })}
         </MapContainer>
@@ -355,35 +270,16 @@ const OutbreakMap = ({
           </button>
         </div>
       </div>
-
-      {/* Legend */}
-      <div className="map-legend">
-       
-        <div className="legend-items">
-          <div className="legend-item">
-            <span className="legend-color high"></span>
-            <span>Cao</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color medium"></span>
-            <span>Trung bình</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color low"></span>
-            <span>Thấp</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
 
 // Props mặc định
-OutbreakMap.defaultProps = {
-  outbreaks: [],
-  onOutbreakClick: null,
-  selectedOutbreakId: null,
+PharmacyMap.defaultProps = {
+  pharmacies: [],
+  onPharmacyClick: null,
+  selectedPharmacyId: null,
   showLoading: false
 };
 
-export default OutbreakMap;
+export default PharmacyMap;

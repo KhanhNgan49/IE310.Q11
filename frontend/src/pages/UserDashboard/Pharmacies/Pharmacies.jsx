@@ -270,9 +270,9 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                 </div>
             ) : (
                 <PharmacyMap 
-                outbreaks={filteredPharmacies}
-                onOutbreakClick={handleMapPharmacyClick}
-                selectedOutbreakId={selectedPharmacy}
+                pharmacies={filteredPharmacies}
+                onPharamcyClick={handleMapPharmacyClick}
+                selectedPharmacyId={selectedPharmacy}
                 showLoading={loading}
                 enableReset={true}
                 />

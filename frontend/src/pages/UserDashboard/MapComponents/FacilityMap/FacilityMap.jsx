@@ -109,7 +109,42 @@ const FacilityMap = ({
     }
   }, []);
 
-  // Hàm xử lý dữ liệu geometry từ API - Sửa để xử lý trực tiếp từ prop
+  // lấy location cho mỗi facility
+  const [facilitiesWithLocation, setFacilitiesWithLocation] = useState([]);
+
+  useEffect(() => {
+  async function enrichFacilities() {
+    if (!facilities || facilities.length === 0) return;
+
+    const enriched = await Promise.all(
+      facilities.map(async (f) => {
+        if (!f.raw.facility_point_id) return null;
+
+        try {
+           const res = await fetch(
+            `http://localhost:3001/api/locations/${f.raw.facility_point_id}`
+          );
+
+          //if (!res.ok) return null;
+
+          const location = await res.json();
+          return {
+            ...f,
+            location
+          };
+        } catch (err) {
+          console.error("Load location failed", f.facility_id, err);
+          return null;
+        }
+      })
+    );
+
+    setFacilitiesWithLocation(enriched.filter(Boolean));
+  }
+
+  enrichFacilities();
+}, [facilities]);
+
   const processFacilityData = useCallback((facility) => {
     if (!facility.location || !facility.location.coordinates) return null;
 
@@ -117,12 +152,12 @@ const FacilityMap = ({
     const [lng, lat] = facility.location.coordinates.coordinates;
 
     return {
-      id: facility.facility_id,
-      name: facility.facility_name,
-      type: facility.type_id,
+      id: facility.id,
+      name: facility.name,
+      type: facility.type,
       address: facility.address,
       phone: facility.phone,
-      province: facility.province_name,
+      province: facility.province,
       status: facility.status,
       services: facility.services,
 
@@ -133,16 +168,11 @@ const FacilityMap = ({
     };
   }, [getColorByStatus, getFacilityIcon]);
 
-  useEffect(() => {
-  console.log("RAW facilities:", facilities);
-}, [facilities]);
-console.log("FIRST facility:", facilities?.[0]);
-
   // Process facilities data từ props
   const processedFacilities = useMemo(() => {
-    if (!facilities || facilities.length === 0) return [];
-    return facilities.map(processFacilityData).filter(Boolean);
-  }, [facilities, processFacilityData]);
+    if (!facilitiesWithLocation.length) return [];
+    return facilitiesWithLocation.map(processFacilityData).filter(Boolean);
+  }, [facilitiesWithLocation, processFacilityData]);
 
   // Theo dõi sự thay đổi của selectedFacilityId
   useEffect(() => {
@@ -154,7 +184,7 @@ console.log("FIRST facility:", facilities?.[0]);
     }
   }, [selectedFacilityId]);
 
-  // Hàm xử lý khi click vào vùng dịch
+  // Hàm xử lý khi click vào cơ sở y tế
   const handleFacilityClick = useCallback((facility) => {
       onFacilityClick?.(facility);
     
@@ -163,7 +193,7 @@ console.log("FIRST facility:", facilities?.[0]);
       }
   }, [onFacilityClick]);
 
-  // Hàm render popup cho vùng dịch
+  // Hàm render popup cho cơ sở y tế
   const renderFacilityPopup = (facility) => {
     return (
       <div style={{ minWidth: '250px' }}>
@@ -186,7 +216,7 @@ console.log("FIRST facility:", facilities?.[0]);
         
         <div style={{ marginBottom: '10px' }}>
           <div><strong>Điện thoại</strong> {facility.phone}</div>
-          <div><strong>Dịch vụ:</strong> {facility.services}</div>
+          <div><strong>Dịch vụ:</strong> {facility.services.join(", ")}</div>
         </div>
       </div>
     );
@@ -235,7 +265,7 @@ console.log("FIRST facility:", facilities?.[0]);
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
 
-          {/* Map controller để zoom vào vùng dịch cụ thể */}
+          {/* Map controller để zoom vào cơ sở y tế cụ thể */}
           <MapController 
             facilityToZoom={selectedFacilityId} 
             facilityAreas={processedFacilities} 
@@ -291,7 +321,6 @@ console.log("FIRST facility:", facilities?.[0]);
           </button>
         </div>
       </div>
-
     </div>
   );
 };
