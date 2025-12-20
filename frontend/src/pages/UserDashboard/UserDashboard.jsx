@@ -179,21 +179,7 @@ const UserDashboard = () => {
     switch (activeSection) {
       case 'dashboard':
         return (
-          <>
-            <DashboardStats />
-            <div className="row mt-4">
-              <div className="col-lg-8">
-                <RecentActivity />
-              </div>
-              <div className="col-lg-4">
-                <QuickActions
-                  onAddFacility={() => setShowFacilityForm(true)}
-                  onAddOutbreak={() => setShowOutbreakForm(true)}
-                  onCreateReport={() => setShowReportForm(true)}
-                />
-              </div>
-            </div>
-          </>
+          <DashboardStats />
         );
       case 'users':
         return (

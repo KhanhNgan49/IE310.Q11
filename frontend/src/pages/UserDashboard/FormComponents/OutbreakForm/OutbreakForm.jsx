@@ -628,6 +628,11 @@ const OutbreakForm = ({ onSubmit, initialData, mode = 'create', isSubmitting = f
                 </div>
 
                 <div className="confirmation-item">
+                  <div className="confirmation-label">Tỉnh/Thành phố:</div>
+                  <div className="confirmation-value">{formData.province_name}</div>
+                </div>
+
+                <div className="confirmation-item">
                   <div className="confirmation-label">Ngày bắt đầu:</div>
                   <div className="confirmation-value">
                     {new Date(formData.start_date).toLocaleDateString('vi-VN')}

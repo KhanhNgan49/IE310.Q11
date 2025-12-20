@@ -197,3 +197,8 @@
   }
 }
 
+.confirmation-label {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  font-weight: 800;
+}
