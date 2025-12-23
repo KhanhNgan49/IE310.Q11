@@ -8,7 +8,7 @@ const ProtectedRoute = ({
   redirectTo = '/unauthorized',
   fallback = null
 }) => {
-  const { isAuthenticated, hasRole, loading } = useAuth();
+  const { isAuthenticated, hasRole, loading } = useAuth(); // Sử dụng context xác thực
 
   if (loading) {
     // Hiển thị loading spinner hoặc component loading

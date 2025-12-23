@@ -2,6 +2,7 @@ import React from 'react';
 import './FooterBottom.css';
 
 const FooterBottom = () => {
+  // Lấy năm hiện tại
   const currentYear = new Date().getFullYear();
 
   return (

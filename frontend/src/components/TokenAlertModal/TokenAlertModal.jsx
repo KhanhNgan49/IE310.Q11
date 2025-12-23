@@ -3,11 +3,11 @@ import { useTokenAlert } from '../../contexts/TokenAlertContext';
 import './TokenAlertModal.css';
 
 const TokenAlertModal = () => {
+    // Sử dụng context thông báo token
     const {
         showAlert,
         alertConfig,
         hideTokenAlert,
-        // extendSession 
     } = useTokenAlert();
 
     // const [isExtending, setIsExtending] = useState(false);
@@ -41,24 +41,7 @@ const TokenAlertModal = () => {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // Cần chỉnh lại backend để sử dụng
-    // const handleExtendSession = async () => {
-    //   setIsExtending(true);
-    //   try {
-    //     const success = await extendSession();
-    //     if (success) {
-    //       hideTokenAlert();
-    //     } else {
-    //       // Xử lý khi refresh token thất bại
-    //       alert('Không thể gia hạn phiên làm việc. Vui lòng đăng nhập lại.');
-    //       hideTokenAlert();
-    //     }
-    //   } catch (error) {
-    //     console.error('Error extending session:', error);
-    //     setIsExtending(false);
-    //   }
-    // };
-
+    // Đăng xuất
     const handleLogout = () => {
         // Đóng modal và logout sẽ được xử lý bởi context
         hideTokenAlert();
@@ -142,12 +125,6 @@ const TokenAlertModal = () => {
 
                     {/* Tips */}
                     <div className="alert-tips">
-                        {/* <div className="tip-item">
-              <span className="tip-icon">💡</span>
-              <span className="tip-text">
-                Bấm "Tiếp tục" để gia hạn phiên làm việc thêm 60 phút
-              </span>
-            </div> */}
                         <div className="tip-item">
                             <span className="tip-icon">📝</span>
                             <span className="tip-text">
@@ -159,28 +136,9 @@ const TokenAlertModal = () => {
 
                 {/* Footer - Buttons */}
                 <div className="token-alert-footer">
-                    {/* <button
-            className="btn btn-primary btn-extend"
-            onClick={handleExtendSession}
-            disabled={isExtending}
-          >
-            {isExtending ? (
-              <>
-                <span className="spinner"></span>
-                <span>Đang xử lý...</span>
-              </>
-            ) : (
-              <>
-                <span className="btn-icon">🔄</span>
-                <span>Tiếp tục phiên làm việc</span>
-              </>
-            )}
-          </button> */}
-
                     <button
                         className="btn btn-secondary btn-logout"
                         onClick={handleLogout}
-                    // disabled={isExtending}
                     >
                         <span className="btn-icon">🚪</span>
                         <span>Đăng xuất ngay</span>
@@ -189,7 +147,6 @@ const TokenAlertModal = () => {
                     <button
                         className="btn btn-ghost btn-minimize"
                         onClick={hideTokenAlert}
-                    // disabled={isExtending}
                     >
                         <span>Ẩn thông báo</span>
                     </button>

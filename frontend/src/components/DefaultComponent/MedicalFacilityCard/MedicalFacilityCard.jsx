@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import "./MedicalFacilityCard.css";
 
 export default function MedicalFacilityCard({ facility }) {
+  // Trạng thái hiển thị chi tiết
   const [showDetail, setShowDetail] = useState(false);
 
+  // Hàm lấy tên loại cơ sở y tế
   const getFacilityType = () => {
+    // Các loại cơ sở y tế sang tên hiển thị
     const typeMap = {
       'hospital': 'Bệnh viện',
       'clinic': 'Phòng khám',
@@ -12,12 +15,14 @@ export default function MedicalFacilityCard({ facility }) {
       'pharmacy': 'Nhà thuốc',
       'emergency': 'Cấp cứu'
     };
-    
+
     return typeMap[facility.type_id] || facility.type_id || 'Cơ sở y tế';
   };
 
+
+  // Hàm lấy nhãn trạng thái và lớp CSS tương ứng
   const getStatusBadge = () => {
-    switch(facility.status) {
+    switch (facility.status) {
       case 'active':
         return { text: 'Hoạt động', class: 'status-active' };
       case 'inactive':
@@ -29,17 +34,19 @@ export default function MedicalFacilityCard({ facility }) {
     }
   };
 
+
+  // Hàm lấy danh sách dịch vụ
   const getServices = () => {
     try {
       if (Array.isArray(facility.services)) {
         return facility.services;
       }
-      
+
       if (typeof facility.services === 'string') {
         const parsed = JSON.parse(facility.services);
         return Array.isArray(parsed) ? parsed : [];
       }
-      
+
       return [];
     } catch (err) {
       if (typeof facility.services === 'string') {
@@ -52,10 +59,11 @@ export default function MedicalFacilityCard({ facility }) {
     }
   };
 
-  const facilityType = getFacilityType();
-  const status = getStatusBadge();
-  const services = getServices();
+  const facilityType = getFacilityType(); // Lấy tên loại cơ sở y tế
+  const status = getStatusBadge(); // Lấy nhãn trạng thái và lớp CSS
+  const services = getServices(); // Lấy danh sách dịch vụ
 
+  // Hàm lấy icon tương ứng với dịch vụ
   const getServiceIcon = (service) => {
     const iconMap = {
       'khám tổng quát': 'bi-heart-pulse',
@@ -78,36 +86,25 @@ export default function MedicalFacilityCard({ facility }) {
         return icon;
       }
     }
-    
-    return 'bi-check-circle'; 
+
+    return 'bi-check-circle';
   };
 
+  // Hàm lấy màu sắc tương ứng với dịch vụ
   const getServiceColor = (index) => {
     const colors = [
-      'var(--primary)', 
-      '#4CAF50',        
-      '#2196F3',       
-      '#FF9800',        
-      '#9C27B0',       
-      '#F44336',        
-      '#009688',        
-      '#673AB7',        
-      '#FF5722',        
-      '#795548'         
+      'var(--primary)',
+      '#4CAF50',
+      '#2196F3',
+      '#FF9800',
+      '#9C27B0',
+      '#F44336',
+      '#009688',
+      '#673AB7',
+      '#FF5722',
+      '#795548'
     ];
     return colors[index % colors.length];
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "Không có";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   return (
@@ -128,9 +125,9 @@ export default function MedicalFacilityCard({ facility }) {
             <i className="bi bi-circle-fill me-1"></i>
             {status.text}
           </span>
-          
+
           <div className="facility-actions">
-            <button 
+            <button
               className="facility-btn facility-btn-primary"
               onClick={() => setShowDetail(true)}
             >
@@ -150,7 +147,7 @@ export default function MedicalFacilityCard({ facility }) {
                 <i className="bi bi-hospital me-2"></i>
                 Chi tiết cơ sở y tế
               </h3>
-              <button 
+              <button
                 className="modal-close-btn"
                 onClick={() => setShowDetail(false)}
               >
@@ -206,8 +203,8 @@ export default function MedicalFacilityCard({ facility }) {
                   <h4 className="detail-section-title">Dịch vụ ({services.length})</h4>
                   <div className="services-detail-grid">
                     {services.map((service, index) => (
-                      <div 
-                        key={index} 
+                      <div
+                        key={index}
                         className="service-badge"
                         style={{ borderLeftColor: getServiceColor(index) }}
                       >
@@ -221,7 +218,7 @@ export default function MedicalFacilityCard({ facility }) {
             </div>
 
             <div className="modal-footer">
-              <button 
+              <button
                 className="facility-btn facility-btn-secondary"
                 onClick={() => setShowDetail(false)}
               >

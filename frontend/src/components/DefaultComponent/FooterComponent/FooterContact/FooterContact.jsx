@@ -2,6 +2,7 @@ import React from 'react';
 import './FooterContact.css';
 
 const FooterContact = () => {
+  // Thông tin liên hệ
   const contactInfo = [
     {
       icon: 'bi bi-geo-alt-fill',

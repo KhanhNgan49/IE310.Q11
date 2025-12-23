@@ -1,8 +1,18 @@
-import React, { createContext, useState, useContext, useCallback, useRef, useEffect } from 'react';
-import { useAuth } from './AuthContext';
+import React, {
+    createContext,
+    useState,
+    useContext,
+    useCallback,
+    useRef,
+    useEffect
+} from 'react';
+import {
+    useAuth
+} from './AuthContext';
 
-const TokenAlertContext = createContext({});
+const TokenAlertContext = createContext({}); // Tạo context thông báo token
 
+// Hook sử dụng context thông báo token
 export const useTokenAlert = () => {
     const context = useContext(TokenAlertContext);
     if (!context) {
@@ -11,7 +21,10 @@ export const useTokenAlert = () => {
     return context;
 };
 
-export const TokenAlertProvider = ({ children }) => {
+// Provider context thông báo token
+export const TokenAlertProvider = ({
+    children
+}) => {
     const [showAlert, setShowAlert] = useState(false);
     const [alertConfig, setAlertConfig] = useState({
         title: 'Phiên làm việc sắp hết hạn',
@@ -20,11 +33,14 @@ export const TokenAlertProvider = ({ children }) => {
         timeLeft: 300,
     });
 
-    const { logout, refreshToken } = useAuth();
-    const intervalRef = useRef(null);
-    const timeoutRef = useRef(null);
-    const alertShownRef = useRef(false);
-    const monitoringIntervalRef = useRef(null);
+    const {
+        logout,
+        refreshToken
+    } = useAuth(); // Sử dụng context xác thực
+    const intervalRef = useRef(null); // Lưu trữ interval đếm ngược
+    const timeoutRef = useRef(null); // Lưu trữ timeout tự động logout
+    const alertShownRef = useRef(false); // Đánh dấu đã hiển thị cảnh báo
+    const monitoringIntervalRef = useRef(null); // Lưu trữ interval kiểm tra token
 
     // Hiển thị thông báo
     const showTokenAlert = useCallback((config = {}) => {
@@ -51,7 +67,10 @@ export const TokenAlertProvider = ({ children }) => {
                     return prev;
                 }
 
-                return { ...prev, timeLeft: newTimeLeft };
+                return {
+                    ...prev,
+                    timeLeft: newTimeLeft
+                };
             });
         }, 1000);
 
@@ -132,9 +151,9 @@ export const TokenAlertProvider = ({ children }) => {
                         expiryTime: expiry,
                         timeLeft: Math.floor(timeUntilExpiry / 1000),
                         message: message,
-                        title: timeUntilExpiry <= criticalThreshold
-                            ? '⚠️ Phiên làm việc sắp hết hạn!'
-                            : 'Phiên làm việc sắp hết hạn'
+                        title: timeUntilExpiry <= criticalThreshold ?
+                            '⚠️ Phiên làm việc sắp hết hạn!' :
+                            'Phiên làm việc sắp hết hạn'
                     });
                 }
             }

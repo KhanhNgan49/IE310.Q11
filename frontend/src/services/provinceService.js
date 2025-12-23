@@ -1,6 +1,7 @@
 import { api } from "./axiosServices";
 
 const provinceService = {
+  // Tìm kiếm tỉnh/thành phố theo từ khóa
   searchProvinces: async (data) => {
     try {   
         const response = await api.get(`/provinces/search/`, {
@@ -10,19 +11,19 @@ const provinceService = {
         });
         return response.data;
     } catch (error) {
-      console.log(`Get province ${data} error:`, error.message);
       return {
         success: false,
         message: "Không thể lấy thông tin tỉnh/thành phố",
       };
     }  
   },
+
+  // Lấy toàn bộ tỉnh/thành phố
   getAllProvinces: async () => {
     try {   
-      const response = await api.get(`/provinces/`); // Endpoint lấy tất cả
+      const response = await api.get(`/provinces/`);
       return response.data || [];
     } catch (error) {
-      console.log(`Get all provinces error:`, error.message);
       return [];
     }  
   },  

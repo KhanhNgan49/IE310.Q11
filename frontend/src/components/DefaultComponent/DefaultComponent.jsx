@@ -8,6 +8,7 @@ const DefaultComponent = ({ children , isShowFooter = true}) => {
       <HeaderComponent />
       {children}
 
+      {/* Tắt Footer với nhưng trang không cần thiết */}
       {isShowFooter && <FooterComponent />}
     </div>
   );

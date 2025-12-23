@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import './EmergencyBanner.css';
 
 const EmergencyBanner = () => {
+  // Hiển thị hoặc ẩn banner khẩn cấp
   const [isVisible, setIsVisible] = useState(true);
 
+  // Xử lý đóng banner
   const handleClose = () => {
     setIsVisible(false);
   };

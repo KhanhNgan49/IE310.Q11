@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import "./PharmacyCard.css";
 
 export default function PharmacyCard({ pharmacy, provinces }) {
+  // Trạng thái hiển thị chi tiết
   const [showDetail, setShowDetail] = useState(false);
-  
+
   // Tìm tỉnh/thành phố dựa trên province_id
   const getProvinceInfo = () => {
     if (!pharmacy.province_id || !provinces) return null;
     return provinces.find(p => p.province_id === pharmacy.province_id);
   };
 
+  // Lấy thông tin tỉnh/thành phố
   const province = getProvinceInfo();
 
   return (
@@ -24,7 +26,7 @@ export default function PharmacyCard({ pharmacy, provinces }) {
         </div>
 
         <div className="pharmacy-actions">
-          <button 
+          <button
             className="pharmacy-btn pharmacy-btn-primary"
             onClick={() => setShowDetail(true)}
           >
@@ -100,8 +102,8 @@ export default function PharmacyCard({ pharmacy, provinces }) {
 
             {/* Modal Footer */}
             <div className="modal-footer">
-              <button 
-                className="modal-btn modal-btn-secondary" 
+              <button
+                className="modal-btn modal-btn-secondary"
                 onClick={() => setShowDetail(false)}
               >
                 Đóng

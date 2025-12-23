@@ -7,7 +7,6 @@ const facilityService = {
       const response = await api.get('/medical-facilities');
       return response.data;
     } catch (error) {
-      console.log('Get medical facilities error:', error.message);
       return {
         success: false,
         message: 'Không thể lấy danh sách cơ sở y tế'
@@ -21,7 +20,6 @@ const facilityService = {
       const response = await api.get(`/medical-facilities/${id}`);
       return response.data;
     } catch (error) {
-      console.log(`Get facility ${id} error:`, error.message);
       return {
         success: false,
         message: 'Không thể lấy thông tin cơ sở y tế'
@@ -78,6 +76,7 @@ const facilityService = {
     }
   },
 
+  // Tìm kiếm cơ sở y tế theo từ khóa
   searchFacilities: async (query) => {
     try {
       const response = await api.get('/medical-facilities/search', { params: { q: query } });

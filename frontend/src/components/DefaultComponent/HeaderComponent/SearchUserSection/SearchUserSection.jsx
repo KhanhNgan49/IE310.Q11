@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import './SearchUserSection.css';
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom';
 
 const SearchUserSection = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null); // Trạng thái thông tin user
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Trạng thái xác thực
+
   const navigate = useNavigate();
 
   // Lấy thông tin user từ localStorage khi component mount
   useEffect(() => {
     const userData = localStorage.getItem('user');
     const token = localStorage.getItem('authToken');
-    
+
     if (userData && token) {
       try {
         setUser(JSON.parse(userData));
@@ -29,7 +29,7 @@ const SearchUserSection = () => {
     const handleStorageChange = () => {
       const updatedUserData = localStorage.getItem('user');
       const updatedToken = localStorage.getItem('authToken');
-      
+
       if (updatedUserData && updatedToken) {
         try {
           setUser(JSON.parse(updatedUserData));
@@ -50,55 +50,46 @@ const SearchUserSection = () => {
     };
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Xử lý tìm kiếm ở đây
-    console.log('Searching for:', searchQuery);
-    // Gọi API tìm kiếm hoặc chuyển hướng đến trang kết quả
-  };
-
+  // Hàm lấy tên hiển thị của user
   const getUserDisplayName = () => {
     if (!user) return 'Người dùng';
-    
     // Ưu tiên hiển thị username, nếu không có thì dùng email
     return user.user_name || user.email || 'Người dùng';
   };
 
+  // Hàm lấy avatar của user
   const getUserAvatar = () => {
     if (!user) return <i className="bi bi-person-fill"></i>;
-    
+
     // Nếu user có avatar URL
     if (user.avatar) {
       return <img src={user.avatar} alt={getUserDisplayName()} />;
     }
-    
+
     // Nếu có tên, hiển thị chữ cái đầu
     if (user.name || user.username) {
       const name = user.name || user.username;
       const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
       return <span className="avatar-initials">{initials.substring(0, 2)}</span>;
     }
-    
+
     // Mặc định
     return <i className="bi bi-person-fill"></i>;
   };
 
+  // Hàm lấy vai trò của user
   const getUserRole = () => {
     if (!user) return '';
-    
+
     const roleNames = {
       'admin': 'Quản trị viên',
-      'super_admin': 'Super Admin',
-      'doctor': 'Bác sĩ',
-      'nurse': 'Y tá',
-      'staff': 'Nhân viên',
-      'health_worker': 'Cán bộ y tế',
       'user': 'Người dùng'
     };
-    
+
     return roleNames[user.role] || user.role || '';
   };
 
+  // Xử lý đăng xuất
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
@@ -107,39 +98,23 @@ const SearchUserSection = () => {
     navigate('/'); // Sử dụng navigate thay vì window.location
   };
 
+  // Xử lý chuyển đến trang hồ sơ cá nhân
   const handleViewProfile = () => {
     navigate('/profile'); // Sử dụng navigate
   };
 
+  // Xử lý chuyển đến trang quản trị (dành cho admin)
   const handleAdminDashboard = () => {
     navigate('/dashboard'); // Sử dụng navigate
   };
 
   return (
     <div className="d-flex align-items-center">
-      {/* Ô tìm kiếm */}
-      {/* <div className="search-container me-3">
-        <form onSubmit={handleSearch}>
-          <div className="input-group">
-            <input 
-              type="text" 
-              className="form-control form-control-sm" 
-              placeholder="Tìm kiếm bệnh viện, địa điểm..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button className="btn btn-light btn-sm" type="submit">
-              <i className="bi bi-search"></i>
-            </button>
-          </div>
-        </form>
-      </div> */}
-
       {/* Thông tin user */}
       <div className="dropdown">
-        <button 
-          className="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center" 
-          type="button" 
+        <button
+          className="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center"
+          type="button"
           data-bs-toggle="dropdown"
         >
           <div className="user-avatar me-2">
@@ -149,7 +124,7 @@ const SearchUserSection = () => {
             {isAuthenticated ? getUserDisplayName() : 'Đăng nhập'}
           </span>
         </button>
-        
+
         {isAuthenticated ? (
           // Menu khi đã đăng nhập
           <ul className="dropdown-menu dropdown-menu-end user-dropdown-menu">
@@ -169,7 +144,7 @@ const SearchUserSection = () => {
               </div>
             </li>
             <li><hr className="dropdown-divider" /></li>
-            
+
             {/* Menu items */}
             <li>
               <button className="dropdown-item" onClick={handleViewProfile}>
@@ -220,7 +195,7 @@ const SearchUserSection = () => {
                 </li>
               </>
             )}
-            
+
             <li><hr className="dropdown-divider" /></li>
             <li>
               <button className="dropdown-item text-danger" onClick={handleLogout}>

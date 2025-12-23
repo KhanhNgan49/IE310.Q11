@@ -1,6 +1,7 @@
 import { api } from "./axiosServices";
 
 const outbreakServices = {
+    // Lấy toàn bộ vùng dịch
     getAllOutbreaks: async () => {
         try {
             const response = await api.get('/outbreak-areas');
@@ -13,6 +14,8 @@ const outbreakServices = {
             }
         }
     },
+
+    // Tạo vùng dịch mới
     createOutbreak: async (data) => {
         try {
             console.log('data',data)
@@ -26,6 +29,8 @@ const outbreakServices = {
             }
         }
     },
+
+    // Cập nhật vùng dịch theo id
     updateOutbreak: async (id, data) => {
         try {
             const response = await api.put(`/outbreak-areas/${id}`, data);
@@ -38,6 +43,8 @@ const outbreakServices = {
             }
         }
     },
+
+    // Xóa vùng dịch theo id
     deleteOutbreak: async (id) => {
         try {
             const response = await api.delete(`/outbreak-areas/${id}`);

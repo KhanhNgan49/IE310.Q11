@@ -8,7 +8,7 @@ const RoleBasedRoute = ({
   fallback = null,
   redirectTo = '/'
 }) => {
-  const { hasRole, loading } = useAuth();
+  const { hasRole, loading } = useAuth(); // Sử dụng context xác thực
 
   if (loading) {
     return (

@@ -2,6 +2,7 @@ import React from 'react';
 import './FooterSocial.css';
 
 const FooterSocial = () => {
+  // Mảng chứa thông tin các mạng xã hội
   const socialLinks = [
     {
       icon: 'bi bi-facebook',
