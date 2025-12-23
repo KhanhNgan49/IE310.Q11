@@ -10,25 +10,18 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
     const [pharmacies, setPharmacies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState(null);
-    const [selectedPharmacy, setSelectedPharmacy] = useState(null);   
-
-    // State phân trang
+    const [selectedPharmacy, setSelectedPharmacy] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-
-    // modal state
     const [showForm, setShowForm] = useState(false);
     const [editingPharmacy, setEditingPharmacy] = useState(null);
 
-    // ----- Fetch dữ liệu từ API -----
+    // Lấy danh sách pharmacies từ API khi component load
     useEffect(() => {
         const fetchPharmacies = async () => {
             setLoading(true);
             setErrorMsg(null);
             const res = await pharmacyService.getAllPharmacies();
-            console.log("GET pharmacies response:", res);
-
-            // res có thể là array trực tiếp hoặc object
             const list =
                 Array.isArray(res) ? res :
                     Array.isArray(res.data) ? res.data :
@@ -38,35 +31,32 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
 
             setPharmacies(list);
             setLoading(false);
-            // Reset về trang 1 khi fetch dữ liệu mới
             setCurrentPage(1);
         };
         fetchPharmacies();
     }, []);
 
     const [provinces, setProvinces] = useState([]);
+
+    // Lấy danh sách tỉnh/thành phố để hiển thị tên
     useEffect(() => {
         fetch("http://localhost:3001/api/provinces")
-        .then(res => res.json())
-        .then(data => setProvinces(data));
+            .then(res => res.json())
+            .then(data => setProvinces(data));
     }, []);
     const provinceMap = useMemo(() => {
-    const map = {};
-    provinces.forEach(p => {
-        map[String(p.province_id)] = p.province_name;
-    });
-    return map;
+        const map = {};
+        provinces.forEach(p => {
+            map[String(p.province_id)] = p.province_name;
+        });
+        return map;
     }, [provinces]);
 
-    // THÊM (update state trực tiếp)
+    // THÊM MỚI (cập nhật state)
     const handleAddPharmacyResult = (created) => {
-        console.log("NEW PHARMACY:", created);
-        // Thêm lên đầu danh sách để thấy ngay
         setPharmacies(prev => [created, ...prev]);
         setSearchTerm('');
-        // Ẩn form nếu dùng modal
         setShowForm(false);
-        // Reset về trang 1 khi thêm mới
         setCurrentPage(1);
     };
 
@@ -79,51 +69,37 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
         setShowForm(false);
     };
 
-    // XÓA - SỬA LẠI THEO CÁCH CỦA MedicalFacilities
+    // XÓA (cập nhật state)
     const handleDeleteClick = async (pharmacyId, pharmacyName) => {
-        // Sử dụng prop nếu có, nếu không dùng window.confirm
         if (onDeletePharmacy) {
-            // Gọi prop function (giống MedicalFacilities)
             onDeletePharmacy(pharmacyId);
         } else {
-            // Fallback: dùng window.confirm
             if (!window.confirm(`Xác nhận xóa nhà thuốc "${pharmacyName}"?`)) return;
-
-            console.log("Deleting pharmacy ID:", pharmacyId);
-
             const res = await pharmacyService.deletePharmacy(pharmacyId);
-
-            console.log("Delete response:", res);
-            console.log("Response success value:", res?.success);
-
             if (res?.success === false) {
                 alert(res.message || 'Xóa thất bại');
                 return;
             } else alert(`Đã xóa nhà thuốc "${pharmacyName}" thành công!`);
-
-            // Cập nhật state local
             setPharmacies(prev => prev.filter(p => p.pharmacy_id !== pharmacyId));
         }
     };
 
-    // Sửa hàm xử lý click trên bản đồ
+    // Xử lý khi click vào nhà thuốc trên bản đồ
     const handleMapPharmacyClick = (pharmacy) => {
         const pharmacyId = pharmacy.pharmacy_id;
-        
-        // Toggle selection - nếu đang chọn thì bỏ chọn, nếu không thì chọn
         if (selectedPharmacy === pharmacyId) {
-        setSelectedPharmacy(null);
+            setSelectedPharmacy(null);
         } else {
-        setSelectedPharmacy(pharmacyId);
+            setSelectedPharmacy(pharmacyId);
         }
     };
 
-    // Thêm hàm reset map view
+    // Đặt lại chế độ xem bản đồ về mặc định
     const handleResetMapView = () => {
         setSelectedPharmacy(null);
     };
 
-    // filter: tìm theo pharmacy_name hoặc address (an toàn khi p undefined)
+    // Lọc danh sách pharmacies theo từ khóa tìm kiếm
     const filteredPharmacies = useMemo(() => {
         return pharmacies.filter(p => {
             if (!p) return false;
@@ -134,13 +110,12 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
         });
     }, [pharmacies, searchTerm]);
 
-    // Tính toán phân trang
     const totalPages = Math.ceil(filteredPharmacies.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentPharmacies = filteredPharmacies.slice(startIndex, endIndex);
 
-    // Điều hướng trang
+    // Chuyển đến trang cụ thể
     const goToPage = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
@@ -150,19 +125,16 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
     // Tạo mảng các số trang để hiển thị
     const getPageNumbers = () => {
         const pageNumbers = [];
-        const maxVisiblePages = 5; // Số trang hiển thị tối đa
+        const maxVisiblePages = 5;
 
         if (totalPages <= maxVisiblePages) {
-            // Hiển thị tất cả các trang nếu tổng số trang ít
             for (let i = 1; i <= totalPages; i++) {
                 pageNumbers.push(i);
             }
         } else {
-            // Hiển thị một số trang xung quanh trang hiện tại
             let startPage = Math.max(1, currentPage - 2);
             let endPage = Math.min(totalPages, currentPage + 2);
 
-            // Điều chỉnh nếu ở đầu hoặc cuối
             if (currentPage <= 3) {
                 endPage = maxVisiblePages;
             } else if (currentPage >= totalPages - 2) {
@@ -173,7 +145,6 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                 pageNumbers.push(i);
             }
 
-            // Thêm ellipsis nếu cần
             if (startPage > 1) {
                 pageNumbers.unshift('...');
                 pageNumbers.unshift(1);
@@ -187,8 +158,6 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
         return pageNumbers;
     };
 
-
-
     // Thống kê theo bộ lọc hiện tại
     const filteredStats = {
         showing: filteredPharmacies.length,
@@ -198,6 +167,7 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
             : 'Không có dữ liệu'
     };
 
+    // Hiển thị trạng thái tải dữ liệu
     if (loading) {
         return (
             <div className="pharmacies-page">
@@ -211,6 +181,7 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
         );
     }
 
+    // Hiển thị lỗi nếu có
     if (errorMsg) {
         return (
             <div className="pharmacies-page">
@@ -237,45 +208,45 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                 </div>
             </div>
 
-        {/* Pharmacy Map Preview */}
-        <div className="pharmacy-map-preview">
-            <div className="map-header">
-            <h5>Bản Đồ Nhà Thuốc</h5>
-            <div className="map-header-badge">
-                <span className="badge bg-primary">
-                {filteredPharmacies.length} nhà thuốc đang hiển thị
-                </span>
-                {selectedPharmacy && (
-                <button 
-                    className="btn btn-sm btn-outline-secondary ms-2"
-                    onClick={handleResetMapView}
-                    title="Xóa chọn và xem tất cả"
-                >
-                    <i className="bi bi-x-lg me-1"></i>
-                    Xóa chọn
-                </button>
-                )}
-            </div>
-            </div>
-            
-            <div className="pharmacy-map-wrapper">
-            {pharmacies.length === 0 ? (
-                <div className="map-empty-state">
-                <i className="bi bi-map"></i>
-                <h6>Chưa có dữ liệu nhà thuốc</h6>
-                <p>Bản đồ sẽ hiển thị khi có nhà thuốc được thêm vào</p>
+            {/* Pharmacy Map Preview */}
+            <div className="pharmacy-map-preview">
+                <div className="map-header">
+                    <h5>Bản Đồ Nhà Thuốc</h5>
+                    <div className="map-header-badge">
+                        <span className="badge bg-primary">
+                            {filteredPharmacies.length} nhà thuốc đang hiển thị
+                        </span>
+                        {selectedPharmacy && (
+                            <button
+                                className="btn btn-sm btn-outline-secondary ms-2"
+                                onClick={handleResetMapView}
+                                title="Xóa chọn và xem tất cả"
+                            >
+                                <i className="bi bi-x-lg me-1"></i>
+                                Xóa chọn
+                            </button>
+                        )}
+                    </div>
                 </div>
-            ) : (
-                <PharmacyMap 
-                pharmacies={filteredPharmacies}
-                onPharamcyClick={handleMapPharmacyClick}
-                selectedPharmacyId={selectedPharmacy}
-                showLoading={loading}
-                enableReset={true}
-                />
-            )}
+
+                <div className="pharmacy-map-wrapper">
+                    {pharmacies.length === 0 ? (
+                        <div className="map-empty-state">
+                            <i className="bi bi-map"></i>
+                            <h6>Chưa có dữ liệu nhà thuốc</h6>
+                            <p>Bản đồ sẽ hiển thị khi có nhà thuốc được thêm vào</p>
+                        </div>
+                    ) : (
+                        <PharmacyMap
+                            pharmacies={filteredPharmacies}
+                            onPharamcyClick={handleMapPharmacyClick}
+                            selectedPharmacyId={selectedPharmacy}
+                            showLoading={loading}
+                            enableReset={true}
+                        />
+                    )}
+                </div>
             </div>
-        </div>
 
             {/* Filters and Search*/}
             <div className="pharmacies-filters">
@@ -289,7 +260,7 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
-                                    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
+                                    setCurrentPage(1);
                                 }}
                             />
                         </div>
@@ -302,7 +273,7 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                                 value={itemsPerPage}
                                 onChange={(e) => {
                                     setItemsPerPage(Number(e.target.value));
-                                    setCurrentPage(1); // Reset về trang 1 khi thay đổi số lượng mỗi trang
+                                    setCurrentPage(1);
                                 }}
                             >
                                 <option value={5}>5 dòng/trang</option>
@@ -332,7 +303,6 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                         <button className="btn btn-primary" onClick={() => { setEditingPharmacy(null); setShowForm(true); }}>
                             <i className="bi bi-plus-circle me-2"></i> Thêm Nhà Thuốc Mới
                         </button>
-                        
                     </div>
                 </div>
 
@@ -373,16 +343,6 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                                                         <i className="bi bi-pencil"></i>
                                                     </button>
 
-                                                    {/* <button
-                                                        className="btn btn-sm btn-outline-info me-1"
-                                                        title="Xem chi tiết"
-                                                        onClick={() => {
-                                                            alert(`Chi tiết: ${pharmacy.pharmacy_name}\nĐịa chỉ: ${pharmacy.address}`);
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-eye"></i>
-                                                    </button> */}
-
                                                     <button
                                                         className="btn btn-sm btn-outline-danger"
                                                         title="Xóa"
@@ -419,7 +379,7 @@ const Pharmacies = ({ onAddPharmacy, onEditPharmacy, onDeletePharmacy }) => {
                                             <li
                                                 key={index}
                                                 className={`page-item ${pageNum === '...' ? 'disabled' :
-                                                        pageNum === currentPage ? 'active' : ''
+                                                    pageNum === currentPage ? 'active' : ''
                                                     }`}
                                             >
                                                 {pageNum === '...' ? (

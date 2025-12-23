@@ -172,7 +172,6 @@
   color: #6c757d;
 }
 
-/* Map Preview */
 .pharmacy-map-preview {
   background: white;
   border-radius: 15px;
@@ -278,7 +277,6 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 1rem;
-  /* word-break: break-word; */
 }
 
 .summary-item {
@@ -298,7 +296,6 @@
   color: #2c3e50;
 }
 
-/* Phân trang */
 .pagination-container {
   margin-top: 20px;
   padding: 15px;
@@ -347,7 +344,6 @@
   font-size: 0.9rem;
 }
 
-/* Items per page selector */
 .items-per-page-selector {
   display: flex;
   align-items: center;
@@ -361,7 +357,6 @@
   color: #495057;
 }
 
-/* Cập nhật filter summary */
 .filter-summary {
   margin-top: 10px;
   padding: 10px;
@@ -370,13 +365,11 @@
   font-size: 0.9rem;
 }
 
-/* Đảm bảo bảng responsive */
 .table-responsive {
   overflow-x: auto;
   border-radius: 8px 8px 0 0;
 }
 
-/* Thêm STT column */
 .pharmacies-table th:nth-child(1),
 .pharmacies-table td:nth-child(1) {
   width: 60px;

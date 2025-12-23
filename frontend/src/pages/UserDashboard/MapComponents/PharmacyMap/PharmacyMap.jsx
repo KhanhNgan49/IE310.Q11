@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './PharmacyMap.css';
 
-// Fix cho icon marker trong React-Leaflet
+// Cấu hình icon mặc định của Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -12,6 +12,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
+// Icon đặc trưng cho nhà thuốc
 export const pharmacyIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   iconSize: [25, 41],
@@ -25,15 +26,12 @@ export const pharmacyIcon = new L.Icon({
 const MapController = ({ pharmacyToZoom, pharmacyAreas }) => {
   const map = useMap();
 
+  // Hiệu ứng zoom khi pharmacyToZoom thay đổi
   useEffect(() => {
      if (!pharmacyToZoom || !pharmacyAreas.length) return;
-
     const pharmacy = pharmacyAreas.find(p => p.pharmacy_id === pharmacyToZoom);
     if (!pharmacy || !pharmacy.location) return;
-
     const { lat, lng } = pharmacy.location;
-
-    // Zoom tới điểm nhà thuốc
     map.setView(pharmacy.location, 17, { animate: true });
 
     // Tạo marker
@@ -62,7 +60,7 @@ const MapController = ({ pharmacyToZoom, pharmacyAreas }) => {
 };
 
 const PharmacyMap = ({ 
-  pharmacies = [], // QUAN TRỌNG: Nhận pharmacies từ props thay vì tự fetch
+  pharmacies = [], 
   onPharmacyClick, 
   selectedPharmacyId,
   showLoading = false 
@@ -72,9 +70,9 @@ const PharmacyMap = ({
   const mapRef = useRef();
   const isZoomingRef = useRef(false);
 
-  // lấy location cho mỗi pharmacy
   const [pharmaciesWithLocation, setPharmaciesWithLocation] = useState([]);
 
+  // Hiệu ứng tải dữ liệu location cho các nhà thuốc
   useEffect(() => {
   async function enrichPharmacies() {
     if (!pharmacies || pharmacies.length === 0) return;
@@ -87,9 +85,6 @@ const PharmacyMap = ({
            const res = await fetch(
             `http://localhost:3001/api/locations/${p.pharmacy_point_id}`
           );
-
-          //if (!res.ok) return null;
-
           const location = await res.json();
           return {
             ...p,
@@ -101,19 +96,16 @@ const PharmacyMap = ({
         }
       })
     );
-
     setPharmaciesWithLocation(enriched.filter(Boolean));
   }
 
   enrichPharmacies();
 }, [pharmacies]);
 
+  // Hàm xử lý dữ liệu nhà thuốc để hiển thị trên bản đồ
   const processPharmacyData = useCallback((pharmacy) => {
     if (!pharmacy.location || !pharmacy.location.coordinates) return null;
-
-    // GeoJSON POINT: [lng, lat]
     const [lng, lat] = pharmacy.location.coordinates.coordinates;
-
     return {
       id: pharmacy.pharmacy_id,
       name: pharmacy.pharmacy_name,
@@ -127,13 +119,13 @@ const PharmacyMap = ({
     };
   });
 
-  // Process pharmacies data từ props
+  // Xử lý dữ liệu nhà thuốc từ props
   const processedPharmacies = useMemo(() => {
     if (!pharmaciesWithLocation.length) return [];
     return pharmaciesWithLocation.map(processPharmacyData).filter(Boolean);
   }, [pharmaciesWithLocation, processPharmacyData]);
 
-  // Theo dõi sự thay đổi của selectedPharmacyId
+  // Hiệu ứng zoom khi selectedPharmacyId thay đổi
   useEffect(() => {
     if (selectedPharmacyId) {
       isZoomingRef.current = true;
@@ -143,10 +135,9 @@ const PharmacyMap = ({
     }
   }, [selectedPharmacyId]);
 
-  // Hàm xử lý khi click vào nhà thuốc
+  // Hàm xử lý khi người dùng click vào nhà thuốc
   const handlePharmacyClick = useCallback((pharmacy) => {
       onPharmacyClick?.(pharmacy);
-      
       if (mapRef.current && pharmacy.location) {
         mapRef.current.setView(pharmacy.location, 17, { animate: true });
       }
@@ -154,7 +145,6 @@ const PharmacyMap = ({
 
   // Hàm render popup cho nhà thuốc
   const renderPharmacyPopup = (pharmacy) => {
-
     return (
       <div style={{ minWidth: '250px' }}>
         <div style={{ 
@@ -171,7 +161,7 @@ const PharmacyMap = ({
     );
   };
 
-  // Empty state khi không có pharmacies
+  // Hiển thị trạng thái không có dữ liệu
   if (!showLoading && (!pharmacies || pharmacies.length === 0)) {
     return (
       <div className="pharmacy-map-container">
@@ -240,7 +230,6 @@ const PharmacyMap = ({
             );
           })}
         </MapContainer>
-        
         
       </div>
     </div>
