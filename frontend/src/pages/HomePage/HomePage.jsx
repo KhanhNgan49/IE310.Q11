@@ -13,11 +13,11 @@ const HomePage = () => {
       {/* Hero Banner với tìm kiếm */}
       <HeroSection />
       
-      {/* Bản đồ tương tác */}
-      <MapSection />
+      {/* Bản đồ tương tác nhanh */}
+      {/* <MapSection /> */}
       
-      {/* Tìm kiếm nâng cao */}
-      <SearchSection />
+      {/* Tìm kiếm nâng cao (có thể phát triển)*/}
+      {/* <SearchSection /> */}
       
       {/* Thống kê y tế */}
       <StatsSection />

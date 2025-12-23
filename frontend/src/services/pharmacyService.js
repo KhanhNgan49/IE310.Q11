@@ -76,6 +76,19 @@ const pharmacyService = {
         message: backendError?.error || backendError?.message || 'Xóa nhà thuốc thất bại'
       };
     }
+  },
+
+  searchPharmacies: async (query) => {
+    try {
+      const response = await api.get('/pharmacies/search', { params: { q: query } });
+      return response.data;
+    } catch (error) {
+      console.log('Search pharmacies error:', error.message);
+      return {
+        success: false,
+        message: 'Không thể tìm kiếm nhà thuốc'
+      };
+    }
   }
 };
 

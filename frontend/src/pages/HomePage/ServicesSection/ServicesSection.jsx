@@ -5,41 +5,30 @@ const ServicesSection = () => {
   const services = [
     {
       icon: 'bi bi-geo-alt',
-      title: 'Tìm Bệnh Viện',
+      title: 'Tìm Cơ sở Y Tế',
       description: 'Tìm kiếm bệnh viện, phòng khám gần bạn nhất với đầy đủ thông tin chi tiết.',
-      features: ['Định vị GPS', 'Giờ làm việc', 'Chuyên khoa', 'Đánh giá']
+      features: ['Định vị GPS', 'Giờ làm việc', 'Chuyên khoa', 'Đánh giá'],
+      path: '/medical-facility'
     },
     {
       icon: 'bi bi-virus',
       title: 'Theo Dõi Dịch Bệnh',
       description: 'Cập nhật thông tin các vùng dịch và cảnh báo sức khỏe cộng đồng.',
-      features: ['Bản đồ dịch tễ', 'Cảnh báo khu vực', 'Số liệu thống kê', 'Khuyến cáo']
+      features: ['Bản đồ dịch tễ', 'Cảnh báo khu vực', 'Số liệu thống kê', 'Khuyến cáo'],
+      path: '/outbreaks'
     },
     {
       icon: 'bi bi-clock',
       title: 'Đặt Lịch Khám',
       description: 'Đặt lịch khám bệnh trực tuyến với các cơ sở y tế hợp tác.',
-      features: ['Đặt lịch online', 'Nhắc lịch SMS', 'Lịch sử khám', 'Hồ sơ điện tử']
+      features: ['Đặt lịch online', 'Nhắc lịch SMS', 'Lịch sử khám', 'Hồ sơ điện tử'],
+      path: '/onlinebooking-function'
     },
-    {
-      icon: 'bi bi-telephone',
-      title: 'Tư Vấn Y Tế',
-      description: 'Kết nối với bác sĩ và chuyên gia y tế để được tư vấn miễn phí.',
-      features: ['Tư vấn online', 'Hỏi đáp 24/7', 'Chuyên gia', 'Bảo mật thông tin']
-    },
-    {
-      icon: 'bi bi-file-medical',
-      title: 'Tra Cứu Thuốc',
-      description: 'Cơ sở dữ liệu thuốc với thông tin chi tiết về công dụng và liều dùng.',
-      features: ['Danh mục thuốc', 'Tương tác thuốc', 'Giá tham khảo', 'Hướng dẫn sử dụng']
-    },
-    {
-      icon: 'bi bi-graph-up',
-      title: 'Thống Kê Sức Khỏe',
-      description: 'Theo dõi và phân tích các chỉ số sức khỏe cộng đồng theo thời gian thực.',
-      features: ['Biểu đồ xu hướng', 'So sánh khu vực', 'Báo cáo định kỳ', 'Dự báo dịch tễ']
-    }
   ];
+
+  const handleNavigate = (path) => {
+    window.location.href = path;
+  }
 
   return (
     <section className="services-section section section-gray">
@@ -72,7 +61,10 @@ const ServicesSection = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="btn btn-outline-primary btn-sm">
+                <button 
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => handleNavigate(service.path)}
+                >
                   Khám phá ngay
                 </button>
               </div>

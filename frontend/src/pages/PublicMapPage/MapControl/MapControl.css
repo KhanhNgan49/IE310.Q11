@@ -2,7 +2,7 @@
   position: absolute;
   top: 10px;
   left: 50px;
-  z-index: 1000;
+  z-index: 2;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
@@ -56,7 +56,7 @@
   cursor: pointer;
   font-size: 12px;
   transition: transform 0.2s ease;
-  z-index: 1001;
+  z-index: 2;
 }
 
 .close-map-controls-btn:hover {
@@ -246,6 +246,7 @@
     border-radius: 0 0 12px 12px;
     margin-bottom: 10px;
     padding: 15px;
+    z-index: 2;
   }
 
   .filter-btn {
@@ -290,11 +291,6 @@
 
 /* Custom scrollbar for mobile */
 @media (max-height: 700px) {
-  .map-controls {
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-
   .map-controls::-webkit-scrollbar {
     width: 4px;
   }

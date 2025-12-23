@@ -33,13 +33,9 @@ const HeroSection = () => {
               </div>
               
               <div className="hero-actions">
-                <a href="#map" className="btn btn-primary btn-lg me-3">
+                <a href="map" className="btn btn-primary btn-lg me-3">
                   <i className="bi bi-map me-2"></i>
                   Xem Bản Đồ
-                </a>
-                <a href="#search" className="btn btn-outline-primary btn-lg">
-                  <i className="bi bi-search me-2"></i>
-                  Tìm Kiếm
                 </a>
               </div>
             </div>

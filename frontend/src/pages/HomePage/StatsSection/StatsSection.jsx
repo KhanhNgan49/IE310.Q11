@@ -1,56 +1,132 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './StatsSection.css';
 
-const StatsSection = () => {
-  const stats = [
-    {
-      icon: 'bi bi-hospital',
-      number: '1,247',
-      label: 'Bệnh viện',
-      description: 'Trên toàn quốc'
-    },
-    {
-      icon: 'bi bi-plus-circle',
-      number: '5,892',
-      label: 'Phòng khám',
-      description: 'Cơ sở y tế tư nhân'
-    },
-    {
-      icon: 'bi bi-shield-check',
-      number: '98%',
-      label: 'Phủ sóng',
-      description: 'Tại 63 tỉnh thành'
-    },
-    {
-      icon: 'bi bi-people',
-      number: '2.5M+',
-      label: 'Người dùng',
-      description: 'Tin tưởng sử dụng'
-    }
-  ];
+import facilityService from '../../../services/facilityService';
+import pharmacyService from '../../../services/pharmacyService';
+import provinceService from '../../../services/provinceService';
+import userService from '../../../services/userService';
 
-  const outbreakStats = [
-    {
-      province: 'Hà Nội',
-      cases: 127,
-      trend: 'up'
-    },
-    {
-      province: 'TP.HCM',
-      cases: 89,
-      trend: 'down'
-    },
-    {
-      province: 'Đà Nẵng',
-      cases: 45,
-      trend: 'stable'
-    },
-    {
-      province: 'Hải Phòng',
-      cases: 32,
-      trend: 'up'
+const StatsSection = () => {
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Hàm định dạng số: nếu số quá lớn sẽ viết tắt K (nghìn) và M (triệu)
+  const formatNumber = (num) => {
+    if (typeof num !== 'number') {
+      // Nếu không phải số, thử chuyển đổi
+      const parsedNum = parseInt(num);
+      if (isNaN(parsedNum)) return num;
+      num = parsedNum;
     }
-  ];
+
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1).replace('.0', '')}M+`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1).replace('.0', '')}K+`;
+    }
+    return num.toLocaleString();
+  };
+
+  // Fetch dữ liệu thống kê từ API
+useEffect(() => {
+  const fetchStatsData = async () => {
+    try {
+      setLoading(true);
+      
+      // Gọi các API để lấy tất cả đối tượng
+      const [
+        medicalFacilitiesRes,
+        pharmaciesRes,
+        provincesRes,
+        usersRes
+      ] = await Promise.all([
+        facilityService.getAllFacilities(),
+        pharmacyService.getAllPharmacies(),
+        provinceService.getAllProvinces(),
+        userService.getAllUsers()
+      ]);
+
+      // Lấy dữ liệu từ response
+      const facilitiesData = medicalFacilitiesRes|| [];
+      const pharmaciesData = pharmaciesRes|| [];
+      const provincesData = provincesRes || [];
+      const usersData = usersRes || [];
+
+      // Lọc người dùng không phải admin
+      const nonAdminUsers = usersData.filter(user => {
+        // Kiểm tra role có tồn tại và không phải admin
+        const userRole = user.role?.toLowerCase() || '';
+        return !['admin', 'administrator', 'superadmin'].includes(userRole);
+      });
+
+      // Kiểm tra dữ liệu trước khi hiển thị
+      if (facilitiesData.length === 0 && pharmaciesData.length === 0 && 
+          provincesData.length === 0 && nonAdminUsers.length === 0) {
+        console.warn('Tất cả dữ liệu đều trống, có thể API chưa có dữ liệu');
+      }
+
+      // Tạo mảng stats với nhãn và số liệu đã định dạng
+      const formattedStats = [
+        {
+          icon: 'bi bi-hospital',
+          number: formatNumber(facilitiesData.length),
+          label: 'Cơ sở Y tế',
+          description: 'Trên toàn quốc',
+          rawCount: facilitiesData.length
+        },
+        {
+          icon: 'bi bi-capsule',
+          number: formatNumber(pharmaciesData.length),
+          label: 'Nhà thuốc',
+          description: 'Phân bố rộng khắp đất nước',
+          rawCount: pharmaciesData.length
+        },
+        {
+          icon: 'bi bi-people',
+          number: formatNumber(nonAdminUsers.length),
+          label: 'Người dùng',
+          description: 'Tin tưởng sử dụng',
+          rawCount: nonAdminUsers.length
+        },
+        {
+          icon: 'bi bi-geo-alt',
+          number: formatNumber(provincesData.length),
+          label: 'Tỉnh thành',
+          description: 'Được phủ sóng',
+          rawCount: provincesData.length
+        }
+      ];
+
+      setStats(formattedStats);
+      setError(null);
+    } catch (err) {
+      console.error('❌ Lỗi khi tải dữ liệu thống kê:', err);
+      setError(err.message);
+      
+      // Fallback data khi API lỗi
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStatsData();
+}, []);
+
+  if (loading) {
+    return (
+      <section className="stats-section section section-light">
+        <div className="container">
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Đang tải...</span>
+            </div>
+            <p className="mt-3">Đang tải thống kê...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="stats-section section section-light">
@@ -66,8 +142,8 @@ const StatsSection = () => {
           </div>
         </div>
 
-        {/* Main Stats */}
-        <div className="row mb-5">
+        {/* Main Stats - chỉ còn 4 thẻ thống kê */}
+        <div className="row">
           {stats.map((stat, index) => (
             <div key={index} className="col-lg-3 col-md-6 mb-4">
               <div className="stat-card">
@@ -83,39 +159,18 @@ const StatsSection = () => {
             </div>
           ))}
         </div>
-
-        {/* Outbreak Stats */}
-        <div className="row">
-          <div className="col-lg-8 mx-auto">
-            <div className="outbreak-stats">
-              <h4 className="outbreak-title text-center mb-4">
+        
+        {/* Hiển thị lỗi nếu có */}
+        {error && (
+          <div className="row mt-3">
+            <div className="col-12">
+              <div className="alert alert-warning text-center">
                 <i className="bi bi-exclamation-triangle me-2"></i>
-                Tình Hình Dịch Bệnh Nổi Bật
-              </h4>
-              <div className="outbreak-list">
-                {outbreakStats.map((outbreak, index) => (
-                  <div key={index} className="outbreak-item">
-                    <div className="outbreak-province">
-                      <span className="province-name">{outbreak.province}</span>
-                      <span className={`trend-indicator ${outbreak.trend}`}>
-                        <i className={`bi bi-arrow-${outbreak.trend === 'up' ? 'up' : outbreak.trend === 'down' ? 'down' : 'right'}`}></i>
-                      </span>
-                    </div>
-                    <div className="outbreak-cases">
-                      <span className="cases-number">{outbreak.cases}</span>
-                      <span className="cases-label">ca nhiễm</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="text-center mt-3">
-                <a href="/outbreak-areas" className="btn btn-outline-primary">
-                  Xem chi tiết vùng dịch
-                </a>
+                Có lỗi khi tải dữ liệu: {error}
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

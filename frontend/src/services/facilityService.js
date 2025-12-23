@@ -76,6 +76,19 @@ const facilityService = {
         message: backendError?.error || backendError?.message || 'Xóa cơ sở y tế thất bại'
       };
     }
+  },
+
+  searchFacilities: async (query) => {
+    try {
+      const response = await api.get('/medical-facilities/search', { params: { q: query } });
+      return response.data;
+    } catch (error) {
+      console.log('Search medical facilities error:', error.message);
+      return {
+        success: false,
+        message: 'Không thể tìm kiếm cơ sở y tế'
+      };
+    }
   }
 };
 

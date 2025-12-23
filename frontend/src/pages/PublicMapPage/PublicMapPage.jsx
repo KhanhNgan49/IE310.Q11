@@ -526,6 +526,28 @@ export default function MapView() {
       }
     };
 
+    // Hàm render services
+  const renderServices = (services) => {
+    if (!services) return null;
+    
+    // Nếu services là mảng
+    if (Array.isArray(services)) {
+      return services.join(", ");
+    }
+    
+    // Nếu services là chuỗi JSON
+    try {
+      const parsed = JSON.parse(services);
+      if (Array.isArray(parsed)) {
+        return parsed.join(", ");
+      }
+      return services;
+    } catch (e) {
+      // Nếu không parse được, trả về chuỗi gốc
+      return services;
+    }
+  };
+
     return (
       <div>
         {isNearestResult && (
@@ -555,7 +577,7 @@ export default function MapView() {
         {point.type === 'medical_facility' && point.details && (
           <>
             {point.details.phone && <div><strong>Điện thoại:</strong> {point.details.phone}</div>}
-            {point.details.services && <div><strong>Dịch vụ:</strong> {point.details.services}</div>}
+            {point.details.services && <div><strong>Dịch vụ:</strong> {renderServices(point.details.services)}</div>}
           </>
         )}
 

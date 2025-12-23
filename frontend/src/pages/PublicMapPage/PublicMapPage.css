@@ -19,6 +19,7 @@
 .leaflet-container {
   height: 100%;
   width: 100%;
+  z-index: 0;
 }
 
 /* Nút điều khiển */
@@ -26,7 +27,7 @@
   position: absolute;
   top: 10px;
   right: 210px;
-  z-index: 1000;
+  z-index: 1;
   padding: 8px 16px;
   border-radius: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -47,7 +48,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  z-index: 1200;
+  z-index: 1;
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
@@ -73,7 +74,7 @@
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 1;
   font-size: 14px;
   max-width: 200px;
 }
@@ -114,7 +115,7 @@
   bottom: 30px;
   left: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2;
   background: white;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -169,7 +170,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10;
+  z-index: 1;
   /* Đảm bảo tabs nằm trên cùng */
   padding: 15px 15px 10px 15px;
   /* Padding phù hợp với layout */
@@ -225,7 +226,7 @@
   right: 0;
   width: 100%;
   justify-items: space-between;
-  z-index: 5;
+  z-index: 1;
   /* Đảm bảo nút nằm trên nội dung cuộn */
 }
 
@@ -311,7 +312,7 @@
   position: absolute;
   top: 10px;
   left: 50px;
-  z-index: 1000;
+  z-index: 1;
   padding: 8px 16px;
   border-radius: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
