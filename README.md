@@ -21,3 +21,15 @@
 | 3   | Lê Thái Khánh Ngân  | 22520930 |
 | 4   | Trần Công Hiển      | 22520425 |
 | 5   | Phan Võ Mỹ Huyền    | 22520591 |
+
+## Các trường trong .env
+### SERVER
+PORT=port backend 
+
+### DATABASE remote (Supabase PostgreSQL)
+DB_URL=supabase_key
+DB_SSL=true/false
+
+### JWT
+JWT_SECRET=token_key
+JWT_REFRESH_SECRET=refresh_token_key
