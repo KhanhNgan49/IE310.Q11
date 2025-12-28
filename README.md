@@ -1,6 +1,6 @@
 ## Thông tin dự án
 
-- **Tên dự án:** Giải pháp hỗ trợ người dùng tìm kiếm cơ sở y tế phù hợp  
+- **Tên dự án:** Hệ thống Bản đồ Y tế Quốc gia  
 - **Loại dự án:** Đồ án môn học  
 
 ---
