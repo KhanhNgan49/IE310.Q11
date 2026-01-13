@@ -13,7 +13,7 @@ const NearbyFacilitiesPage = () => {
   const [showFacilities, setShowFacilities] = useState(false);
   const [expandedFacilityId, setExpandedFacilityId] = useState(null);
   const [reviewFilter, setReviewFilter] = useState('all');
-  
+  const [showTreatmentProcess, setShowTreatmentProcess] = useState(null);
   // State cho booking modal
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState(null);
@@ -207,7 +207,57 @@ const NearbyFacilitiesPage = () => {
       type: 'hospital',
       features: ['Cấp cứu 24/7', 'Phòng VIP', 'Đỗ xe miễn phí'],
       phone: '0283 825 6789',
-      website: 'www.bvdk-tphcm.vn'
+      website: 'www.bvdk-tphcm.vn',
+      // THÊM: Quy trình khám chữa bệnh
+      treatmentProcess: {
+        estimatedTime: '2-4 giờ',
+        steps: [
+          {
+            step: 1,
+            title: 'Tiếp nhận & Đăng ký',
+            description: 'Đến quầy tiếp nhận, xuất trình CMND/CCCD, thẻ BHYT và mã đặt lịch (nếu có)',
+            location: 'Tầng 1 - Quầy tiếp nhận',
+            duration: '10-15 phút',
+            requirements: ['CMND/CCCD', 'Thẻ BHYT', 'Mã đặt lịch']
+          },
+          {
+            step: 2,
+            title: 'Khám lâm sàng',
+            description: 'Bác sĩ khám tổng quát, hỏi bệnh sử và thăm khám triệu chứng',
+            location: 'Tầng 2 - Phòng khám số 201-210',
+            duration: '20-30 phút',
+            requirements: ['Phiếu khám bệnh', 'Sổ khám bệnh (nếu có)']
+          },
+          {
+            step: 3,
+            title: 'Xét nghiệm/Chẩn đoán',
+            description: 'Thực hiện các xét nghiệm cần thiết theo chỉ định của bác sĩ',
+            location: 'Tầng 3 - Khoa xét nghiệm',
+            duration: '30-60 phút',
+            requirements: ['Phiếu chỉ định xét nghiệm', 'Mẫu bệnh phẩm (nếu cần)']
+          },
+          {
+            step: 4,
+            title: 'Tư vấn & Kê đơn',
+            description: 'Bác sĩ tư vấn kết quả, kê đơn thuốc và hướng dẫn điều trị',
+            location: 'Tầng 2 - Phòng khám ban đầu',
+            duration: '15-20 phút',
+            requirements: ['Kết quả xét nghiệm', 'Phiếu tư vấn']
+          }
+        ],
+        notes: [
+          'Bệnh nhân cần đến trước 15 phút so với giờ hẹn',
+          'Mang theo toàn bộ hồ sơ bệnh án cũ (nếu có)',
+          'Có thể thanh toán bằng tiền mặt, thẻ hoặc ví điện tử',
+          'Hỗ trợ làm thủ tục BHYT ngay tại chỗ'
+        ],
+        specialFeatures: [
+          'Hỗ trợ đặt lịch online 24/7',
+          'Có khu vực chờ có wifi, nước uống miễn phí',
+          'Hỗ trợ người khuyết tật, phụ nữ có thai',
+          'Dịch vụ lấy máu xét nghiệm tại nhà (có phí)'
+        ]
+      }
     },
     {
       id: 2,
@@ -226,7 +276,57 @@ const NearbyFacilitiesPage = () => {
       type: 'clinic',
       features: ['Bác sĩ quốc tế', 'Phiên dịch tiếng Anh', 'Phòng chờ VIP'],
       phone: '0283 822 1234',
-      website: 'www.pkquocte.com'
+      website: 'www.pkquocte.com',
+      // THÊM: Quy trình khám chữa bệnh
+      treatmentProcess: {
+        estimatedTime: '1-2 giờ',
+        steps: [
+          {
+            step: 1,
+            title: 'Check-in & Tư vấn ban đầu',
+            description: 'Nhân viên tiếp đón, hướng dẫn thủ tục và đưa vào phòng chờ VIP',
+            location: 'Sảnh chính - Bàn tiếp tân',
+            duration: '5-10 phút',
+            requirements: ['CMND/Passport', 'Thẻ bảo hiểm']
+          },
+          {
+            step: 2,
+            title: 'Khám chuyên sâu',
+            description: 'Bác sĩ chuyên khoa khám trực tiếp, có thể sử dụng thiết bị chẩn đoán tại phòng',
+            location: 'Phòng khám chuyên khoa',
+            duration: '30-45 phút',
+            requirements: []
+          },
+          {
+            step: 3,
+            title: 'Xét nghiệm nhanh',
+            description: 'Thực hiện xét nghiệm cơ bản ngay tại phòng khám',
+            location: 'Phòng xét nghiệm tại chỗ',
+            duration: '15-25 phút',
+            requirements: []
+          },
+          {
+            step: 4,
+            title: 'Tư vấn & Kết luận',
+            description: 'Bác sĩ giải thích kết quả, tư vấn điều trị chi tiết',
+            location: 'Phòng tư vấn riêng',
+            duration: '20-30 phút',
+            requirements: []
+          }
+        ],
+        notes: [
+          'Không cần chờ đợi lâu, có lịch hẹn chính xác theo giờ',
+          'Bác sĩ nói được tiếng Anh, tiếng Hàn, tiếng Nhật',
+          'Có dịch vụ chăm sóc sau khám qua điện thoại',
+          'Xuất hóa đơn cho bảo hiểm quốc tế'
+        ],
+        specialFeatures: [
+          'Phòng chờ VIP với đồ uống cao cấp',
+          'Bác sĩ nước ngoài có chứng chỉ quốc tế',
+          'Hệ thống đặt lịch thông minh, ít phải chờ',
+          'Dịch vụ chăm sóc khách hàng 1:1'
+        ]
+      }
     },
     {
       id: 3,
@@ -245,7 +345,57 @@ const NearbyFacilitiesPage = () => {
       type: 'medical-center',
       features: ['Giá cả hợp lý', 'Đối tượng chính sách', 'Khám BHYT'],
       phone: '0283 855 4321',
-      website: 'www.ttyt-quan5.gov.vn'
+      website: 'www.ttyt-quan5.gov.vn',
+      // THÊM: Quy trình khám chữa bệnh
+      treatmentProcess: {
+        estimatedTime: '2-3 giờ',
+        steps: [
+          {
+            step: 1,
+            title: 'Lấy số thứ tự',
+            description: 'Lấy số thứ tự tự động tại máy lấy số ở cổng vào',
+            location: 'Cổng chính - Máy lấy số',
+            duration: '5-10 phút',
+            requirements: ['Thẻ BHYT', 'CMND']
+          },
+          {
+            step: 2,
+            title: 'Khai báo y tế',
+            description: 'Điền thông tin vào phiếu khám bệnh và khai báo y tế',
+            location: 'Quầy khai báo',
+            duration: '10-15 phút',
+            requirements: []
+          },
+          {
+            step: 3,
+            title: 'Khám theo số thứ tự',
+            description: 'Chờ gọi số và vào khám theo đúng số thứ tự',
+            location: 'Phòng khám tập trung',
+            duration: '20-40 phút',
+            requirements: ['Phiếu khám bệnh', 'Số thứ tự']
+          },
+          {
+            step: 4,
+            title: 'Thanh toán & Nhận thuốc',
+            description: 'Thanh toán viện phí và nhận thuốc tại quầy dược',
+            location: 'Quầy thanh toán & Dược',
+            duration: '15-25 phút',
+            requirements: ['Hóa đơn', 'Đơn thuốc']
+          }
+        ],
+        notes: [
+          'Ưu tiên khám cho đối tượng hưởng BHYT',
+          'Có thể đông bệnh nhân vào buổi sáng',
+          'Miễn phí khám cho một số đối tượng chính sách',
+          'Làm việc cả thứ 7, nghỉ Chủ nhật'
+        ],
+        specialFeatures: [
+          'Chi phí thấp, phù hợp BHYT',
+          'Có xe cấp cứu lưu động',
+          'Khám từ thiện định kỳ',
+          'Tư vấn sức khỏe cộng đồng miễn phí'
+        ]
+      }
     },
     {
       id: 4,
@@ -264,7 +414,57 @@ const NearbyFacilitiesPage = () => {
       type: 'hospital',
       features: ['Khu vui chơi trẻ em', 'Bác sĩ chuyên khoa nhi', 'Phòng gia đình'],
       phone: '0283 829 5678',
-      website: 'www.nhidong.org.vn'
+      website: 'www.nhidong.org.vn',
+      // THÊM: Quy trình khám chữa bệnh
+      treatmentProcess: {
+        estimatedTime: '2-3 giờ',
+        steps: [
+          {
+            step: 1,
+            title: 'Phân loại tiếp nhận',
+            description: 'Y tá phân loại mức độ khẩn cấp, hướng dẫn thủ tục phù hợp',
+            location: 'Khu tiếp nhận trẻ em',
+            duration: '10-15 phút',
+            requirements: ['Giấy khai sinh/CMND trẻ', 'Sổ khám bệnh']
+          },
+          {
+            step: 2,
+            title: 'Khám nhi khoa',
+            description: 'Bác sĩ nhi khoa khám, đánh giá tình trạng trẻ',
+            location: 'Phòng khám nhi theo độ tuổi',
+            duration: '20-30 phút',
+            requirements: []
+          },
+          {
+            step: 3,
+            title: 'Vui chơi chờ xét nghiệm',
+            description: 'Trẻ có thể vui chơi tại khu vực chờ đặc biệt trong khi chờ xét nghiệm',
+            location: 'Khu vui chơi trẻ em',
+            duration: '30-60 phút',
+            requirements: []
+          },
+          {
+            step: 4,
+            title: 'Tư vấn cha mẹ',
+            description: 'Bác sĩ tư vấn phụ huynh về cách chăm sóc, điều trị tại nhà',
+            location: 'Phòng tư vấn gia đình',
+            duration: '15-25 phút',
+            requirements: []
+          }
+        ],
+        notes: [
+          'Có khu vực thay tã, pha sữa miễn phí',
+          'Đội ngũ bác sĩ chuyên về tâm lý trẻ em',
+          'Hệ thống theo dõi bệnh nhi hiện đại',
+          'Có phòng cách ly cho bệnh truyền nhiễm'
+        ],
+        specialFeatures: [
+          'Khu vui chơi có giám sát y tế',
+          'Bác sĩ biết cách giao tiếp với trẻ',
+          'Thiết bị chuyên dụng cho trẻ sơ sinh',
+          'Chương trình giáo dục sức khỏe cho phụ huynh'
+        ]
+      }
     }
   ];
 
@@ -392,6 +592,11 @@ const NearbyFacilitiesPage = () => {
     const minutes = Math.floor(diff / 60000);
     if (minutes < 1) return 'vừa xong';
     return `${minutes} phút trước`;
+  };
+
+  // HÀM HIỂN THỊ QUY TRÌNH KHÁM BỆNH
+  const handleShowTreatmentProcess = (facilityId) => {
+    setShowTreatmentProcess(facilityId === showTreatmentProcess ? null : facilityId);
   };
 
   const handleViewReviews = (facilityId) => {
@@ -690,6 +895,7 @@ const NearbyFacilitiesPage = () => {
                     const ratingDistribution = getRatingDistribution(facility.id);
                     const reviewStats = getReviewStats(facility.id);
                     const isExpanded = expandedFacilityId === facility.id;
+                    const isProcessExpanded = showTreatmentProcess === facility.id;
                     
                     return (
                       <div key={facility.id} className="facility-item">
@@ -768,8 +974,141 @@ const NearbyFacilitiesPage = () => {
                               <i className={`bi ${isExpanded ? 'bi-chat-left-text-fill' : 'bi-chat-left-text'}`}></i>
                               {isExpanded ? 'Đóng đánh giá' : 'Xem đánh giá'}
                             </button>
+                            <button
+                                className={`btn ${isProcessExpanded ? 'btn-warning' : 'btn-outline-warning'}`}
+                                onClick={() => handleShowTreatmentProcess(facility.id)}
+                                title="Xem quy trình khám bệnh"
+                              >
+                                <i className={`bi ${isProcessExpanded ? 'bi-diagram-3-fill' : 'bi-diagram-3'}`}></i>
+                                {isProcessExpanded ? 'Đóng quy trình' : 'Quy trình'}
+                              </button>
                           </div>
                         </div>
+
+{/* PHẦN QUY TRÌNH KHÁM BỆNH - THÊM MỚI */}
+                        {isProcessExpanded && facility.treatmentProcess && (
+                          <div className="treatment-process-section mt-3">
+                            <div className="process-header">
+                              <h6>
+                                <i className="bi bi-clipboard-check me-2"></i>
+                                Quy trình khám tại {facility.name}
+                              </h6>
+                              <div className="estimated-time">
+                                <i className="bi bi-clock-history me-1"></i>
+                                Thời gian dự kiến: <strong>{facility.treatmentProcess.estimatedTime}</strong>
+                              </div>
+                            </div>
+
+                            <div className="process-steps">
+                              {facility.treatmentProcess.steps.map((step) => (
+                                <div key={step.step} className="process-step">
+                                  <div className="step-number">{step.step}</div>
+                                  <div className="step-content">
+                                    <div className="step-header">
+                                      <h6 className="mb-0">{step.title}</h6>
+                                      <div className="step-meta">
+                                        <span className="location">
+                                          <i className="bi bi-geo-alt me-1"></i>
+                                          {step.location}
+                                        </span>
+                                        <span className="duration">
+                                          <i className="bi bi-clock me-1"></i>
+                                          {step.duration}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <p className="step-description mb-2">{step.description}</p>
+                                    {step.requirements && step.requirements.length > 0 && (
+                                      <div className="step-requirements">
+                                        <small className="text-muted">Cần chuẩn bị:</small>
+                                        <div className="requirements-tags">
+                                          {step.requirements.map((req, idx) => (
+                                            <span key={idx} className="badge bg-light text-dark me-1">
+                                              {req}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Lưu ý và đặc điểm đặc biệt */}
+                            <div className="row mt-3">
+                              <div className="col-md-6">
+                                <div className="process-notes">
+                                  <h6>
+                                    <i className="bi bi-exclamation-circle me-2"></i>
+                                    Lưu ý quan trọng
+                                  </h6>
+                                  <ul className="notes-list">
+                                    {facility.treatmentProcess.notes.map((note, idx) => (
+                                      <li key={idx}>
+                                        <i className="bi bi-check-circle me-2 text-success"></i>
+                                        <small>{note}</small>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="special-features">
+                                  <h6>
+                                    <i className="bi bi-star me-2"></i>
+                                    Đặc điểm nổi bật
+                                  </h6>
+                                  <ul className="features-list">
+                                    {facility.treatmentProcess.specialFeatures.map((feature, idx) => (
+                                      <li key={idx}>
+                                        <i className="bi bi-plus-circle me-2 text-primary"></i>
+                                        <small>{feature}</small>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Tips cho người mới */}
+                            <div className="tips-section mt-3 p-2 bg-light rounded">
+                              <h6 className="mb-2">
+                                <i className="bi bi-lightbulb me-2"></i>
+                                Mẹo hữu ích cho lần đầu đến
+                              </h6>
+                              <div className="row g-2">
+                                <div className="col-md-4">
+                                  <div className="tip-item d-flex align-items-center">
+                                    <i className="bi bi-alarm text-primary me-2"></i>
+                                    <div>
+                                      <strong>Đến sớm:</strong>
+                                      <small> Nên đến trước 15-30 phút</small>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="col-md-4">
+                                  <div className="tip-item d-flex align-items-center">
+                                    <i className="bi bi-folder text-primary me-2"></i>
+                                    <div>
+                                      <strong>Hồ sơ đầy đủ:</strong>
+                                      <small> Mang theo giấy tờ liên quan</small>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="col-md-4">
+                                  <div className="tip-item d-flex align-items-center">
+                                    <i className="bi bi-cash-coin text-primary me-2"></i>
+                                    <div>
+                                      <strong>Thanh toán:</strong>
+                                      <small> Chuẩn bị nhiều phương thức</small>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         {/* Phần đánh giá expandable */}
                         {isExpanded && (

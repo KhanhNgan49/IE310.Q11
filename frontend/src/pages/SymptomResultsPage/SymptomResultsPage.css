@@ -1350,3 +1350,179 @@
     width: 100%;
   }
 }
+
+/* Treatment Process Styles */
+.treatment-process-section {
+  background-color: #f8f9fa;
+  border-top: 2px solid #0d6efd;
+  padding: 20px;
+  margin-top: 10px;
+  border-radius: 0 0 8px 8px;
+}
+
+.process-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.estimated-time {
+  background-color: #e7f1ff;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.process-steps {
+  position: relative;
+  padding-left: 40px;
+}
+
+.process-steps::before {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #0d6efd;
+  opacity: 0.3;
+}
+
+.process-step {
+  display: flex;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.step-number {
+  position: absolute;
+  left: -45px;
+  width: 40px;
+  height: 40px;
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  z-index: 1;
+}
+
+.step-content {
+  flex: 1;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.step-header h6 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.step-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.step-description {
+  margin-bottom: 10px;
+  color: #495057;
+}
+
+.step-requirements {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #dee2e6;
+}
+
+.requirements-tags {
+  margin-top: 5px;
+}
+
+.notes-list,
+.features-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.notes-list li,
+.features-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.notes-list li:last-child,
+.features-list li:last-child {
+  border-bottom: none;
+}
+
+.tips-section {
+  background-color: #f8f9fa !important;
+  border: 1px solid #e9ecef;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.tip-item i {
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.tip-item strong {
+  margin-right: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .process-steps {
+    padding-left: 30px;
+  }
+  
+  .step-number {
+    left: -35px;
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+  
+  .step-header {
+    flex-direction: column;
+  }
+  
+  .step-meta {
+    margin-top: 5px;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .process-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .estimated-time {
+    margin-top: 10px;
+  }
+}

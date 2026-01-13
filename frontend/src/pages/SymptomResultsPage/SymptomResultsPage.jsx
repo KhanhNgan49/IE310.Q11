@@ -24,6 +24,63 @@ const healthcareFacilities = [
       'Nội tổng quát': 9,
       'Hô hấp': 8,
       'Tim mạch': 7
+    },
+treatmentProcess: {
+      estimatedTime: '2-4 giờ',
+      steps: [
+        {
+          step: 1,
+          title: 'Tiếp nhận & Đăng ký',
+          description: 'Đến quầy tiếp nhận, xuất trình CMND/CCCD, thẻ BHYT và mã đặt lịch (nếu có)',
+          location: 'Tầng 1 - Quầy tiếp nhận',
+          duration: '10-15 phút',
+          requirements: ['CMND/CCCD', 'Thẻ BHYT', 'Mã đặt lịch']
+        },
+        {
+          step: 2,
+          title: 'Khám lâm sàng',
+          description: 'Bác sĩ khám tổng quát, hỏi bệnh sử và thăm khám triệu chứng',
+          location: 'Tầng 2 - Phòng khám số 201-210',
+          duration: '20-30 phút',
+          requirements: ['Phiếu khám bệnh', 'Sổ khám bệnh (nếu có)']
+        },
+        {
+          step: 3,
+          title: 'Xét nghiệm/Chẩn đoán',
+          description: 'Thực hiện các xét nghiệm cần thiết theo chỉ định của bác sĩ',
+          location: 'Tầng 3 - Khoa xét nghiệm',
+          duration: '30-60 phút',
+          requirements: ['Phiếu chỉ định xét nghiệm', 'Mẫu bệnh phẩm (nếu cần)']
+        },
+        {
+          step: 4,
+          title: 'Tư vấn & Kê đơn',
+          description: 'Bác sĩ tư vấn kết quả, kê đơn thuốc và hướng dẫn điều trị',
+          location: 'Tầng 2 - Phòng khám ban đầu',
+          duration: '15-20 phút',
+          requirements: ['Kết quả xét nghiệm', 'Phiếu tư vấn']
+        },
+        {
+          step: 5,
+          title: 'Thanh toán & Nhận thuốc',
+          description: 'Thanh toán viện phí và nhận thuốc tại quầy dược',
+          location: 'Tầng 1 - Quầy thanh toán & Dược',
+          duration: '15-20 phút',
+          requirements: ['Hóa đơn', 'Đơn thuốc']
+        }
+      ],
+      notes: [
+        'Bệnh nhân cần đến trước 15 phút so với giờ hẹn',
+        'Mang theo toàn bộ hồ sơ bệnh án cũ (nếu có)',
+        'Có thể thanh toán bằng tiền mặt, thẻ hoặc ví điện tử',
+        'Hỗ trợ làm thủ tục BHYT ngay tại chỗ'
+      ],
+      specialFeatures: [
+        'Hỗ trợ đặt lịch online 24/7',
+        'Có khu vực chờ có wifi, nước uống miễn phí',
+        'Hỗ trợ người khuyết tật, phụ nữ có thai',
+        'Dịch vụ lấy máu xét nghiệm tại nhà (có phí)'
+      ]
     }
   },
   {
@@ -46,6 +103,56 @@ const healthcareFacilities = [
       'Tai Mũi Họng': 9,
       'Thần kinh': 8,
       'Nội tổng quát': 7
+    },
+    // THÊM: Quy trình khám chữa bệnh
+    treatmentProcess: {
+      estimatedTime: '1-2 giờ',
+      steps: [
+        {
+          step: 1,
+          title: 'Check-in & Tư vấn ban đầu',
+          description: 'Nhân viên tiếp đón, hướng dẫn thủ tục và đưa vào phòng chờ VIP',
+          location: 'Sảnh chính - Bàn tiếp tân',
+          duration: '5-10 phút',
+          requirements: ['CMND/Passport', 'Thẻ bảo hiểm']
+        },
+        {
+          step: 2,
+          title: 'Khám chuyên sâu',
+          description: 'Bác sĩ chuyên khoa khám trực tiếp, có thể sử dụng thiết bị chẩn đoán tại phòng',
+          location: 'Phòng khám chuyên khoa',
+          duration: '30-45 phút',
+          requirements: []
+        },
+        {
+          step: 3,
+          title: 'Xét nghiệm nhanh',
+          description: 'Thực hiện xét nghiệm cơ bản ngay tại phòng khám',
+          location: 'Phòng xét nghiệm tại chỗ',
+          duration: '15-25 phút',
+          requirements: []
+        },
+        {
+          step: 4,
+          title: 'Tư vấn & Kết luận',
+          description: 'Bác sĩ giải thích kết quả, tư vấn điều trị chi tiết',
+          location: 'Phòng tư vấn riêng',
+          duration: '20-30 phút',
+          requirements: []
+        }
+      ],
+      notes: [
+        'Không cần chờ đợi lâu, có lịch hẹn chính xác theo giờ',
+        'Bác sĩ nói được tiếng Anh, tiếng Hàn, tiếng Nhật',
+        'Có dịch vụ chăm sóc sau khám qua điện thoại',
+        'Xuất hóa đơn cho bảo hiểm quốc tế'
+      ],
+      specialFeatures: [
+        'Phòng chờ VIP với đồ uống cao cấp',
+        'Bác sĩ nước ngoài có chứng chỉ quốc tế',
+        'Hệ thống đặt lịch thông minh, ít phải chờ',
+        'Dịch vụ chăm sóc khách hàng 1:1'
+      ]
     }
   },
   {
@@ -68,9 +175,67 @@ const healthcareFacilities = [
       'Tiêu hóa': 9,
       'Nội tổng quát': 8,
       'Cơ Xương Khớp': 6
+    },
+    // THÊM: Quy trình khám chữa bệnh
+    treatmentProcess: {
+      estimatedTime: '2-3 giờ',
+      steps: [
+        {
+          step: 1,
+          title: 'Lấy số thứ tự',
+          description: 'Lấy số thứ tự tự động tại máy lấy số ở cổng vào',
+          location: 'Cổng chính - Máy lấy số',
+          duration: '5-10 phút',
+          requirements: ['Thẻ BHYT', 'CMND']
+        },
+        {
+          step: 2,
+          title: 'Khai báo y tế',
+          description: 'Điền thông tin vào phiếu khám bệnh và khai báo y tế',
+          location: 'Quầy khai báo',
+          duration: '10-15 phút',
+          requirements: []
+        },
+        {
+          step: 3,
+          title: 'Khám theo số thứ tự',
+          description: 'Chờ gọi số và vào khám theo đúng số thứ tự',
+          location: 'Phòng khám tập trung',
+          duration: '20-40 phút',
+          requirements: ['Phiếu khám bệnh', 'Số thứ tự']
+        },
+        {
+          step: 4,
+          title: 'Thực hiện chỉ định',
+          description: 'Thực hiện xét nghiệm, siêu âm tại các phòng chức năng',
+          location: 'Các phòng chức năng',
+          duration: '30-60 phút',
+          requirements: ['Phiếu chỉ định']
+        },
+        {
+          step: 5,
+          title: 'Trả kết quả & Thanh toán',
+          description: 'Nhận kết quả và thanh toán theo diện BHYT hoặc tự trả',
+          location: 'Quầy trả kết quả & Thu ngân',
+          duration: '15-25 phút',
+          requirements: ['Phiếu thu', 'Kết quả xét nghiệm']
+        }
+      ],
+      notes: [
+        'Ưu tiên khám cho đối tượng hưởng BHYT',
+        'Có thể đông bệnh nhân vào buổi sáng',
+        'Miễn phí khám cho một số đối tượng chính sách',
+        'Làm việc cả thứ 7, nghỉ Chủ nhật'
+      ],
+      specialFeatures: [
+        'Chi phí thấp, phù hợp BHYT',
+        'Có xe cấp cứu lưu động',
+        'Khám từ thiện định kỳ',
+        'Tư vấn sức khỏe cộng đồng miễn phí'
+      ]
     }
   },
-  {
+   {
     id: 4,
     name: 'Bệnh viện Nhi Đồng',
     address: '15 Võ Trường Toản, Quận 1, TP.HCM',
@@ -90,6 +255,56 @@ const healthcareFacilities = [
       'Nhi khoa': 10,
       'Hô hấp': 8,
       'Nội tổng quát': 7
+    },
+    // THÊM: Quy trình khám chữa bệnh
+    treatmentProcess: {
+      estimatedTime: '2-4 giờ',
+      steps: [
+        {
+          step: 1,
+          title: 'Phân loại tiếp nhận',
+          description: 'Y tá phân loại mức độ khẩn cấp, hướng dẫn thủ tục phù hợp',
+          location: 'Khu tiếp nhận trẻ em',
+          duration: '10-15 phút',
+          requirements: ['Giấy khai sinh/CMND trẻ', 'Sổ khám bệnh']
+        },
+        {
+          step: 2,
+          title: 'Khám nhi khoa',
+          description: 'Bác sĩ nhi khoa khám, đánh giá tình trạng trẻ',
+          location: 'Phòng khám nhi theo độ tuổi',
+          duration: '20-30 phút',
+          requirements: []
+        },
+        {
+          step: 3,
+          title: 'Vui chơi chờ xét nghiệm',
+          description: 'Trẻ có thể vui chơi tại khu vực chờ đặc biệt trong khi chờ xét nghiệm',
+          location: 'Khu vui chơi trẻ em',
+          duration: '30-60 phút',
+          requirements: []
+        },
+        {
+          step: 4,
+          title: 'Tư vấn cha mẹ',
+          description: 'Bác sĩ tư vấn phụ huynh về cách chăm sóc, điều trị tại nhà',
+          location: 'Phòng tư vấn gia đình',
+          duration: '15-25 phút',
+          requirements: []
+        }
+      ],
+      notes: [
+        'Có khu vực thay tã, pha sữa miễn phí',
+        'Đội ngũ bác sĩ chuyên về tâm lý trẻ em',
+        'Hệ thống theo dõi bệnh nhi hiện đại',
+        'Có phòng cách ly cho bệnh truyền nhiễm'
+      ],
+      specialFeatures: [
+        'Khu vui chơi có giám sát y tế',
+        'Bác sĩ biết cách giao tiếp với trẻ',
+        'Thiết bị chuyên dụng cho trẻ sơ sinh',
+        'Chương trình giáo dục sức khỏe cho phụ huynh'
+      ]
     }
   },
   {
@@ -112,6 +327,56 @@ const healthcareFacilities = [
       'Tim mạch': 10,
       'Hô hấp': 8,
       'Nội tổng quát': 8
+    },
+    // THÊM: Quy trình khám chữa bệnh
+    treatmentProcess: {
+      estimatedTime: '1.5-2.5 giờ',
+      steps: [
+        {
+          step: 1,
+          title: 'Đo điện tâm đồ cơ bản',
+          description: 'Thực hiện đo ECG ngay khi check-in để đánh giá ban đầu',
+          location: 'Phòng đo điện tim',
+          duration: '10 phút',
+          requirements: []
+        },
+        {
+          step: 2,
+          title: 'Khám tim mạch chuyên sâu',
+          description: 'Bác sĩ chuyên khoa tim mạch khám và đánh giá toàn diện',
+          location: 'Phòng khám tim mạch',
+          duration: '30-40 phút',
+          requirements: ['Kết quả ECG', 'Hồ sơ bệnh tim (nếu có)']
+        },
+        {
+          step: 3,
+          title: 'Siêu âm tim Doppler',
+          description: 'Thực hiện siêu âm tim để đánh giá cấu trúc và chức năng tim',
+          location: 'Phòng siêu âm tim',
+          duration: '20-30 phút',
+          requirements: []
+        },
+        {
+          step: 4,
+          title: 'Tư vấn điều trị dài hạn',
+          description: 'Lập kế hoạch điều trị, theo dõi và tư vấn lối sống',
+          location: 'Phòng tư vấn tim mạch',
+          duration: '20-30 phút',
+          requirements: ['Kết quả siêu âm', 'Đơn thuốc (nếu có)']
+        }
+      ],
+      notes: [
+        'Cần nhịn ăn 4-6 giờ trước khi khám tim',
+        'Mang theo tất cả thuốc đang sử dụng',
+        'Có dịch vụ theo dõi huyết áp 24h',
+        'Tư vấn dinh dưỡng cho bệnh nhân tim mạch'
+      ],
+      specialFeatures: [
+        'Máy đo ECG thế hệ mới',
+        'Bác sĩ tim mạch từ bệnh viện đầu ngành',
+        'Dịch vụ đặt stent, can thiệp mạch vành',
+        'Câu lạc bộ bệnh nhân tim mạch'
+      ]
     }
   },
   {
@@ -134,9 +399,60 @@ const healthcareFacilities = [
       'Tai Mũi Họng': 10,
       'Nội tổng quát': 7,
       'Hô hấp': 8
+    },
+    // THÊM: Quy trình khám chữa bệnh
+    treatmentProcess: {
+      estimatedTime: '1.5-3 giờ',
+      steps: [
+        {
+          step: 1,
+          title: 'Khám nội soi tai mũi họng',
+          description: 'Bác sĩ thực hiện nội soi để quan sát trực tiếp vùng bệnh',
+          location: 'Phòng nội soi TMH',
+          duration: '15-20 phút',
+          requirements: []
+        },
+        {
+          step: 2,
+          title: 'Đo thính lực (nếu cần)',
+          description: 'Kiểm tra thính lực bằng máy đo chuyên dụng',
+          location: 'Phòng đo thính lực',
+          duration: '20-30 phút',
+          requirements: []
+        },
+        {
+          step: 3,
+          title: 'Chẩn đoán hình ảnh',
+          description: 'Chụp X-quang, CT scan vùng đầu mặt cổ khi cần',
+          location: 'Khoa chẩn đoán hình ảnh',
+          duration: '30-45 phút',
+          requirements: ['Phiếu chỉ định']
+        },
+        {
+          step: 4,
+          title: 'Tư vấn phẫu thuật/Điều trị',
+          description: 'Bác sĩ tư vấn phương pháp điều trị hoặc lịch phẫu thuật',
+          location: 'Phòng tư vấn phẫu thuật',
+          duration: '20-30 phút',
+          requirements: ['Kết quả nội soi', 'Kết quả xét nghiệm']
+        }
+      ],
+      notes: [
+        'Không ăn uống trước khi nội soi 2 giờ',
+        'Báo trước nếu có dị ứng thuốc tê',
+        'Có phòng phẫu thuật một ngày',
+        'Theo dõi sau phẫu thuật tại nhà'
+      ],
+      specialFeatures: [
+        'Hệ thống nội soi 4K hiện đại',
+        'Phòng phẫu thuật vi phẫu tai',
+        'Dịch vụ cấy ốc tai điện tử',
+        'Phục hồi chức năng ngôn ngữ'
+      ]
     }
   }
 ];
+
 
 // Dữ liệu mẫu đánh giá theo bệnh viện
 const facilityReviews = {
@@ -342,6 +658,7 @@ const SymptomResults = () => {
   const [loading, setLoading] = useState(true);
   const [expandedFacilityId, setExpandedFacilityId] = useState(null);
   const [reviewFilter, setReviewFilter] = useState('all');
+  const [showTreatmentProcess, setShowTreatmentProcess] = useState(null);
 
   // THÊM STATE CHO BOOKING MODAL
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -383,6 +700,11 @@ const SymptomResults = () => {
       setExpandedFacilityId(facilityId);
     }
     setReviewFilter('all');
+  };
+
+   // HÀM HIỂN THỊ QUY TRÌNH KHÁM BỆNH
+  const handleShowTreatmentProcess = (facilityId) => {
+    setShowTreatmentProcess(facilityId === showTreatmentProcess ? null : facilityId);
   };
 
   // Lấy đánh giá theo facilityId và filter
@@ -813,10 +1135,139 @@ const SymptomResults = () => {
                               <i className={`bi ${isExpanded ? 'bi-chat-left-text-fill' : 'bi-chat-left-text'}`}></i>
                               {isExpanded ? 'Đóng đánh giá' : 'Xem đánh giá'}
                             </button>
+                            {/* THÊM NÚT XEM QUY TRÌNH */}
+                            <button
+                              className={`btn ${showTreatmentProcess === facility.id ? 'btn-info' : 'btn-outline-info'}`}
+                              onClick={() => handleShowTreatmentProcess(facility.id)}
+                            >
+                              <i className="bi bi-diagram-3"></i>
+                              {showTreatmentProcess === facility.id ? 'Đóng quy trình' : 'Xem quy trình'}
+                            </button>
                           </div>
                         </div>
                       </div>
 
+{/* PHẦN QUY TRÌNH KHÁM BỆNH - THÊM MỚI */}
+                      {showTreatmentProcess === facility.id && facility.treatmentProcess && (
+                        <div className="treatment-process-section">
+                          <div className="process-header">
+                            <h5>
+                              <i className="bi bi-clipboard-check me-2"></i>
+                              Quy trình khám chữa bệnh tại {facility.name}
+                            </h5>
+                            <div className="estimated-time">
+                              <i className="bi bi-clock-history me-1"></i>
+                              Thời gian dự kiến: <strong>{facility.treatmentProcess.estimatedTime}</strong>
+                            </div>
+                          </div>
+
+                          <div className="process-steps">
+                            {facility.treatmentProcess.steps.map((step) => (
+                              <div key={step.step} className="process-step">
+                                <div className="step-number">{step.step}</div>
+                                <div className="step-content">
+                                  <div className="step-header">
+                                    <h6>{step.title}</h6>
+                                    <div className="step-meta">
+                                      <span className="location">
+                                        <i className="bi bi-geo-alt me-1"></i>
+                                        {step.location}
+                                      </span>
+                                      <span className="duration">
+                                        <i className="bi bi-clock me-1"></i>
+                                        {step.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <p className="step-description">{step.description}</p>
+                                  {step.requirements && step.requirements.length > 0 && (
+                                    <div className="step-requirements">
+                                      <small className="text-muted">Cần chuẩn bị:</small>
+                                      <div className="requirements-tags">
+                                        {step.requirements.map((req, idx) => (
+                                          <span key={idx} className="badge bg-light text-dark me-1">
+                                            {req}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Lưu ý và đặc điểm đặc biệt */}
+                          <div className="row mt-4">
+                            {facility.treatmentProcess.notes && facility.treatmentProcess.notes.length > 0 && (
+                              <div className="col-md-6">
+                                <div className="process-notes">
+                                  <h6>
+                                    <i className="bi bi-exclamation-circle me-2"></i>
+                                    Lưu ý quan trọng
+                                  </h6>
+                                  <ul className="notes-list">
+                                    {facility.treatmentProcess.notes.map((note, idx) => (
+                                      <li key={idx}>
+                                        <i className="bi bi-check-circle me-2 text-success"></i>
+                                        {note}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            )}
+
+                            {facility.treatmentProcess.specialFeatures && facility.treatmentProcess.specialFeatures.length > 0 && (
+                              <div className="col-md-6">
+                                <div className="special-features">
+                                  <h6>
+                                    <i className="bi bi-star me-2"></i>
+                                    Đặc điểm nổi bật
+                                  </h6>
+                                  <ul className="features-list">
+                                    {facility.treatmentProcess.specialFeatures.map((feature, idx) => (
+                                      <li key={idx}>
+                                        <i className="bi bi-plus-circle me-2 text-primary"></i>
+                                        {feature}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Tips cho người mới */}
+                          <div className="tips-section mt-4 p-3 bg-light rounded">
+                            <h6>
+                              <i className="bi bi-lightbulb me-2"></i>
+                              Mẹo cho người lần đầu đến khám
+                            </h6>
+                            <div className="row">
+                              <div className="col-md-4">
+                                <div className="tip-item">
+                                  <i className="bi bi-alarm text-primary"></i>
+                                  <strong>Đến sớm:</strong> Nên đến trước 15-30 phút để làm thủ tục
+                                </div>
+                              </div>
+                              <div className="col-md-4">
+                                <div className="tip-item">
+                                  <i className="bi bi-folder text-primary"></i>
+                                  <strong>Hồ sơ đầy đủ:</strong> Mang theo tất cả giấy tờ liên quan
+                                </div>
+                              </div>
+                              <div className="col-md-4">
+                                <div className="tip-item">
+                                  <i className="bi bi-question-circle text-primary"></i>
+                                  <strong>Hỏi kỹ:</strong> Đừng ngần ngại hỏi nhân viên nếu không rõ
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Phần đánh giá expandable - CẬP NHẬT LẠI */}
                       {isExpanded && (
                         <div className="facility-reviews">
@@ -948,23 +1399,6 @@ const SymptomResults = () => {
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div className="results-cta">
-        <div className="container">
-          <div className="cta-content">
-            <h3>Cần tư vấn thêm?</h3>
-            <p>Đội ngũ bác sĩ của chúng tôi sẵn sàng hỗ trợ bạn 24/7</p>
-            <div className="cta-buttons">
-              <Link to="/" className="btn btn-outline-light">
-                <i className="bi bi-search"></i> Tìm kiếm lại
-              </Link>
-              <button className="btn btn-light">
-                <i className="bi bi-headset"></i> Liên hệ tư vấn miễn phí
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* BOOKING MODAL */}
       {showBookingModal && selectedFacility && (
