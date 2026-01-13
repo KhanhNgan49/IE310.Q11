@@ -3,16 +3,15 @@
 
 ---
 
-## 📌 Thông tin dự án
+## Thông tin dự án
 
 - **Tên dự án:** Hệ thống bản đồ y tế quốc gia  
-- **Thời gian thực hiện:** 27/10/2025 – 27/12/2025  
-- **Loại dự án:** Đồ án môn học  
-- **Mô tả:** Ứng dụng web cung cấp bản đồ tương tác hiển thị thông tin các cơ sở y tế, nhà thuốc và vùng dịch trên toàn quốc, hỗ trợ người dùng tra cứu và quản trị viên quản lý dữ liệu.
+- **Thời gian hiện:** 27/10/2025 – 27/12/2025 
+- **Loại dự án:** Đồ án môn học
 
 ---
 
-## 👥 Thành viên nhóm
+## Thành viên nhóm
 
 | STT | Họ và tên           | MSSV     |
 |-----|---------------------|----------|
@@ -24,7 +23,7 @@
 
 ---
 
-## ⚙️ Cấu hình môi trường (Environment Variables)
+## Cấu hình môi trường (Environment Variables)
 
 Tạo file `.env` trong thư mục **backend** với các biến sau:
 
@@ -47,7 +46,7 @@ JWT_REFRESH_SECRET=<refresh_token_key>
 
 ---
 
-## 🚀 Hướng dẫn chạy dự án
+## Hướng dẫn chạy dự án
 
 ### Phần Backend
 1. **Di chuyển vào thư mục backend**
